@@ -1,14 +1,13 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" tools:context="com.premature.floscript.ScriptingFragment">
+    android:layout_height="match_parent" tools:context="com.premature.floscript.scripts.ui.ScriptingFragment">
 
     <!-- TODO: Update blank fragment layout -->
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Click Me!"
-        android:id="@+id/hello_button"
-        android:layout_gravity="left|top" />
+    <view
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        class="com.premature.floscript.scripts.ui.ScriptEditorView"
+        android:id="@+id/script_editor" />
 
 </FrameLayout>

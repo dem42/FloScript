@@ -12,7 +12,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import com.premature.floscript.OnFragmentInteractionListener;
 import com.premature.floscript.R;
 
 import com.premature.floscript.jobs.dummy.DummyContent;
@@ -23,7 +22,7 @@ import com.premature.floscript.jobs.dummy.DummyContent;
  * Large screen devices (such as tablets) are supported by replacing the ListView
  * with a GridView.
  * <p/>
- * Activities containing this fragment MUST implement the {@link com.premature.floscript.OnFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link com.premature.floscript.jobs.JobsFragment.OnJobsFragmentInteractionListener}
  * interface.
  */
 public class JobsFragment extends Fragment implements AbsListView.OnItemClickListener {
@@ -38,7 +37,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     private String mParam1;
     private String mParam2;
 
-    private OnFragmentInteractionListener mListener;
+    private OnJobsFragmentInteractionListener mListener;
 
     /**
      * The fragment's ListView/GridView.
@@ -101,7 +100,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mListener = (OnFragmentInteractionListener) activity;
+            mListener = (OnJobsFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -120,7 +119,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(DummyContent.ITEMS.get(position).id);
+            mListener.onJobsFragmentInteraction(DummyContent.ITEMS.get(position).id);
         }
     }
 
@@ -135,5 +134,12 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         if (emptyView instanceof TextView) {
             ((TextView) emptyView).setText(emptyText);
         }
+    }
+
+    /**
+     * This interface must be implemented by any activity that contains the JobsFragment
+     */
+    public static interface OnJobsFragmentInteractionListener {
+        void onJobsFragmentInteraction(String id);
     }
 }

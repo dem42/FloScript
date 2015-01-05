@@ -1,7 +1,9 @@
-package com.premature.floscript.scripts;
+package com.premature.floscript.scripts.logic;
 
 /**
  * Created by martin on 02/01/15.
+ *
+ * This class encapsulates a flowscript
  */
 public class Script {
     private final String sourceCode;

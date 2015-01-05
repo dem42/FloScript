@@ -1,16 +1,13 @@
-package com.premature.floscript.scripts;
-
-import android.content.Context;
-import android.widget.Toast;
+package com.premature.floscript.scripts.logic;
 
 import org.mozilla.javascript.*;
 
-import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 
 /**
  * Created by martin on 02/01/15.
+ *
+ * This class is responsible for executing instances of {@link com.premature.floscript.scripts.logic.Script} objects.
  */
 public class ScriptEngine {
 
@@ -20,7 +17,7 @@ public class ScriptEngine {
         this.writer = new StringWriter();
     }
 
-    public String runScript(Script script) {
+    public String runScript(com.premature.floscript.scripts.logic.Script script) {
         // Creates and enters a Context. The Context stores information
         // about the execution environment of a script.
         org.mozilla.javascript.Context cx = org.mozilla.javascript.Context.enter();

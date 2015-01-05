@@ -1,24 +1,27 @@
 package com.premature.floscript;
 
-import java.util.Locale;
-
 import android.net.Uri;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.premature.floscript.jobs.JobsFragment;
+import com.premature.floscript.scripts.ui.ScriptingFragment;
 
 
+/**
+ * The top level class of the floscript app. All it does is contain two fragments a {@link com.premature.floscript.jobs.JobsFragment}
+ * and a {@link com.premature.floscript.scripts.ui.ScriptingFragment}
+ */
 public class MainActivity extends ActionBarActivity implements ActionBar.TabListener,
-        OnFragmentInteractionListener {
+        JobsFragment.OnJobsFragmentInteractionListener, ScriptingFragment.OnScriptingFragmentInteractionListener {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -114,7 +117,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     @Override
-    public void onFragmentInteraction(String uri) {
+    public void onJobsFragmentInteraction(String id) {
+
+    }
+
+    @Override
+    public void onScriptingFragmentInteraction(Uri uri) {
 
     }
 
@@ -140,13 +148,12 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
+            // Show 2 total pages.
             return 2;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            Locale l = Locale.getDefault();
             switch (position) {
                 case 0:
                     return JobsFragment.TITLE;
