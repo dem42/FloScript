@@ -15,6 +15,9 @@ import android.view.MenuItem;
 import com.premature.floscript.jobs.JobsFragment;
 import com.premature.floscript.scripts.ui.ScriptingFragment;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 
 /**
  * The top level class of the floscript app. All it does is contain two fragments a {@link com.premature.floscript.jobs.JobsFragment}
@@ -36,12 +39,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     /**
      * The {@link ViewPager} that will host the section contents.
      */
-    ViewPager mViewPager;
+    @InjectView(R.id.pager) ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ButterKnife.inject(this);
 
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
@@ -52,7 +57,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         // When swiping between different sections, select the corresponding
