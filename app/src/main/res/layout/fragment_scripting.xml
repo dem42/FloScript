@@ -7,7 +7,7 @@
     <view
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        class="com.premature.floscript.scripts.ui.ScriptEditorView"
+        class="com.premature.floscript.scripts.ui.DiagramEditorView"
         android:id="@+id/script_editor" />
 
 </FrameLayout>

@@ -140,8 +140,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             switch(position) {
-                case 0: return new JobsFragment();
-                case 1: return new ScriptingFragment();
+                case 0: return new ScriptingFragment();
+                case 1: return new JobsFragment();
             }
             return null;
         }
@@ -156,9 +156,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return JobsFragment.TITLE;
-                case 1:
                     return ScriptingFragment.TITLE;
+
+                case 1:
+                    return JobsFragment.TITLE;
             }
             return null;
         }

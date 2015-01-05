@@ -21,7 +21,7 @@ public class ScriptEngine {
         // Creates and enters a Context. The Context stores information
         // about the execution environment of a script.
         org.mozilla.javascript.Context cx = org.mozilla.javascript.Context.enter();
-        cx.setOptimizationLevel(-1); // turn off because otherwise it does jit with java bytecode not dalvik
+        cx.setOptimizationLevel(-1); // turn off because otherwise it does jit generating jvm bytecode not dalvik
         try {
             // Initialize the standard objects (Object, Function, etc.)
             // This must be done before scripts can be executed. Returns
