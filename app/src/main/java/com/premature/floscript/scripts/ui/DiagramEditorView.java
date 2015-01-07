@@ -26,8 +26,11 @@ public class DiagramEditorView extends View {
     private static final String TAG = "DIAGRAM_EDITOR";
 
     private Paint myPaint;
-    private ArrowUiElement arrow;
     private float densityScale;
+
+    private ArrowUiElement arrow;
+    private DiamondUiElement diamond;
+    private LogicBlockUiElement logicBlock;
 
     public DiagramEditorView(Context context) {
         super(context);
@@ -57,7 +60,11 @@ public class DiagramEditorView extends View {
 
         a.recycle();
 
+        // get the drawable ui elements
         arrow = new ArrowUiElement();
+        diamond = new DiamondUiElement();
+        logicBlock = new LogicBlockUiElement();
+
         myPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         myPaint.setStyle(Paint.Style.FILL);
         myPaint.setColor(Color.RED);
@@ -80,7 +87,7 @@ public class DiagramEditorView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawColor(Color.BLACK);
+        drawBackground(canvas);
         int saveCount0 = canvas.save();
         float paddingLeft = getPaddingLeft() / densityScale;
         float paddingTop = getPaddingTop() / densityScale;
@@ -88,27 +95,22 @@ public class DiagramEditorView extends View {
         float paddingBottom = getPaddingBottom() /densityScale;
         float contentWidth = getWidth() / densityScale - paddingLeft - paddingRight;
         float contentHeight = getHeight() / densityScale - paddingTop - paddingBottom;
+        int center_x = (int) (paddingLeft + contentWidth / 2);
+        int center_y = (int) (paddingTop + contentHeight / 2);
 
         // we will draw everything in mdpi coords so that we can use a physical coord system
         // this means that we need to scale up to the size of our device
         // and then everything will have the same physical size on all devices
-
         canvas.scale(densityScale, densityScale);
 
-        //canvas.drawCircle(0.5f, 0.5f, 0.05f, myPaint);
-        //canvas.drawCircle(getWidth() /2f, getHeight() / 2f, 300, myPaint);
+        arrow.advanceBy(center_x, center_y).draw(canvas);
+        diamond.advanceBy(center_x + arrow.getWidth(), center_y + arrow.getHeight()).draw(canvas);
+        logicBlock.advanceBy(10, 10).draw(canvas);
 
-
-        Drawable arrowDrawable = arrow.getDrawable();
-        //50dp is about the physical size of a finger
-
-        int center_x = (int) (paddingLeft + contentWidth / 2);
-        int center_y = (int) (paddingTop + contentHeight / 2);
-        Log.i(TAG, "scaled coords " + center_x + "," + center_y);
-        arrowDrawable.setBounds(center_x, center_y,
-                center_x + 50, center_y + 50);
-        arrowDrawable.draw(canvas);
         canvas.restoreToCount(saveCount0);
+    }
 
+    private void drawBackground(Canvas canvas) {
+        canvas.drawColor(Color.WHITE);
     }
 }

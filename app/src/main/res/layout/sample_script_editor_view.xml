@@ -4,14 +4,11 @@
 
     <com.premature.floscript.scripts.ui.DiagramEditorView
         android:id="@+id/script_editor"
-        android:background="#ccc"
+        android:background="#0c0c0c"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:paddingLeft="20dp"
         android:paddingBottom="40dp"
-        app:exampleDimension="24sp"
-        app:exampleColor="#33b5e5"
-        app:exampleString="Hello, ScriptEditorView"
-        app:exampleDrawable="@android:drawable/ic_menu_add" />
+        app:backgroundColor="#33b5e5"/>
 
 </FrameLayout>

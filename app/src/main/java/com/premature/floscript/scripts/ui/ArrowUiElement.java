@@ -2,29 +2,26 @@ package com.premature.floscript.scripts.ui;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
-import android.graphics.drawable.shapes.OvalShape;
 import android.graphics.drawable.shapes.PathShape;
 
 /**
  * Created by martin on 04/01/15.
- *
+ * <p/>
  * An arrow shape that represents the flow of logic in a flowchart diagram
  */
-public class ArrowUiElement implements DiagramElement {
+public class ArrowUiElement extends DiagramElement<ArrowUiElement> {
 
-    private Paint paint;
     private Path arrowPath;
     private PathShape arrowShape;
     private ShapeDrawable arrow;
     private float arrowLength;
 
     public ArrowUiElement() {
+        super(0f, 0f, 50, 50);
         this.arrowLength = 20;
         initShape();
     }
@@ -40,25 +37,28 @@ public class ArrowUiElement implements DiagramElement {
         arrowShape = new PathShape(arrowPath, arrowLength + 3f, arrowLength + 3f);
         arrow = new ShapeDrawable(arrowShape);
 
-        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(Color.RED);
-        paint.setStyle(Paint.Style.FILL);
-
-        //arrow = new ShapeDrawable(new OvalShape());
-        arrow.getPaint().setColor(Color.GREEN);
+        arrow.getPaint().setColor(Color.BLACK);
         arrow.getPaint().setStyle(Paint.Style.FILL);
         arrow.getPaint().setStrokeWidth(30);
         arrow.getPaint().setAntiAlias(true);
+        arrow.setBounds(0, 0, width, height);
     }
 
     @Override
     public void draw(Canvas canvas) {
-        arrow.setBounds(0, 0, 1, 1);
+        int saveCount = canvas.save();
+        canvas.translate(xPos, yPos);
         arrow.draw(canvas);
+        canvas.restoreToCount(saveCount);
     }
 
     @Override
     public Drawable getDrawable() {
         return arrow;
+    }
+
+    @Override
+    protected ArrowUiElement self() {
+        return this;
     }
 }

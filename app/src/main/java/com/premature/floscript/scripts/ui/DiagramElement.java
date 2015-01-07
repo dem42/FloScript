@@ -5,10 +5,54 @@ import android.graphics.drawable.Drawable;
 
 /**
  * Created by martin on 05/01/15.
- *
- * A drawable floscript diagram element
+ * <p/>
+ * A drawable floscript diagram element which has a position and size. It presents a fluent api for
+ * moving the drawable around the canvas with the methods {@link com.premature.floscript.scripts.ui.DiagramElement#moveTo(float, float) moveTo}
+ * and {@link com.premature.floscript.scripts.ui.DiagramElement#advanceBy(float, float) advanceBy}
  */
-public interface DiagramElement {
-    public void draw(Canvas canvas);
-    Drawable getDrawable();
+public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>> {
+
+    protected float xPos;
+    protected float yPos;
+    protected int width;
+    protected int height;
+
+    protected DiagramElement(float xPos, float yPos, int width, int height) {
+        this.xPos = xPos;
+        this.yPos = yPos;
+        this.width = width;
+        this.height = height;
+    }
+
+    public SELF_TYPE moveTo(float xPos, float yPos) {
+        this.xPos = xPos;
+        this.yPos = yPos;
+        return self();
+    }
+
+    public SELF_TYPE advanceBy(float xStep, float yStep) {
+        this.xPos += xStep;
+        this.yPos += yStep;
+        return self();
+    }
+
+    public float getxPos() {
+        return xPos;
+    }
+
+    public float getyPos() {
+        return yPos;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public abstract void draw(Canvas canvas);
+    public abstract Drawable getDrawable();
+    abstract protected SELF_TYPE self();
 }
