@@ -24,16 +24,21 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
         this.height = height;
     }
 
-    public SELF_TYPE moveTo(float xPos, float yPos) {
+    public synchronized SELF_TYPE moveTo(float xPos, float yPos) {
         this.xPos = xPos;
         this.yPos = yPos;
         return self();
     }
 
-    public SELF_TYPE advanceBy(float xStep, float yStep) {
+    public synchronized SELF_TYPE advanceBy(float xStep, float yStep) {
         this.xPos += xStep;
         this.yPos += yStep;
         return self();
+    }
+
+    public synchronized boolean contains(int xPosDps, int yPosDps) {
+        return xPos <= xPosDps && xPosDps <= xPos + width
+                && yPos <= yPosDps && yPosDps <= yPos + height;
     }
 
     public float getxPos() {

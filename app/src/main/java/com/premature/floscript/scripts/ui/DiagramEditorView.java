@@ -5,14 +5,18 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.shapes.OvalShape;
+import android.text.method.Touch;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 import com.premature.floscript.R;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This view is responsible for drawing a diagram of a floscript instance encapsulated
@@ -25,12 +29,17 @@ public class DiagramEditorView extends View {
 
     private static final String TAG = "DIAGRAM_EDITOR";
 
+    private TouchInputDevice touchInputDevice;
     private Paint myPaint;
     private float densityScale;
 
     private ArrowUiElement arrow;
     private DiamondUiElement diamond;
     private LogicBlockUiElement logicBlock;
+    private ScheduledExecutorService executor;
+    private ScheduledFuture<?> scheduledFuture;
+
+    private List<DiagramElement<?>> elements = new ArrayList<>();
 
     public DiagramEditorView(Context context) {
         super(context);
@@ -48,7 +57,6 @@ public class DiagramEditorView extends View {
     }
 
     private void init(AttributeSet attrs, int defStyle) {
-
         /* we turn of hardware acceleration for view drawing here because
         it doesn't play nice with scaling complex shapes
         see http://developer.android.com/guide/topics/graphics/hardware-accel.html#unsupported}*/
@@ -64,6 +72,9 @@ public class DiagramEditorView extends View {
         arrow = new ArrowUiElement();
         diamond = new DiamondUiElement();
         logicBlock = new LogicBlockUiElement();
+        elements.add(arrow);
+        elements.add(diamond);
+        elements.add(logicBlock);
 
         myPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         myPaint.setStyle(Paint.Style.FILL);
@@ -73,6 +84,53 @@ public class DiagramEditorView extends View {
         invalidateTextPaintAndMeasurements();
 
         densityScale = getResources().getDisplayMetrics().density;
+        touchInputDevice = new TouchInputDevice(densityScale);
+        this.setOnTouchListener(touchInputDevice);
+        executor = Executors.newScheduledThreadPool(1);
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        scheduledFuture = executor.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                handle(touchInputDevice.getEvents());
+            }
+        }, 0, 100, TimeUnit.MILLISECONDS);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(true);
+            scheduledFuture = null;
+        }
+    }
+
+    private void handle(Iterable<TouchInputDevice.TouchEvent> touchEvents) {
+        DiagramElement<?> touchedElement = null;
+        for (TouchInputDevice.TouchEvent touchEvent : touchEvents) {
+            if (touchedElement != null) {
+                touchedElement.moveTo(touchEvent.getxPosDips(), touchEvent.getyPosDips());
+            }
+            else {
+                touchedElement = findTouchedElement(touchEvent);
+            }
+        }
+        if (touchedElement != null) {
+            postInvalidate();
+        }
+    }
+
+    private DiagramElement<?> findTouchedElement(TouchInputDevice.TouchEvent touchEvent) {
+        for (DiagramElement<?> element : elements) {
+            if (element.contains(touchEvent.getxPosDips(), touchEvent.getyPosDips())) {
+                return element;
+            }
+        }
+        return null;
     }
 
     private void invalidateTextPaintAndMeasurements() {
