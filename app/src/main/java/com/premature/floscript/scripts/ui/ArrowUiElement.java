@@ -11,50 +11,50 @@ import android.graphics.drawable.shapes.PathShape;
 /**
  * Created by martin on 04/01/15.
  * <p/>
- * An arrow shape that represents the flow of logic in a flowchart diagram
+ * An mArrow shape that represents the flow of logic in a flowchart diagram
  */
 public class ArrowUiElement extends DiagramElement<ArrowUiElement> {
 
-    private Path arrowPath;
-    private PathShape arrowShape;
-    private ShapeDrawable arrow;
-    private float arrowLength;
+    private Path mArrowPath;
+    private PathShape mArrowShape;
+    private ShapeDrawable mArrow;
+    private float mArrowLength;
 
     public ArrowUiElement() {
         super(0f, 0f, 50, 50);
-        this.arrowLength = 20;
+        this.mArrowLength = 20;
         initShape();
     }
 
     private void initShape() {
-        arrowPath = new Path();
-        arrowPath.moveTo(arrowLength, 0f);
-        arrowPath.lineTo(arrowLength, 2f);
-        arrowPath.lineTo(arrowLength + 3f, 1f);
-        arrowPath.lineTo(arrowLength, 0f);
-        arrowPath.addRect(0f, 0.5f, arrowLength, 1.5f, Path.Direction.CW);
+        mArrowPath = new Path();
+        mArrowPath.moveTo(mArrowLength, 0f);
+        mArrowPath.lineTo(mArrowLength, 2f);
+        mArrowPath.lineTo(mArrowLength + 3f, 1f);
+        mArrowPath.lineTo(mArrowLength, 0f);
+        mArrowPath.addRect(0f, 0.5f, mArrowLength, 1.5f, Path.Direction.CW);
 
-        arrowShape = new PathShape(arrowPath, arrowLength + 3f, arrowLength + 3f);
-        arrow = new ShapeDrawable(arrowShape);
+        mArrowShape = new PathShape(mArrowPath, mArrowLength + 3f, mArrowLength + 3f);
+        mArrow = new ShapeDrawable(mArrowShape);
 
-        arrow.getPaint().setColor(Color.BLACK);
-        arrow.getPaint().setStyle(Paint.Style.FILL);
-        arrow.getPaint().setStrokeWidth(30);
-        arrow.getPaint().setAntiAlias(true);
-        arrow.setBounds(0, 0, width, height);
+        mArrow.getPaint().setColor(Color.BLACK);
+        mArrow.getPaint().setStyle(Paint.Style.FILL);
+        mArrow.getPaint().setStrokeWidth(30);
+        mArrow.getPaint().setAntiAlias(true);
+        mArrow.setBounds(0, 0, width, height);
     }
 
     @Override
     public void draw(Canvas canvas) {
         int saveCount = canvas.save();
         canvas.translate(xPos, yPos);
-        arrow.draw(canvas);
+        mArrow.draw(canvas);
         canvas.restoreToCount(saveCount);
     }
 
     @Override
     public Drawable getDrawable() {
-        return arrow;
+        return mArrow;
     }
 
     @Override
