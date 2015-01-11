@@ -91,5 +91,15 @@ public class TouchInputDevice implements View.OnTouchListener {
         public TouchEventType getTouchType() {
             return touchType;
         }
+
+        @Override
+        public String toString() {
+            return "TouchEvent{" +
+                    "xPosDips=" + xPosDips +
+                    ", yPosDips=" + yPosDips +
+                    ", pointerId=" + pointerId +
+                    ", touchType=" + touchType +
+                    '}';
+        }
     }
 }

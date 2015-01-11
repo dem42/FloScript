@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.text.method.Touch;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 import com.premature.floscript.R;
@@ -69,9 +70,9 @@ public class DiagramEditorView extends View {
         a.recycle();
 
         // get the drawable ui elements
-        arrow = new ArrowUiElement();
-        diamond = new DiamondUiElement();
-        logicBlock = new LogicBlockUiElement();
+        arrow = new ArrowUiElement().advanceBy(10, 10);
+        diamond = new DiamondUiElement().advanceBy(10, 10);
+        logicBlock = new LogicBlockUiElement().advanceBy(10, 10);
         elements.add(arrow);
         elements.add(diamond);
         elements.add(logicBlock);
@@ -92,12 +93,7 @@ public class DiagramEditorView extends View {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        scheduledFuture = executor.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                handle(touchInputDevice.getEvents());
-            }
-        }, 0, 100, TimeUnit.MILLISECONDS);
+        scheduledFuture = executor.scheduleWithFixedDelay(new ElementMover(this), 0, 1000, TimeUnit.MICROSECONDS);
     }
 
     @Override
@@ -109,18 +105,35 @@ public class DiagramEditorView extends View {
         }
     }
 
-    private void handle(Iterable<TouchInputDevice.TouchEvent> touchEvents) {
-        DiagramElement<?> touchedElement = null;
-        for (TouchInputDevice.TouchEvent touchEvent : touchEvents) {
-            if (touchedElement != null) {
-                touchedElement.moveTo(touchEvent.getxPosDips(), touchEvent.getyPosDips());
-            }
-            else {
-                touchedElement = findTouchedElement(touchEvent);
-            }
+    /**
+     * This class is responsible for moving elements in response to touches
+     */
+    private static class ElementMover implements Runnable {
+
+        private final DiagramEditorView editorView;
+        private volatile DiagramElement<?> touchedElement = null;
+
+        ElementMover(DiagramEditorView editorView) {
+            this.editorView = editorView;
         }
-        if (touchedElement != null) {
-            postInvalidate();
+
+        public void run() {
+            for (TouchInputDevice.TouchEvent touchEvent : editorView.touchInputDevice.getEvents()) {
+                if (touchEvent.getTouchType() == TouchInputDevice.TouchEventType.TOUCH_UP) {
+                    touchedElement = null;
+                    Log.d(TAG, "letting go " + touchEvent);
+                }
+                else if (touchedElement != null) {
+                    touchedElement.moveCenterTo(touchEvent.getxPosDips(), touchEvent.getyPosDips());
+                    Log.d(TAG, "moving " + touchedElement + " in resp to " + touchEvent);
+                } else {
+                    touchedElement = editorView.findTouchedElement(touchEvent);
+                    Log.d(TAG, "looking for a new element " + touchedElement + " in resp to " + touchEvent);
+                }
+            }
+            if (touchedElement != null) {
+                editorView.postInvalidate();
+            }
         }
     }
 
@@ -161,9 +174,9 @@ public class DiagramEditorView extends View {
         // and then everything will have the same physical size on all devices
         canvas.scale(densityScale, densityScale);
 
-        arrow.advanceBy(center_x, center_y).draw(canvas);
-        diamond.advanceBy(center_x + arrow.getWidth(), center_y + arrow.getHeight()).draw(canvas);
-        logicBlock.advanceBy(10, 10).draw(canvas);
+        arrow.draw(canvas);
+        diamond.draw(canvas);
+        logicBlock.draw(canvas);
 
         canvas.restoreToCount(saveCount0);
     }

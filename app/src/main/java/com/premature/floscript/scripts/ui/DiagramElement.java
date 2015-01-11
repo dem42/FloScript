@@ -30,6 +30,12 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
         return self();
     }
 
+    public synchronized SELF_TYPE moveCenterTo(float xPos, float yPos) {
+        this.xPos = xPos - width / 2;
+        this.yPos = yPos - height / 2;
+        return self();
+    }
+
     public synchronized SELF_TYPE advanceBy(float xStep, float yStep) {
         this.xPos += xStep;
         this.yPos += yStep;
@@ -59,5 +65,15 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
 
     public abstract void draw(Canvas canvas);
     public abstract Drawable getDrawable();
-    abstract protected SELF_TYPE self();
+    protected abstract SELF_TYPE self();
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "{" +
+                "xPos=" + xPos +
+                ", yPos=" + yPos +
+                ", width=" + width +
+                ", height=" + height +
+                '}';
+    }
 }
