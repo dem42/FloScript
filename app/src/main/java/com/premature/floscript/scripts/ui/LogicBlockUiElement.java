@@ -73,7 +73,7 @@ public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBloc
     }
 
     @Override
-    public Iterable<ArrowAnchorPoint> getAnchorPoint() {
+    public Iterable<ArrowAnchorPoint> getAnchorPoints() {
         return mAnchorPoints;
     }
 }

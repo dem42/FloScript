@@ -1,12 +1,17 @@
 package com.premature.floscript.scripts.ui;
 
+import android.util.Log;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by martin on 11/01/15.
+ * </p>
+ * This class represents a common base class for all objects to which arrows can connect
  */
 public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>> extends DiagramElement<SELF_TYPE> {
 
+    private static final String TAG = "ARROW_TARGET";
     /**
      * This map stores information about where arrows are anchored on this element
      * thread safe might be executed from different
@@ -19,7 +24,7 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
         mArrowToAnchor = new ConcurrentHashMap<>();
     }
 
-    public abstract Iterable<ArrowAnchorPoint> getAnchorPoint();
+    public abstract Iterable<ArrowAnchorPoint> getAnchorPoints();
 
     /**
      * Connects an arrow to this diagram element
@@ -30,20 +35,26 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
      */
     public ArrowAnchorPoint connectArrow(ArrowUiElement arrow, int arrowXPosDp, int arrowYPosDp) {
         ArrowAnchorPoint nearest = getNearestAnchorPoint(arrowXPosDp, arrowYPosDp);
-        return mArrowToAnchor.putIfAbsent(arrow, nearest);
+        ArrowAnchorPoint existingAnchor = null;//mArrowToAnchor.putIfAbsent(arrow, nearest);
+        return existingAnchor != null ? existingAnchor : nearest;
     }
 
     protected ArrowAnchorPoint getNearestAnchorPoint(int arrowXPosDp, int arrowYPosDp) {
         ArrowAnchorPoint closest = null;
         int minManhDist = Integer.MAX_VALUE;
-        for (ArrowAnchorPoint anchorPoint : getAnchorPoint()) {
+        for (ArrowAnchorPoint anchorPoint : getAnchorPoints()) {
             int manhDist = Math.abs(anchorPoint.getXPosDip() - arrowXPosDp) + Math.abs(anchorPoint.getYPosDip() - arrowYPosDp);
             if (manhDist < minManhDist) {
+                Log.d(TAG, "Anchor Point " + anchorPoint + " is closer to (" + arrowXPosDp + ", " + arrowYPosDp + ") with " + manhDist + " than " + closest);
                 minManhDist = manhDist;
                 closest = anchorPoint;
             }
         }
         return closest;
+    }
+
+    public ArrowAnchorPoint getAnchorFor(ArrowUiElement arrowUiElement) {
+        return mArrowToAnchor.get(arrowUiElement);
     }
 
     /**
@@ -52,7 +63,7 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
      */
     public static final class ArrowAnchorPoint {
         private final ArrowTargetableDiagramElement<?> mOwner;
-        private int mXPosDip, mYPosDip;
+        private final int mXPosDip, mYPosDip;
 
         public ArrowAnchorPoint(int mXPosDip, int mYPosDip, ArrowTargetableDiagramElement<?> owner) {
             this.mXPosDip = mXPosDip;
@@ -63,24 +74,17 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
         public int getXPosDip() {
             return (int)(mXPosDip + mOwner.getXPos());
         }
-
-        public void setmXPosDip(int mXPosDip) {
-            this.mXPosDip = mXPosDip;
-        }
-
         public int getYPosDip() {
             return (int)(mYPosDip + mOwner.getYPos());
-        }
-
-        public void setmYPosDip(int mYPosDip) {
-            this.mYPosDip = mYPosDip;
         }
 
         @Override
         public String toString() {
             return "ArrowAnchorPoint{" +
-                    "mXPosDip=" + mXPosDip +
-                    ", mYPosDip=" + mYPosDip +
+                    "mXPosDip=" + getXPosDip() +
+                    ", mYPosDip=" + getYPosDip() +
+                    ", objCoordX=" + mXPosDip +
+                    ", objCoordY=" + mYPosDip +
                     '}';
         }
     }

@@ -7,6 +7,7 @@ import android.graphics.Path;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 import android.graphics.drawable.shapes.RectShape;
+import android.util.Log;
 
 /**
  * Created by martin on 04/01/15.
@@ -15,9 +16,10 @@ import android.graphics.drawable.shapes.RectShape;
  */
 public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
 
+    private static final String TAG = "ARROW_UI";
     private static final double RAD_TO_DEG = (180.0 / Math.PI);
-    private DiagramElement mStartPoint;
-    private DiagramElement mEndPoint;
+    private ArrowTargetableDiagramElement<?> mStartPoint;
+    private ArrowTargetableDiagramElement<?> mEndPoint;
 
     private ShapeDrawable mArrowHead;
     private ShapeDrawable mArrowBody;
@@ -27,10 +29,17 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
     private float mArrowAngleDegs = 0f;
     private float mArrowScalingFac = 1f;
 
+    // tracking the position of the arrowhead
+    // this is important for knowing the extends of the arrow
+    private float mArrowHeadXPos;
+    private float mArrowHeadYPos;
+
     public ArrowUiElement() {
         super(0f, 0f, 50, 3);
         this.mArrowHeadHeight = (int)(2.5f * mHeight);
         this.mArrowHeadWidth = mWidth / 5;
+        this.mArrowHeadXPos = mWidth + mArrowHeadWidth;
+        this.mArrowHeadYPos = mArrowHeadHeight / 2.0f;
         initShape();
     }
 
@@ -67,8 +76,11 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         if (mEndPoint == null || mStartPoint == null) {
             return;
         }
-        setDistanceAngAngle(mStartPoint.mXPos + mStartPoint.mWidth / 2.0, mStartPoint.mYPos + mStartPoint.mHeight / 2.0,
-                mEndPoint.mXPos + mEndPoint.mWidth / 2.0, mEndPoint.mYPos + mEndPoint.mHeight / 2.0);
+        ArrowTargetableDiagramElement.ArrowAnchorPoint startA = mStartPoint.getAnchorFor(this);
+        this.mXPos = startA.getXPosDip();
+        this.mYPos = startA.getYPosDip();
+        ArrowTargetableDiagramElement.ArrowAnchorPoint endA = mEndPoint.getAnchorFor(this);
+        setDistanceAngAngle(startA.getXPosDip(), startA.getYPosDip(), endA.getXPosDip(), endA.getYPosDip());
     }
 
     private void setDistanceAngAngle(double x1, double y1, double x2, double y2) {
@@ -84,24 +96,34 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
      */
     public void onArrowHeadDrag(int arrowHeadXPosDp, int arrowHeadYPosDp) {
         setDistanceAngAngle(mXPos, mYPos, arrowHeadXPosDp - mArrowHeadWidth, arrowHeadYPosDp);
+        this.mArrowHeadXPos = arrowHeadXPosDp;
+        this.mArrowHeadYPos = arrowHeadYPosDp;
     }
 
-    public DiagramElement getStartPoint() {
+    public ArrowTargetableDiagramElement<?> getStartPoint() {
         return mStartPoint;
     }
 
-    public void setStartPoint(DiagramElement startPoint) {
+    public void setStartPoint(ArrowTargetableDiagramElement<?> startPoint) {
         this.mStartPoint = startPoint;
         onDiagramElementEndpointChange();
     }
 
-    public DiagramElement getEndPoint() {
+    public ArrowTargetableDiagramElement<?> getEndPoint() {
         return mEndPoint;
     }
 
-    public void setEndPoint(DiagramElement endPoint) {
+    public void setEndPoint(ArrowTargetableDiagramElement<?> endPoint) {
         this.mEndPoint = endPoint;
         onDiagramElementEndpointChange();
+    }
+
+    public float getArrowHeadXPos() {
+        return mArrowHeadXPos;
+    }
+
+    public float getArrowHeadYPos() {
+        return mArrowHeadYPos;
     }
 
     @Override
@@ -123,10 +145,22 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
     }
    
     public void anchorStart(ArrowTargetableDiagramElement<?> elem, ArrowTargetableDiagramElement.ArrowAnchorPoint arrowAnchorPoint) {
+        Log.d(TAG, "starting anchor " + arrowAnchorPoint + " for arrow " + toString());
         moveTo(arrowAnchorPoint.getXPosDip(), arrowAnchorPoint.getYPosDip());
     }
 
     public void anchorEnd(ArrowTargetableDiagramElement<?> elem, ArrowTargetableDiagramElement.ArrowAnchorPoint arrowAnchorPoint) {
+        Log.d(TAG, "ending anchor " + arrowAnchorPoint + " for arrow " + toString());
         onArrowHeadDrag(arrowAnchorPoint.getXPosDip(), arrowAnchorPoint.getYPosDip());
+    }
+
+    @Override
+    public String toString() {
+        return "ArrowUiElement{" +
+                "mXPos=" + mXPos +
+                ", mYPos=" + mYPos +
+                ", mArrowHeadXPos=" + mArrowHeadXPos +
+                ", mArrowHeadYPos=" + mArrowHeadYPos +
+                '}';
     }
 }

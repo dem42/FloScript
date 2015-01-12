@@ -15,6 +15,7 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
     protected float mYPos;
     protected int mWidth;
     protected int mHeight;
+    protected volatile boolean mPinned = false;
 
     protected DiagramElement(float xPos, float yPos, int width, int height) {
         this.mXPos = xPos;
@@ -24,20 +25,26 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
     }
 
     public synchronized SELF_TYPE moveTo(float xPos, float yPos) {
-        this.mXPos = xPos;
-        this.mYPos = yPos;
+        if (!mPinned) {
+            this.mXPos = xPos;
+            this.mYPos = yPos;
+        }
         return self();
     }
 
     public synchronized SELF_TYPE moveCenterTo(float xPos, float yPos) {
-        this.mXPos = xPos - mWidth / 2;
-        this.mYPos = yPos - mHeight / 2;
+        if (!mPinned) {
+            this.mXPos = xPos - mWidth / 2;
+            this.mYPos = yPos - mHeight / 2;
+        }
         return self();
     }
 
     public synchronized SELF_TYPE advanceBy(float xStep, float yStep) {
-        this.mXPos += xStep;
-        this.mYPos += yStep;
+        if (!mPinned) {
+            this.mXPos += xStep;
+            this.mYPos += yStep;
+        }
         return self();
     }
 
@@ -62,6 +69,22 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
         return mHeight;
     }
 
+    /**
+     * A mPinned diagram element cannot be moved until its unpinned using {@link #setPinned(boolean)}
+     * @return <code>true</code> if the element is mPinned to the background
+     */
+    public boolean isPinned() {
+        return mPinned;
+    }
+
+    /**
+     * Change the mPinned state of the element
+     * @param pinned the new mPinned state of the element
+     */
+    public void setPinned(boolean pinned) {
+        this.mPinned = pinned;
+    }
+
     public abstract void draw(Canvas canvas);
 
     protected final SELF_TYPE self() {
@@ -75,6 +98,7 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
                 ", mYPos=" + mYPos +
                 ", mWidth=" + mWidth +
                 ", mHeight=" + mHeight +
+                ", mPinned=" + mPinned +
                 '}';
     }
 }
