@@ -12,7 +12,7 @@ import android.graphics.drawable.shapes.PathShape;
  * <p/>
  * The diamond element encapsulates the view logic for floscript if-else code elements
  */
-public class DiamondUiElement extends DiagramElement<DiamondUiElement> {
+public final class DiamondUiElement extends DiagramElement<DiamondUiElement> {
 
     private Path diamondPath;
     private PathShape diamondShape;

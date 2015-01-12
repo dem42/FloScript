@@ -13,7 +13,7 @@ import android.graphics.drawable.shapes.PathShape;
  * </p>
  * This element has no functionality and is merely a marker of the entrypoint into the flowscript
  */
-public class StartUiElement extends DiagramElement<StartUiElement> {
+public final class StartUiElement extends DiagramElement<StartUiElement> {
 
     private ShapeDrawable outsideCircle;
     private ShapeDrawable innerCircle;

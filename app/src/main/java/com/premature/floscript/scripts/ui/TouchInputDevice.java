@@ -13,7 +13,7 @@ import java.util.List;
  * Clients of this class will most likely want to start a background thread which consumes
  * the {@link com.premature.floscript.scripts.ui.TouchInputDevice.TouchEvent touchEvents}.
  */
-public class TouchInputDevice implements View.OnTouchListener {
+public final class TouchInputDevice implements View.OnTouchListener {
     private static final String TAG = "TOUCH";
     private final float screenDensity;
     private ArrayList<TouchEvent> events;

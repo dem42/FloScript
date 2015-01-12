@@ -40,11 +40,11 @@ public class MainActivity extends ActionBarActivity implements JobsFragment.OnJo
 
         // add the tabs to the view
         actionBar.addTab(actionBar.newTab()
-                .setText(R.string.jobs_fragment)
-                .setTabListener(new TabListener<>(this, JobsFragment.class)));
-        actionBar.addTab(actionBar.newTab()
                 .setText(R.string.scripting_fragment)
                 .setTabListener(new TabListener<>(this, ScriptingFragment.class)));
+        actionBar.addTab(actionBar.newTab()
+                .setText(R.string.jobs_fragment)
+                .setTabListener(new TabListener<>(this, JobsFragment.class)));
     }
 
 

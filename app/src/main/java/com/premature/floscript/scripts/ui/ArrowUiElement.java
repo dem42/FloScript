@@ -6,48 +6,110 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
+import android.graphics.drawable.shapes.RectShape;
 
 /**
  * Created by martin on 04/01/15.
  * <p/>
- * An mArrow shape that represents the flow of logic in a flowchart diagram
+ * An mArrowHead shape that represents the flow of logic in a flowchart diagram
  */
-public class ArrowUiElement extends DiagramElement<ArrowUiElement> {
+public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
 
-    private Path mArrowPath;
-    private PathShape mArrowShape;
-    private ShapeDrawable mArrow;
-    private float mArrowLength;
+    private static final double RAD_TO_DEG = (180.0 / Math.PI);
+    private DiagramElement mStartPoint;
+    private DiagramElement mEndPoint;
+
+    private ShapeDrawable mArrowHead;
+    private ShapeDrawable mArrowBody;
+
+    private final int arrowHeadWidth;
+    private final int arrowHeadHeight;
+    private float mArrowAngleDegs = 0f;
+    private float mArrowScalingFac = 1f;
 
     public ArrowUiElement() {
-        super(0f, 0f, 50, 50);
-        this.mArrowLength = 20;
+        super(0f, 0f, 50, 3);
+        this.arrowHeadHeight = (int)(2.5f * height);
+        this.arrowHeadWidth = width / 5;
         initShape();
     }
 
     private void initShape() {
-        mArrowPath = new Path();
-        mArrowPath.moveTo(mArrowLength, 0f);
-        mArrowPath.lineTo(mArrowLength, 2f);
-        mArrowPath.lineTo(mArrowLength + 3f, 1f);
-        mArrowPath.lineTo(mArrowLength, 0f);
-        mArrowPath.addRect(0f, 0.5f, mArrowLength, 1.5f, Path.Direction.CW);
+        // the arrow body has a smaller height and we want it to be in
+        // middle of the arrow head .. we achieve this by translating in
+        // the draw method
+        mArrowBody = new ShapeDrawable(new RectShape());
+        mArrowBody.getPaint().setColor(Color.BLACK);
+        mArrowBody.getPaint().setStyle(Paint.Style.FILL);
+        mArrowBody.getPaint().setStrokeWidth(0);
+        mArrowBody.getPaint().setAntiAlias(true);
+        mArrowBody.setBounds(0, 0, width, height);
 
-        mArrowShape = new PathShape(mArrowPath, mArrowLength + 3f, mArrowLength + 3f);
-        mArrow = new ShapeDrawable(mArrowShape);
+        // the arrow head is a separate drawable because we want to be able
+        // to resize the arrow body separately
+        Path arrowHeadPath = new Path();
+        arrowHeadPath.moveTo(0, 0f);
+        arrowHeadPath.lineTo(0, 2f);
+        arrowHeadPath.lineTo(3f, 1f);
+        arrowHeadPath.lineTo(0, 0f);
+        // the values in the path define its coord system so we set it
+        // to the max and min of what we used to define the path
+        PathShape arrowHeadShape = new PathShape(arrowHeadPath, 3f, 2f);
+        mArrowHead = new ShapeDrawable(arrowHeadShape);
+        mArrowHead.getPaint().setColor(Color.BLACK);
+        mArrowHead.getPaint().setStyle(Paint.Style.FILL);
+        mArrowHead.getPaint().setStrokeWidth(0);
+        mArrowHead.getPaint().setAntiAlias(true);
+        mArrowHead.setBounds(0, 0, arrowHeadWidth, arrowHeadHeight);
+    }
 
-        mArrow.getPaint().setColor(Color.BLACK);
-        mArrow.getPaint().setStyle(Paint.Style.FILL);
-        mArrow.getPaint().setStrokeWidth(30);
-        mArrow.getPaint().setAntiAlias(true);
-        mArrow.setBounds(0, 0, width, height);
+    public DiagramElement getStartPoint() {
+        return mStartPoint;
+    }
+
+    public void setStartPoint(DiagramElement startPoint) {
+        this.mStartPoint = startPoint;
+        adjustSize();
+    }
+
+    public DiagramElement getEndPoint() {
+        return mEndPoint;
+    }
+
+    public void setEndPoint(DiagramElement endPoint) {
+        this.mEndPoint = endPoint;
+        adjustSize();
+    }
+
+    void adjustSize() {
+        if (mEndPoint == null || mStartPoint == null) {
+            return;
+        }
+        setDistanceAngAngle(mStartPoint.xPos + mStartPoint.width / 2.0, mStartPoint.yPos + mStartPoint.height / 2.0,
+                mEndPoint.xPos + mEndPoint.width / 2.0, mEndPoint.yPos + mEndPoint.height / 2.0);
+    }
+
+    private void setDistanceAngAngle(double x1, double y1, double x2, double y2) {
+        double arrowLength = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2)*(y1 - y2));
+        this.mArrowScalingFac = (float)((arrowLength - arrowHeadWidth) / width);
+        this.mArrowAngleDegs = (float)(RAD_TO_DEG * Math.atan2(y2 - y1, x2 - x1));
     }
 
     @Override
     public void draw(Canvas canvas) {
         int saveCount = canvas.save();
         canvas.translate(xPos, yPos);
-        mArrow.draw(canvas);
+
+        // apply arrow scaling which adjusts the size of the body
+        int saveCount1 = canvas.save();
+        canvas.scale(1, mArrowScalingFac);
+        canvas.rotate(mArrowAngleDegs);
+        mArrowBody.draw(canvas);
+        canvas.restoreToCount(saveCount1);
+
+        // now draw the arrow head
+        canvas.translate(width, -(arrowHeadHeight - height) / 2.0f);
+        mArrowHead.draw(canvas);
         canvas.restoreToCount(saveCount);
     }
 

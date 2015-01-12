@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * <p/>
  * It is a custom view which draws diagram elements onto its canvas.
  */
-public class DiagramEditorView extends View {
+public final class DiagramEditorView extends View {
 
     private static final String TAG = "DIAGRAM_EDITOR";
 
