@@ -1,7 +1,6 @@
 package com.premature.floscript.scripts.ui;
 
 import android.graphics.Canvas;
-import android.graphics.drawable.Drawable;
 
 /**
  * Created by martin on 05/01/15.
@@ -12,55 +11,55 @@ import android.graphics.drawable.Drawable;
  */
 public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>> {
 
-    protected float xPos;
-    protected float yPos;
-    protected int width;
-    protected int height;
+    protected float mXPos;
+    protected float mYPos;
+    protected int mWidth;
+    protected int mHeight;
 
     protected DiagramElement(float xPos, float yPos, int width, int height) {
-        this.xPos = xPos;
-        this.yPos = yPos;
-        this.width = width;
-        this.height = height;
+        this.mXPos = xPos;
+        this.mYPos = yPos;
+        this.mWidth = width;
+        this.mHeight = height;
     }
 
     public synchronized SELF_TYPE moveTo(float xPos, float yPos) {
-        this.xPos = xPos;
-        this.yPos = yPos;
+        this.mXPos = xPos;
+        this.mYPos = yPos;
         return self();
     }
 
     public synchronized SELF_TYPE moveCenterTo(float xPos, float yPos) {
-        this.xPos = xPos - width / 2;
-        this.yPos = yPos - height / 2;
+        this.mXPos = xPos - mWidth / 2;
+        this.mYPos = yPos - mHeight / 2;
         return self();
     }
 
     public synchronized SELF_TYPE advanceBy(float xStep, float yStep) {
-        this.xPos += xStep;
-        this.yPos += yStep;
+        this.mXPos += xStep;
+        this.mYPos += yStep;
         return self();
     }
 
     public synchronized boolean contains(int xPosDps, int yPosDps) {
-        return xPos <= xPosDps && xPosDps <= xPos + width
-                && yPos <= yPosDps && yPosDps <= yPos + height;
+        return mXPos <= xPosDps && xPosDps <= mXPos + mWidth
+                && mYPos <= yPosDps && yPosDps <= mYPos + mHeight;
     }
 
     public float getxPos() {
-        return xPos;
+        return mXPos;
     }
 
     public float getyPos() {
-        return yPos;
+        return mYPos;
     }
 
     public int getWidth() {
-        return width;
+        return mWidth;
     }
 
     public int getHeight() {
-        return height;
+        return mHeight;
     }
 
     public abstract void draw(Canvas canvas);
@@ -72,10 +71,10 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
     @Override
     public String toString() {
         return getClass().getSimpleName() + "{" +
-                "xPos=" + xPos +
-                ", yPos=" + yPos +
-                ", width=" + width +
-                ", height=" + height +
+                "mXPos=" + mXPos +
+                ", mYPos=" + mYPos +
+                ", mWidth=" + mWidth +
+                ", mHeight=" + mHeight +
                 '}';
     }
 }

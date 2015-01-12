@@ -76,11 +76,11 @@ public final class TouchInputDevice implements View.OnTouchListener {
             this.touchType = touchType;
         }
 
-        public int getxPosDips() {
+        public int getXPosDips() {
             return xPosDips;
         }
 
-        public int getyPosDips() {
+        public int getYPosDips() {
             return yPosDips;
         }
 

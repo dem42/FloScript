@@ -3,10 +3,8 @@ package com.premature.floscript.scripts.ui;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
-import android.graphics.drawable.shapes.PathShape;
 
 /**
  * Created by martin on 11/01/15.
@@ -34,16 +32,16 @@ public final class StartUiElement extends DiagramElement<StartUiElement> {
         innerCircle.getPaint().setAntiAlias(true);
         innerCircle.getPaint().setStyle(Paint.Style.FILL);
 
-        outsideCircle.setBounds(0, 0, width, height);
-        innerCircle.setBounds(0, 0, width/3, height/3);
+        outsideCircle.setBounds(0, 0, mWidth, mHeight);
+        innerCircle.setBounds(0, 0, mWidth /3, mHeight /3);
     }
 
     @Override
     public void draw(Canvas canvas) {
         int savePoint = canvas.save();
-        canvas.translate(xPos, yPos);
+        canvas.translate(mXPos, mYPos);
         outsideCircle.draw(canvas);
-        canvas.translate(width/2 - width/6, height/2 - height/6);
+        canvas.translate(mWidth /2 - mWidth /6, mHeight /2 - mHeight /6);
         innerCircle.draw(canvas);
         canvas.restoreToCount(savePoint);
     }

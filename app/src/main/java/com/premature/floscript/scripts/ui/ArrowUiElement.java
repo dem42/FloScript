@@ -22,20 +22,20 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
     private ShapeDrawable mArrowHead;
     private ShapeDrawable mArrowBody;
 
-    private final int arrowHeadWidth;
-    private final int arrowHeadHeight;
+    private final int mArrowHeadWidth;
+    private final int mArrowHeadHeight;
     private float mArrowAngleDegs = 0f;
     private float mArrowScalingFac = 1f;
 
     public ArrowUiElement() {
         super(0f, 0f, 50, 3);
-        this.arrowHeadHeight = (int)(2.5f * height);
-        this.arrowHeadWidth = width / 5;
+        this.mArrowHeadHeight = (int)(2.5f * mHeight);
+        this.mArrowHeadWidth = mWidth / 5;
         initShape();
     }
 
     private void initShape() {
-        // the arrow body has a smaller height and we want it to be in
+        // the arrow body has a smaller mHeight and we want it to be in
         // middle of the arrow head .. we achieve this by translating in
         // the draw method
         mArrowBody = new ShapeDrawable(new RectShape());
@@ -43,7 +43,7 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         mArrowBody.getPaint().setStyle(Paint.Style.FILL);
         mArrowBody.getPaint().setStrokeWidth(0);
         mArrowBody.getPaint().setAntiAlias(true);
-        mArrowBody.setBounds(0, 0, width, height);
+        mArrowBody.setBounds(0, 0, mWidth, mHeight);
 
         // the arrow head is a separate drawable because we want to be able
         // to resize the arrow body separately
@@ -60,7 +60,30 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         mArrowHead.getPaint().setStyle(Paint.Style.FILL);
         mArrowHead.getPaint().setStrokeWidth(0);
         mArrowHead.getPaint().setAntiAlias(true);
-        mArrowHead.setBounds(0, 0, arrowHeadWidth, arrowHeadHeight);
+        mArrowHead.setBounds(0, 0, mArrowHeadWidth, mArrowHeadHeight);
+    }
+
+    private void onDiagramElementEndpointChange() {
+        if (mEndPoint == null || mStartPoint == null) {
+            return;
+        }
+        setDistanceAngAngle(mStartPoint.mXPos + mStartPoint.mWidth / 2.0, mStartPoint.mYPos + mStartPoint.mHeight / 2.0,
+                mEndPoint.mXPos + mEndPoint.mWidth / 2.0, mEndPoint.mYPos + mEndPoint.mHeight / 2.0);
+    }
+
+    private void setDistanceAngAngle(double x1, double y1, double x2, double y2) {
+        double arrowLength = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2)*(y1 - y2));
+        this.mArrowScalingFac = (float)((arrowLength - mArrowHeadWidth) / mWidth);
+        this.mArrowAngleDegs = (float)(RAD_TO_DEG * Math.atan2(y2 - y1, x2 - x1));
+    }
+
+    /**
+     * This method is invoked when the arrow head is dragged on the screen
+     * @param arrowHeadXPosDp the x (mWidth) position of the middle of the arrowhead
+     * @param arrowHeadYPosDp the y (mHeight) position of the middle of the arrowhead
+     */
+    public void onArrowHeadDrag(int arrowHeadXPosDp, int arrowHeadYPosDp) {
+        setDistanceAngAngle(mXPos, mYPos, arrowHeadXPosDp - mArrowHeadWidth, arrowHeadYPosDp);
     }
 
     public DiagramElement getStartPoint() {
@@ -69,7 +92,7 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
 
     public void setStartPoint(DiagramElement startPoint) {
         this.mStartPoint = startPoint;
-        adjustSize();
+        onDiagramElementEndpointChange();
     }
 
     public DiagramElement getEndPoint() {
@@ -78,37 +101,23 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
 
     public void setEndPoint(DiagramElement endPoint) {
         this.mEndPoint = endPoint;
-        adjustSize();
-    }
-
-    void adjustSize() {
-        if (mEndPoint == null || mStartPoint == null) {
-            return;
-        }
-        setDistanceAngAngle(mStartPoint.xPos + mStartPoint.width / 2.0, mStartPoint.yPos + mStartPoint.height / 2.0,
-                mEndPoint.xPos + mEndPoint.width / 2.0, mEndPoint.yPos + mEndPoint.height / 2.0);
-    }
-
-    private void setDistanceAngAngle(double x1, double y1, double x2, double y2) {
-        double arrowLength = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2)*(y1 - y2));
-        this.mArrowScalingFac = (float)((arrowLength - arrowHeadWidth) / width);
-        this.mArrowAngleDegs = (float)(RAD_TO_DEG * Math.atan2(y2 - y1, x2 - x1));
+        onDiagramElementEndpointChange();
     }
 
     @Override
     public void draw(Canvas canvas) {
         int saveCount = canvas.save();
-        canvas.translate(xPos, yPos);
+        canvas.translate(mXPos, mYPos);
+        canvas.rotate(mArrowAngleDegs);
 
         // apply arrow scaling which adjusts the size of the body
         int saveCount1 = canvas.save();
-        canvas.scale(1, mArrowScalingFac);
-        canvas.rotate(mArrowAngleDegs);
+        canvas.scale(mArrowScalingFac, 1);
         mArrowBody.draw(canvas);
         canvas.restoreToCount(saveCount1);
 
         // now draw the arrow head
-        canvas.translate(width, -(arrowHeadHeight - height) / 2.0f);
+        canvas.translate(mArrowScalingFac * mWidth, -(mArrowHeadHeight - mHeight) / 2.0f);
         mArrowHead.draw(canvas);
         canvas.restoreToCount(saveCount);
     }

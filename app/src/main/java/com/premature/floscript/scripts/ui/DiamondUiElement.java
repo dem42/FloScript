@@ -39,13 +39,13 @@ public final class DiamondUiElement extends DiagramElement<DiamondUiElement> {
         // this value is in pixels, but canvas conversions apply to it too
         diamond.getPaint().setStrokeWidth(0.05f);
         diamond.getPaint().setAntiAlias(true);
-        diamond.setBounds(0, 0, width, height);
+        diamond.setBounds(0, 0, mWidth, mHeight);
     }
 
     @Override
     public void draw(Canvas canvas) {
         int saveCount = canvas.save();
-        canvas.translate(xPos, yPos);
+        canvas.translate(mXPos, mYPos);
         diamond.draw(canvas);
         canvas.restoreToCount(saveCount);
     }

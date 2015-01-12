@@ -41,13 +41,13 @@ public class LogicBlockUiElement extends DiagramElement<LogicBlockUiElement> {
         logicBlock.getPaint().setStyle(Paint.Style.STROKE);
         logicBlock.getPaint().setStrokeWidth(0.05f);
         logicBlock.getPaint().setColor(Color.GREEN);
-        logicBlock.setBounds(0, 0, width, height);
+        logicBlock.setBounds(0, 0, mWidth, mHeight);
     }
 
     @Override
     public void draw(Canvas canvas) {
         int saveCount = canvas.save();
-        canvas.translate(xPos, yPos);
+        canvas.translate(mXPos, mYPos);
         logicBlock.draw(canvas);
         canvas.restoreToCount(saveCount);
     }

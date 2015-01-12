@@ -5,7 +5,6 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.text.method.Touch;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -85,9 +84,6 @@ public final class DiagramEditorView extends View {
         myPaint.setStyle(Paint.Style.FILL);
         myPaint.setColor(Color.RED);
 
-        // Update TextPaint and text measurements from attributes
-        invalidateTextPaintAndMeasurements();
-
         densityScale = getResources().getDisplayMetrics().density;
         touchInputDevice = new TouchInputDevice(densityScale);
         this.setOnTouchListener(touchInputDevice);
@@ -112,7 +108,7 @@ public final class DiagramEditorView extends View {
     /**
      * This class is responsible for moving elements in response to touches
      */
-    private static class ElementMover implements Runnable {
+    private static final class ElementMover implements Runnable {
 
         private final DiagramEditorView editorView;
         private volatile DiagramElement<?> touchedElement = null;
@@ -128,10 +124,17 @@ public final class DiagramEditorView extends View {
                     Log.d(TAG, "letting go " + touchEvent);
                 }
                 else if (touchedElement != null) {
-                    touchedElement.moveCenterTo(touchEvent.getxPosDips(), touchEvent.getyPosDips());
+                    if (touchEvent.getPointerId() == 0) {
+                        touchedElement.moveCenterTo(touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                    }
+                    else if (touchedElement instanceof  ArrowUiElement) {
+                        ((ArrowUiElement)touchedElement).onArrowHeadDrag(touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                    }
                     Log.d(TAG, "moving " + touchedElement + " in resp to " + touchEvent);
                 } else {
-                    touchedElement = editorView.findTouchedElement(touchEvent);
+                    if (touchEvent.getPointerId() == 0) {
+                        touchedElement = findTouchedElement(touchEvent);
+                    }
                     Log.d(TAG, "looking for a new element " + touchedElement + " in resp to " + touchEvent);
                 }
             }
@@ -139,24 +142,14 @@ public final class DiagramEditorView extends View {
                 editorView.postInvalidate();
             }
         }
-    }
-
-    private DiagramElement<?> findTouchedElement(TouchInputDevice.TouchEvent touchEvent) {
-        for (DiagramElement<?> element : elements) {
-            if (element.contains(touchEvent.getxPosDips(), touchEvent.getyPosDips())) {
-                return element;
+        private DiagramElement<?> findTouchedElement(TouchInputDevice.TouchEvent touchEvent) {
+            for (DiagramElement<?> element : editorView.elements) {
+                if (element.contains(touchEvent.getXPosDips(), touchEvent.getYPosDips())) {
+                    return element;
+                }
             }
+            return null;
         }
-        return null;
-    }
-
-    private void invalidateTextPaintAndMeasurements() {
-//        mTextPaint.setTextSize(mExampleDimension);
-//        mTextPaint.setColor(mExampleColor);
-//        mTextWidth = mTextPaint.measureText(mExampleString);
-//
-//        Paint.FontMetrics fontMetrics = mTextPaint.getFontMetrics();
-//        mTextHeight = fontMetrics.bottom;
     }
 
     @Override
