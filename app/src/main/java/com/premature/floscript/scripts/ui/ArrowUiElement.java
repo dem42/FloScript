@@ -121,5 +121,12 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         mArrowHead.draw(canvas);
         canvas.restoreToCount(saveCount);
     }
+   
+    public void anchorStart(ArrowTargetableDiagramElement<?> elem, ArrowTargetableDiagramElement.ArrowAnchorPoint arrowAnchorPoint) {
+        moveTo(arrowAnchorPoint.getXPosDip(), arrowAnchorPoint.getYPosDip());
+    }
 
+    public void anchorEnd(ArrowTargetableDiagramElement<?> elem, ArrowTargetableDiagramElement.ArrowAnchorPoint arrowAnchorPoint) {
+        onArrowHeadDrag(arrowAnchorPoint.getXPosDip(), arrowAnchorPoint.getYPosDip());
+    }
 }

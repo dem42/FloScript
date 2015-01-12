@@ -1,5 +1,7 @@
 package com.premature.floscript.scripts.ui;
 
+import static com.premature.floscript.scripts.ui.ArrowTargetableDiagramElement.ArrowAnchorPoint;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -36,11 +38,14 @@ public final class DiagramEditorView extends View {
     private ArrowUiElement arrow;
     private DiamondUiElement diamond;
     private LogicBlockUiElement logicBlock;
+    private LogicBlockUiElement logicBlock2;
     private StartUiElement startElem;
     private ScheduledExecutorService executor;
 
     private ScheduledFuture<?> scheduledFuture;
     private List<DiagramElement<?>> elements = new ArrayList<>();
+    private List<ArrowUiElement> arrows = new ArrayList<>();
+    private List<ArrowTargetableDiagramElement<?>> connectables = new ArrayList<>();
 
     public DiagramEditorView(Context context) {
         super(context);
@@ -74,11 +79,17 @@ public final class DiagramEditorView extends View {
         arrow = new ArrowUiElement().advanceBy(10, 10);
         diamond = new DiamondUiElement().advanceBy(10, 10);
         logicBlock = new LogicBlockUiElement().advanceBy(10, 10);
+        logicBlock2 = new LogicBlockUiElement().advanceBy(200, 200);
         startElem = new StartUiElement().advanceBy(10, 10);
         elements.add(arrow);
         elements.add(diamond);
         elements.add(logicBlock);
+        elements.add(logicBlock2);
         elements.add(startElem);
+
+        arrows.add(arrow);
+        connectables.add(logicBlock);
+        connectables.add(logicBlock2);
 
         myPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         myPaint.setStyle(Paint.Style.FILL);
@@ -118,33 +129,54 @@ public final class DiagramEditorView extends View {
         }
 
         public void run() {
-            for (TouchInputDevice.TouchEvent touchEvent : editorView.touchInputDevice.getEvents()) {
-                if (touchEvent.getTouchType() == TouchInputDevice.TouchEventType.TOUCH_UP) {
-                    touchedElement = null;
-                    Log.d(TAG, "letting go " + touchEvent);
+            try {
+                for (TouchInputDevice.TouchEvent touchEvent : editorView.touchInputDevice.getEvents()) {
+                    if (touchEvent.getTouchType() == TouchInputDevice.TouchEventType.TOUCH_UP) {
+                        // LETTING GO
+                        touchedElement = null;
+                        Log.d(TAG, "letting go " + touchEvent);
+                    } else if (touchedElement != null) {
+                        //DRAGGING
+                        if (touchEvent.getPointerId() == 0) {
+                            touchedElement.moveCenterTo(touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                        } else if (touchedElement instanceof ArrowUiElement) {
+                            ((ArrowUiElement) touchedElement).onArrowHeadDrag(touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                        }
+
+                        if (touchedElement instanceof ArrowUiElement) {
+                            ArrowTargetableDiagramElement<?> elemTouchingStart = findTouchedElement(editorView.connectables, (int) touchedElement.getXPos(), (int) touchedElement.getYPos());
+                            ArrowTargetableDiagramElement<?> elemTouchingEnd = findTouchedElement(editorView.connectables, touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                            if (elemTouchingStart != null) {
+                                ArrowAnchorPoint arrowAnchorPoint = elemTouchingStart.connectArrow((ArrowUiElement) touchedElement, (int) touchedElement.getXPos(), (int) touchedElement.getYPos());
+                                Log.d(TAG, "arrow start touching  " +  elemTouchingStart + " at anchor point " + arrowAnchorPoint);
+                                ((ArrowUiElement) touchedElement).anchorStart(elemTouchingStart, arrowAnchorPoint);
+                            }
+                            if (elemTouchingEnd != null) {
+                                ArrowAnchorPoint arrowAnchorPoint = elemTouchingEnd.connectArrow((ArrowUiElement) touchedElement, touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                                Log.d(TAG, "arrow end touching  " +  elemTouchingEnd + " at anchor point " + arrowAnchorPoint);
+                                ((ArrowUiElement) touchedElement).anchorEnd(elemTouchingEnd, arrowAnchorPoint);
+                            }
+                        }
+
+                        Log.d(TAG, "moving " + touchedElement + " in resp to " + touchEvent);
+                    } else {
+                        // SELECTING
+                        if (touchEvent.getPointerId() == 0) {
+                            touchedElement = findTouchedElement(editorView.elements, touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                        }
+                        Log.d(TAG, "looking for a new element " + touchedElement + " in resp to " + touchEvent);
+                    }
                 }
-                else if (touchedElement != null) {
-                    if (touchEvent.getPointerId() == 0) {
-                        touchedElement.moveCenterTo(touchEvent.getXPosDips(), touchEvent.getYPosDips());
-                    }
-                    else if (touchedElement instanceof  ArrowUiElement) {
-                        ((ArrowUiElement)touchedElement).onArrowHeadDrag(touchEvent.getXPosDips(), touchEvent.getYPosDips());
-                    }
-                    Log.d(TAG, "moving " + touchedElement + " in resp to " + touchEvent);
-                } else {
-                    if (touchEvent.getPointerId() == 0) {
-                        touchedElement = findTouchedElement(touchEvent);
-                    }
-                    Log.d(TAG, "looking for a new element " + touchedElement + " in resp to " + touchEvent);
+                if (touchedElement != null) {
+                    editorView.postInvalidate();
                 }
-            }
-            if (touchedElement != null) {
-                editorView.postInvalidate();
+            } catch (Exception e) {
+                Log.e(TAG, Log.getStackTraceString(e));
             }
         }
-        private DiagramElement<?> findTouchedElement(TouchInputDevice.TouchEvent touchEvent) {
-            for (DiagramElement<?> element : editorView.elements) {
-                if (element.contains(touchEvent.getXPosDips(), touchEvent.getYPosDips())) {
+        private <T extends DiagramElement<?>> T findTouchedElement(Iterable<T> elements, int xPosDips, int yPosDips) {
+            for (T element : elements) {
+                if (element.contains(xPosDips, yPosDips)) {
                     return element;
                 }
             }
@@ -172,9 +204,8 @@ public final class DiagramEditorView extends View {
         canvas.scale(densityScale, densityScale);
 
         arrow.draw(canvas);
-        diamond.draw(canvas);
         logicBlock.draw(canvas);
-        startElem.draw(canvas);
+        logicBlock2.draw(canvas);
 
         canvas.restoreToCount(saveCount0);
     }

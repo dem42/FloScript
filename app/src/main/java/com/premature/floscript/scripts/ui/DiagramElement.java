@@ -46,11 +46,11 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
                 && mYPos <= yPosDps && yPosDps <= mYPos + mHeight;
     }
 
-    public float getxPos() {
+    public float getXPos() {
         return mXPos;
     }
 
-    public float getyPos() {
+    public float getYPos() {
         return mYPos;
     }
 
