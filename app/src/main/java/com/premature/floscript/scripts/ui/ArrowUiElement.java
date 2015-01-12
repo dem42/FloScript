@@ -4,7 +4,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 
@@ -52,13 +51,4 @@ public class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         canvas.restoreToCount(saveCount);
     }
 
-    @Override
-    public Drawable getDrawable() {
-        return mArrow;
-    }
-
-    @Override
-    protected ArrowUiElement self() {
-        return this;
-    }
 }

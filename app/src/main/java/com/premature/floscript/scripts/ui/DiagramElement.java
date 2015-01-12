@@ -64,8 +64,10 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
     }
 
     public abstract void draw(Canvas canvas);
-    public abstract Drawable getDrawable();
-    protected abstract SELF_TYPE self();
+
+    protected final SELF_TYPE self() {
+        return (SELF_TYPE) this;
+    }
 
     @Override
     public String toString() {

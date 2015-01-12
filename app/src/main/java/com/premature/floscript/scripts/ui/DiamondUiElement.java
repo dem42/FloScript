@@ -4,7 +4,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 
@@ -51,13 +50,4 @@ public class DiamondUiElement extends DiagramElement<DiamondUiElement> {
         canvas.restoreToCount(saveCount);
     }
 
-    @Override
-    public Drawable getDrawable() {
-        return diamond;
-    }
-
-    @Override
-    protected DiamondUiElement self() {
-        return this;
-    }
 }

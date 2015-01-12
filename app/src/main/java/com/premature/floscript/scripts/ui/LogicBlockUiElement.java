@@ -4,7 +4,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 
@@ -53,13 +52,4 @@ public class LogicBlockUiElement extends DiagramElement<LogicBlockUiElement> {
         canvas.restoreToCount(saveCount);
     }
 
-    @Override
-    public Drawable getDrawable() {
-        return logicBlock;
-    }
-
-    @Override
-    protected LogicBlockUiElement self() {
-        return this;
-    }
 }

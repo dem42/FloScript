@@ -37,9 +37,10 @@ public class DiagramEditorView extends View {
     private ArrowUiElement arrow;
     private DiamondUiElement diamond;
     private LogicBlockUiElement logicBlock;
+    private StartUiElement startElem;
     private ScheduledExecutorService executor;
-    private ScheduledFuture<?> scheduledFuture;
 
+    private ScheduledFuture<?> scheduledFuture;
     private List<DiagramElement<?>> elements = new ArrayList<>();
 
     public DiagramEditorView(Context context) {
@@ -66,16 +67,19 @@ public class DiagramEditorView extends View {
         // Load attributes
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.DiagramEditorView, defStyle, 0);
-
+        int bgColor = a.getColor(R.styleable.DiagramEditorView_backgroundColor, Color.WHITE);
+        Log.i(TAG, "found color " + bgColor);
         a.recycle();
 
         // get the drawable ui elements
         arrow = new ArrowUiElement().advanceBy(10, 10);
         diamond = new DiamondUiElement().advanceBy(10, 10);
         logicBlock = new LogicBlockUiElement().advanceBy(10, 10);
+        startElem = new StartUiElement().advanceBy(10, 10);
         elements.add(arrow);
         elements.add(diamond);
         elements.add(logicBlock);
+        elements.add(startElem);
 
         myPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         myPaint.setStyle(Paint.Style.FILL);
@@ -177,6 +181,7 @@ public class DiagramEditorView extends View {
         arrow.draw(canvas);
         diamond.draw(canvas);
         logicBlock.draw(canvas);
+        startElem.draw(canvas);
 
         canvas.restoreToCount(saveCount0);
     }
