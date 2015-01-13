@@ -6,12 +6,14 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
 import com.premature.floscript.R;
+import com.premature.floscript.scripts.ui.touching.CollectingTouchInputDevice;
+import com.premature.floscript.scripts.ui.touching.TouchEvent;
+import com.premature.floscript.scripts.ui.touching.TouchEventType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,8 +33,8 @@ public final class DiagramEditorView extends View {
 
     private static final String TAG = "DIAGRAM_EDITOR";
 
-    private TouchInputDevice touchInputDevice;
-    private Paint myPaint;
+    private CollectingTouchInputDevice touchInputDevice;
+    private int mBgColor;
     private float densityScale;
 
     private ArrowUiElement arrow;
@@ -69,11 +71,7 @@ public final class DiagramEditorView extends View {
         setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
         // Load attributes
-        final TypedArray a = getContext().obtainStyledAttributes(
-                attrs, R.styleable.DiagramEditorView, defStyle, 0);
-        int bgColor = a.getColor(R.styleable.DiagramEditorView_backgroundColor, Color.WHITE);
-        Log.i(TAG, "found color " + bgColor);
-        a.recycle();
+        loadAttributes(attrs, defStyle);
 
         // get the drawable ui elements
         arrow = new ArrowUiElement().advanceBy(10, 10);
@@ -91,14 +89,17 @@ public final class DiagramEditorView extends View {
         connectables.add(logicBlock);
         connectables.add(logicBlock2);
 
-        myPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        myPaint.setStyle(Paint.Style.FILL);
-        myPaint.setColor(Color.RED);
-
         densityScale = getResources().getDisplayMetrics().density;
-        touchInputDevice = new TouchInputDevice(densityScale);
+        touchInputDevice = new CollectingTouchInputDevice(densityScale);
         this.setOnTouchListener(touchInputDevice);
         executor = Executors.newScheduledThreadPool(1);
+    }
+
+    private void loadAttributes(AttributeSet attrs, int defStyle) {
+        final TypedArray a = getContext().obtainStyledAttributes(
+                attrs, R.styleable.DiagramEditorView, defStyle, 0);
+        this.mBgColor = a.getColor(R.styleable.DiagramEditorView_backgroundColor, Color.WHITE);
+        a.recycle();
     }
 
     @Override
@@ -130,8 +131,8 @@ public final class DiagramEditorView extends View {
 
         public void run() {
             try {
-                for (TouchInputDevice.TouchEvent touchEvent : editorView.touchInputDevice.getEvents()) {
-                    if (touchEvent.getTouchType() == TouchInputDevice.TouchEventType.TOUCH_UP) {
+                for (TouchEvent touchEvent : editorView.touchInputDevice.getEvents()) {
+                    if (touchEvent.getTouchType() == TouchEventType.TOUCH_UP) {
                         // LETTING GO
                         touchedElement = null;
                         Log.d(TAG, "letting go " + touchEvent);
@@ -211,6 +212,6 @@ public final class DiagramEditorView extends View {
     }
 
     private void drawBackground(Canvas canvas) {
-        canvas.drawColor(Color.WHITE);
+        canvas.drawColor(mBgColor);
     }
 }

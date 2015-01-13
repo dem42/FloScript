@@ -2,4 +2,7 @@
     <declare-styleable name="DiagramEditorView">
         <attr name="backgroundColor" format="color" />
     </declare-styleable>
+    <declare-styleable name="ElementSelectionView">
+        <attr name="backgroundColor" format="color" />
+    </declare-styleable>
 </resources>

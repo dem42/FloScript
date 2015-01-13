@@ -1,13 +1,24 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" tools:context="com.premature.floscript.scripts.ui.ScriptingFragment">
-
-    <!-- TODO: Update blank fragment layout -->
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.premature.floscript.scripts.ui.ScriptingFragment">
 
     <view
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         class="com.premature.floscript.scripts.ui.DiagramEditorView"
-        android:id="@+id/script_editor" />
+        android:id="@+id/script_editor"
+        app:backgroundColor="#33b5e5"/>
+
+    <!-- uses the dark theme action bar pulled from a stack answer -->
+    <view
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        class="com.premature.floscript.scripts.ui.ElementSelectionView"
+        android:id="@+id/element_selector"
+        app:backgroundColor="#222222"
+        android:layout_gravity="bottom|center_horizontal"/>
 
 </FrameLayout>

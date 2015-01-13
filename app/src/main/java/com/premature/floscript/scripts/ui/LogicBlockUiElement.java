@@ -18,30 +18,30 @@ import java.util.List;
  * contains some code logic that will get executed should the control flow reach this element.
  */
 public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBlockUiElement> {
-
-    private static final int WIDTH = 70;
-    private static final int HEIGHT = 70;
-
+    private static final int DEFAULT_WIDTH = 70;
+    private static final int DEFAULT_HEIGHT = 70;
     private final List<ArrowAnchorPoint> mAnchorPoints;
-
     private Path logicBlockPath;
     private PathShape logicBlockShape;
     private ShapeDrawable logicBlock;
 
-    public LogicBlockUiElement() {
-        super(0f, 0f, WIDTH, HEIGHT);
+    public LogicBlockUiElement(int width, int height) {
+        super(0f, 0f, width, height);
         ArrayList<ArrowAnchorPoint> list = new ArrayList<>();
         list.add(new ArrowAnchorPoint(0,0, this));
-        list.add(new ArrowAnchorPoint(0,HEIGHT/2, this));
-        list.add(new ArrowAnchorPoint(0,HEIGHT, this));
-        list.add(new ArrowAnchorPoint(WIDTH/2,0, this));
-        list.add(new ArrowAnchorPoint(WIDTH,0, this));
-        list.add(new ArrowAnchorPoint(WIDTH,HEIGHT/2, this));
-        list.add(new ArrowAnchorPoint(WIDTH/2,HEIGHT, this));
-        list.add(new ArrowAnchorPoint(WIDTH,HEIGHT, this));
+        list.add(new ArrowAnchorPoint(0,height/2, this));
+        list.add(new ArrowAnchorPoint(0,height, this));
+        list.add(new ArrowAnchorPoint(width/2,0, this));
+        list.add(new ArrowAnchorPoint(width,0, this));
+        list.add(new ArrowAnchorPoint(width,height/2, this));
+        list.add(new ArrowAnchorPoint(width/2,height, this));
+        list.add(new ArrowAnchorPoint(width,height, this));
         this.mAnchorPoints = Collections.unmodifiableList(list);
-
         initShape();
+    }
+
+    public LogicBlockUiElement() {
+        this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
     private void initShape() {
