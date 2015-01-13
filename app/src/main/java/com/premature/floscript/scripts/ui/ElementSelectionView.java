@@ -53,7 +53,7 @@ public class ElementSelectionView extends View {
         super(context, attrs, defStyleAttr);
         init(attrs, defStyleAttr);
     }
-    
+
     public void setOnElementSelectorListener(OnElementSelectorListener listener) {
         Log.d(TAG, "OnElementSelectorListener has been set");
         this.mOnElementSelectorListener = listener;
