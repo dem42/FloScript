@@ -41,10 +41,10 @@ public final class DiamondUiElement extends ArrowTargetableDiagramElement<Diamon
 
     private void initShape() {
         diamondPath = new Path();
-        diamondPath.moveTo(0f, 0f);
-        diamondPath.lineTo(1f, 3f);
-        diamondPath.lineTo(2f, 0f);
-        diamondPath.lineTo(1f, -3f);
+        diamondPath.moveTo(0f, 3f);
+        diamondPath.lineTo(1f, 0f);
+        diamondPath.lineTo(2f, 3f);
+        diamondPath.lineTo(1f, 6f);
         diamondPath.close();
 
         diamondShape = new PathShape(diamondPath, 2, 6f);

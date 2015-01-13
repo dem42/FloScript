@@ -1,8 +1,11 @@
 <resources>
+    <attr name="backgroundColor" format="color" />
+
     <declare-styleable name="DiagramEditorView">
-        <attr name="backgroundColor" format="color" />
+        <attr name="backgroundColor"/>
     </declare-styleable>
+
     <declare-styleable name="ElementSelectionView">
-        <attr name="backgroundColor" format="color" />
+        <attr name="backgroundColor"/>
     </declare-styleable>
 </resources>
