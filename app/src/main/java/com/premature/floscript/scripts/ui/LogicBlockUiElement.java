@@ -44,6 +44,10 @@ public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBloc
         this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
+    public ShapeDrawable getLogicBlock() {
+        return logicBlock;
+    }
+
     private void initShape() {
         logicBlockPath = new Path();
         logicBlockPath.moveTo(0f, 0f);

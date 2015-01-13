@@ -8,11 +8,15 @@ import android.graphics.Paint;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
 import com.premature.floscript.R;
+import com.premature.floscript.scripts.ui.touching.TouchEvent;
+
+import java.util.List;
 
 /**
  * Created by martin on 12/01/15.
@@ -20,8 +24,9 @@ import com.premature.floscript.R;
  * This class presents a view presenting a choice of elements that can be used in
  * the flochart script.
  */
-public class ElementSelectionView extends View implements View.OnTouchListener {
+public class ElementSelectionView extends View {
 
+    private static final String TAG = "SELECTOR";
     private int mBgColor;
     private float mDensity;
 
@@ -32,6 +37,7 @@ public class ElementSelectionView extends View implements View.OnTouchListener {
     private DiamondUiElement mDiamondElement;
     private Button mPinUnpinButton;
     private Paint mLineColor;
+    private OnElementSelectorListener mOnElementSelectorListener;
 
     public ElementSelectionView(Context context) {
         super(context);
@@ -47,6 +53,23 @@ public class ElementSelectionView extends View implements View.OnTouchListener {
         super(context, attrs, defStyleAttr);
         init(attrs, defStyleAttr);
     }
+    
+    public void setOnElementSelectorListener(OnElementSelectorListener listener) {
+        Log.d(TAG, "OnElementSelectorListener has been set");
+        this.mOnElementSelectorListener = listener;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        Log.d(TAG, "Oh hello!! We are getting called for " + TouchEvent.eventsFrom(event, mDensity));
+        List<TouchEvent> eventList = TouchEvent.eventsFrom(event, mDensity);
+        for (TouchEvent tevent : eventList) {
+            handleEvent(tevent);
+        }
+        // we consume the events so that they don't go down to DiagramEditorView
+        //TODO: does this consume the button as well? in which case feed all to buttons
+        return true;
+    }
 
     // TODO: this stuff is pretty static .. consider drawing it to a bitmap and just
     // reusing that and possibly changing that when clicked and calling invalidate
@@ -57,7 +80,7 @@ public class ElementSelectionView extends View implements View.OnTouchListener {
         canvas.drawColor(mBgColor);
         // scale from dips to pixels
         canvas.scale(mDensity, mDensity);
-        canvas.translate(10, 5);
+        canvas.translate(20, 5);
         mLogicBlockElement.draw(canvas);
         float cum_width = mLogicBlockElement.getWidth() + 10;
         canvas.drawLine(cum_width, 5, cum_width, mDesiredHeightDp - 5, mLineColor);
@@ -67,15 +90,20 @@ public class ElementSelectionView extends View implements View.OnTouchListener {
         cum_width = mDiamondElement.getWidth() + 10;
         canvas.drawLine(cum_width, 5, cum_width, mDesiredHeightDp - 5, mLineColor);
 
-        canvas.translate(cum_width + 10, 50 / 2);
+        canvas.translate(cum_width + 10 - 25, 50 / 2);
         mPinUnpinButton.draw(canvas);
 
         canvas.restoreToCount(savePoint0);
     }
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        return false;
+    private void handleEvent(TouchEvent tevent) {
+        Log.d(TAG, "Handled event at location " + tevent);
+        if (mLogicBlockElement.contains(tevent.getXPosDips(), tevent.getYPosDips())) {
+            mOnElementSelectorListener.onElementAdded(mLogicBlockElement);
+        }
+        else if (mDiamondElement.contains(tevent.getXPosDips(), tevent.getYPosDips())) {
+            mOnElementSelectorListener.onElementAdded(mDiamondElement);
+        }
     }
 
     // we use init instead of chaining constructors because the super might do different
@@ -91,9 +119,16 @@ public class ElementSelectionView extends View implements View.OnTouchListener {
         this.mLogicBlockElement = new LogicBlockUiElement(50, 50);
         this.mDiamondElement = new DiamondUiElement(40, 50);
         this.mPinUnpinButton = new Button(getContext());
+
         ShapeDrawable testDraw = new ShapeDrawable(new OvalShape());
         testDraw.setBounds(0, 0, 50, 50);
         mPinUnpinButton.setCompoundDrawables(testDraw, null, null, null);
+        mPinUnpinButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mOnElementSelectorListener.pinningStateToggled();
+            }
+        });
 
         this.mDesiredHeightDp = 60;
         this.mDesiredWidthDp = 150 + 3*20;
@@ -124,5 +159,10 @@ public class ElementSelectionView extends View implements View.OnTouchListener {
 
     private int getDesiredHeightPx() {
         return (int)Math.ceil(this.mDesiredHeightDp * mDensity);
+    }
+
+    public interface OnElementSelectorListener {
+        void onElementAdded(ArrowTargetableDiagramElement<?> element);
+        void pinningStateToggled();
     }
 }

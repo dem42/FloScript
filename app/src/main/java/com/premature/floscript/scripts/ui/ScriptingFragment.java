@@ -4,11 +4,17 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.premature.floscript.R;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
+import static com.premature.floscript.scripts.ui.ElementSelectionView.OnElementSelectorListener;
 
 
 /**
@@ -19,18 +25,24 @@ import com.premature.floscript.R;
  * Use the {@link ScriptingFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public final class ScriptingFragment extends Fragment {
+public final class ScriptingFragment extends Fragment implements OnElementSelectorListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    public static final String TITLE = "Scripting";
+    private static final String TAG = "SCRIPT_FRAG";
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     private OnScriptingFragmentInteractionListener mListener;
+
+    @InjectView(R.id.script_editor)
+    DiagramEditorView mDiagramEditorView;
+
+    @InjectView(R.id.element_selector)
+    ElementSelectionView mElementSelectorView;
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -67,6 +79,8 @@ public final class ScriptingFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_scripting, container, false);
+        ButterKnife.inject(this, view);
+        mElementSelectorView.setOnElementSelectorListener(this);
         return view;
     }
 
@@ -92,6 +106,15 @@ public final class ScriptingFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public void onElementAdded(ArrowTargetableDiagramElement<?> element) {
+        Log.d(TAG, "Element " + element + " added");
+    }
+
+    @Override
+    public void pinningStateToggled() {
+        Log.d(TAG, "Pinning state was toggled");
     }
 
     /**

@@ -58,6 +58,10 @@ public final class DiamondUiElement extends ArrowTargetableDiagramElement<Diamon
         diamond.setBounds(0, 0, mWidth, mHeight);
     }
 
+    public ShapeDrawable getDiamond() {
+        return diamond;
+    }
+
     @Override
     public void draw(Canvas canvas) {
         int saveCount = canvas.save();

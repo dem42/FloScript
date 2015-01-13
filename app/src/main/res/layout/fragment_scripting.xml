@@ -13,12 +13,17 @@
         app:backgroundColor="#33b5e5"/>
 
     <!-- uses the dark theme action bar pulled from a stack answer -->
+    <!--
+        the clickable=true is really bizzare but seems to be necessary to
+        receive any events at all .. otherwise it's just the view we
+        overlap that gets them .. check your stackoverflow favorites -->
     <view
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         class="com.premature.floscript.scripts.ui.ElementSelectionView"
         android:id="@+id/element_selector"
         app:backgroundColor="#222222"
-        android:layout_gravity="bottom|center_horizontal"/>
+        android:layout_gravity="bottom|center_horizontal"
+        android:clickable="true"/>
 
 </FrameLayout>

@@ -2,6 +2,9 @@ package com.premature.floscript.scripts.ui.touching;
 
 import android.view.MotionEvent;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
 * Created by martin on 12/01/15.
 */
@@ -47,5 +50,13 @@ public final class TouchEvent {
         return new TouchEvent((int)(event.getX(idx) / screenDensity),
                 (int)(event.getY(idx) / screenDensity), event.getPointerId(idx),
                 TouchEventType.from(event.getActionMasked()));
+    }
+
+    public static List<TouchEvent> eventsFrom(MotionEvent event, float screenDensity) {
+        List<TouchEvent> events = new ArrayList<>();
+        for (int i = 0; i < event.getPointerCount(); i++) {
+            events.add(TouchEvent.from(event, i, screenDensity));
+        }
+        return events;
     }
 }
