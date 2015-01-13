@@ -8,11 +8,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.premature.floscript.R;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 
 import static com.premature.floscript.scripts.ui.ElementSelectionView.OnElementSelectorListener;
 
@@ -32,17 +35,19 @@ public final class ScriptingFragment extends Fragment implements OnElementSelect
     private static final String ARG_PARAM2 = "param2";
     private static final String TAG = "SCRIPT_FRAG";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+
+    private LogicBlockUiElement mLogicBlockElement;
+    private DiamondUiElement mDiamondElement;
 
     private OnScriptingFragmentInteractionListener mListener;
 
     @InjectView(R.id.script_editor)
     DiagramEditorView mDiagramEditorView;
 
-    @InjectView(R.id.element_selector)
-    ElementSelectionView mElementSelectorView;
+    @InjectView(R.id.logic_elem_btn)
+    ImageButton mLogicElemBtn;
+    private float mDensity;
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -69,9 +74,23 @@ public final class ScriptingFragment extends Fragment implements OnElementSelect
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            //mParam1 = getArguments().getString(ARG_PARAM1);
+            //mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        init();
+    }
+
+    private void init() {
+        this.mDensity = getResources().getDisplayMetrics().density;
+        this.mLogicBlockElement = new LogicBlockUiElement(20, 20);
+        this.mDiamondElement = new DiamondUiElement(40, 50);
+    }
+
+
+    /** Called when the user touches the button */
+    @OnClick({R.id.logic_elem_btn, R.id.diamond_elem_btn, R.id.arrow_elem_btn, R.id.pin_btn})
+    public void buttonClicked(View view) {
+        Log.d(TAG, "a button was clicked .. yay!");
     }
 
     @Override
@@ -80,7 +99,8 @@ public final class ScriptingFragment extends Fragment implements OnElementSelect
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_scripting, container, false);
         ButterKnife.inject(this, view);
-        mElementSelectorView.setOnElementSelectorListener(this);
+        mLogicElemBtn.setImageDrawable(mLogicBlockElement.getDrawable());
+        //mElementSelectorView.setOnElementSelectorListener(this);
         return view;
     }
 

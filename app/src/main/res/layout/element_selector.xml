@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/selector_layout"
+    android:background="#222222">
+
+    <ImageButton
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/logic_elem_btn"
+        android:layout_marginLeft="2dp"
+        android:background="?android:attr/selectableItemBackground"/>
+
+    <View style="@style/Divider"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"/>
+
+    <ImageButton
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/diamond_elem_btn"
+        android:background="?android:attr/selectableItemBackground"/>
+
+    <View style="@style/Divider"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"/>
+
+    <ImageButton
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/arrow_elem_btn"
+        android:background="?android:attr/selectableItemBackground"/>
+
+    <View style="@style/Divider"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"/>
+
+    <ImageButton
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/pin_btn"
+        android:background="?android:attr/selectableItemBackground"/>
+
+</LinearLayout>

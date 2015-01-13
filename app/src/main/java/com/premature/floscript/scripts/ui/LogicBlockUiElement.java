@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 
@@ -75,5 +76,9 @@ public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBloc
     @Override
     public Iterable<ArrowAnchorPoint> getAnchorPoints() {
         return mAnchorPoints;
+    }
+
+    public Drawable getDrawable() {
+        return logicBlock;
     }
 }
