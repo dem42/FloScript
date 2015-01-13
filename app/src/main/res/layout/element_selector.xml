@@ -5,7 +5,7 @@
     android:id="@+id/selector_layout"
     android:background="#222222">
 
-    <ImageButton
+    <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,7 +17,7 @@
         android:layout_marginLeft="2dp"
         android:layout_marginRight="2dp"/>
 
-    <ImageButton
+    <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
         android:layout_marginLeft="2dp"
         android:layout_marginRight="2dp"/>
 
-    <ImageButton
+    <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
         android:layout_marginLeft="2dp"
         android:layout_marginRight="2dp"/>
 
-    <ImageButton
+    <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

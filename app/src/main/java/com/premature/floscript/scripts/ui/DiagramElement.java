@@ -1,6 +1,7 @@
 package com.premature.floscript.scripts.ui;
 
 import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 
 /**
  * Created by martin on 05/01/15.
@@ -86,6 +87,7 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
     }
 
     public abstract void draw(Canvas canvas);
+    public abstract Drawable getDrawable();
 
     protected final SELF_TYPE self() {
         return (SELF_TYPE) this;

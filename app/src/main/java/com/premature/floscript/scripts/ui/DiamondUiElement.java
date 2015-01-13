@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 
@@ -14,7 +15,7 @@ import java.util.List;
 /**
  * Created by martin on 06/01/15.
  * <p/>
- * The diamond element encapsulates the view logic for floscript if-else code elements
+ * The mDiamond element encapsulates the view logic for floscript if-else code elements
  */
 public final class DiamondUiElement extends ArrowTargetableDiagramElement<DiamondUiElement> {
     private static final int DEFAULT_WIDTH = 50;
@@ -22,7 +23,7 @@ public final class DiamondUiElement extends ArrowTargetableDiagramElement<Diamon
     private final List<ArrowTargetableDiagramElement.ArrowAnchorPoint> mAnchorPoints;
     private Path diamondPath;
     private PathShape diamondShape;
-    private ShapeDrawable diamond;
+    private ShapeDrawable mDiamond;
 
     public DiamondUiElement(int width, int height) {
         super(0f, 0f, width, height);
@@ -48,22 +49,27 @@ public final class DiamondUiElement extends ArrowTargetableDiagramElement<Diamon
         diamondPath.close();
 
         diamondShape = new PathShape(diamondPath, 2, 6f);
-        diamond = new ShapeDrawable(diamondShape);
+        mDiamond = new ShapeDrawable(diamondShape);
 
-        diamond.getPaint().setColor(Color.GREEN);;
-        diamond.getPaint().setStyle(Paint.Style.STROKE);
+        mDiamond.getPaint().setColor(Color.GREEN);;
+        mDiamond.getPaint().setStyle(Paint.Style.STROKE);
         // this value is in pixels, but canvas conversions apply to it too
-        diamond.getPaint().setStrokeWidth(0.05f);
-        diamond.getPaint().setAntiAlias(true);
-        diamond.setBounds(0, 0, mWidth, mHeight);
+        mDiamond.getPaint().setStrokeWidth(0.05f);
+        mDiamond.getPaint().setAntiAlias(true);
+        mDiamond.setBounds(0, 0, mWidth, mHeight);
     }
 
     @Override
     public void draw(Canvas canvas) {
         int saveCount = canvas.save();
         canvas.translate(mXPos, mYPos);
-        diamond.draw(canvas);
+        mDiamond.draw(canvas);
         canvas.restoreToCount(saveCount);
+    }
+
+    @Override
+    public Drawable getDrawable() {
+        return mDiamond;
     }
 
     @Override

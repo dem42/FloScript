@@ -3,6 +3,8 @@ package com.premature.floscript.scripts.ui;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 
@@ -44,6 +46,11 @@ public final class StartUiElement extends DiagramElement<StartUiElement> {
         canvas.translate(mWidth /2 - mWidth /6, mHeight /2 - mHeight /6);
         innerCircle.draw(canvas);
         canvas.restoreToCount(savePoint);
+    }
+
+    @Override
+    public Drawable getDrawable() {
+        return new LayerDrawable(new Drawable[]{outsideCircle, innerCircle});
     }
 
 }

@@ -4,6 +4,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 import android.graphics.drawable.shapes.RectShape;
@@ -18,6 +20,8 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
 
     private static final String TAG = "ARROW_UI";
     private static final double RAD_TO_DEG = (180.0 / Math.PI);
+    private static final int DEFAULT_HEIGHT = 3;
+    private static final int DEFAULT_WIDTH = 50;
     private ArrowTargetableDiagramElement<?> mStartPoint;
     private ArrowTargetableDiagramElement<?> mEndPoint;
 
@@ -35,7 +39,11 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
     private float mArrowHeadYPos;
 
     public ArrowUiElement() {
-        super(0f, 0f, 50, 3);
+        this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    }
+
+    public ArrowUiElement(int width, int height) {
+        super(0f, 0f, width, height);
         this.mArrowHeadHeight = (int)(2.5f * mHeight);
         this.mArrowHeadWidth = mWidth / 5;
         this.mArrowHeadXPos = mWidth + mArrowHeadWidth;
@@ -143,7 +151,13 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         mArrowHead.draw(canvas);
         canvas.restoreToCount(saveCount);
     }
-   
+
+    @Override
+    public Drawable getDrawable() {
+        LayerDrawable arrow = new LayerDrawable(new Drawable[]{mArrowBody, mArrowHead});
+        return arrow;
+    }
+
     public void anchorStart(ArrowTargetableDiagramElement<?> elem, ArrowTargetableDiagramElement.ArrowAnchorPoint arrowAnchorPoint) {
         Log.d(TAG, "starting anchor " + arrowAnchorPoint + " for arrow " + toString());
         moveTo(arrowAnchorPoint.getXPosDip(), arrowAnchorPoint.getYPosDip());

@@ -6,17 +6,17 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 
 import com.premature.floscript.R;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnClick;
 
+import static android.view.View.LAYER_TYPE_SOFTWARE;
 import static com.premature.floscript.scripts.ui.ElementSelectionView.OnElementSelectorListener;
 
 
@@ -38,14 +38,19 @@ public final class ScriptingFragment extends Fragment implements OnElementSelect
 
     private LogicBlockUiElement mLogicBlockElement;
     private DiamondUiElement mDiamondElement;
+    private ArrowUiElement mArrowElement;
 
     private OnScriptingFragmentInteractionListener mListener;
 
     @InjectView(R.id.script_editor)
     DiagramEditorView mDiagramEditorView;
-
     @InjectView(R.id.logic_elem_btn)
-    ImageButton mLogicElemBtn;
+    Button mLogicElemBtn;
+    @InjectView(R.id.diamond_elem_btn)
+    Button mDiamondElemBtn;
+    @InjectView(R.id.arrow_elem_btn)
+    Button mArrowElemBtn;
+
     private float mDensity;
 
     /**
@@ -82,15 +87,10 @@ public final class ScriptingFragment extends Fragment implements OnElementSelect
 
     private void init() {
         this.mDensity = getResources().getDisplayMetrics().density;
-        this.mLogicBlockElement = new LogicBlockUiElement(20, 20);
-        this.mDiamondElement = new DiamondUiElement(40, 50);
-    }
+        this.mLogicBlockElement = new LogicBlockUiElement((int)(40 * mDensity), (int)(40 * mDensity));
+        this.mDiamondElement = new DiamondUiElement((int)(40 * mDensity), (int)(40 * mDensity));
+        this.mArrowElement = new ArrowUiElement((int)(40 * mDensity), (int)(40 * mDensity));
 
-
-    /** Called when the user touches the button */
-    @OnClick({R.id.logic_elem_btn, R.id.diamond_elem_btn, R.id.arrow_elem_btn, R.id.pin_btn})
-    public void buttonClicked(View view) {
-        Log.d(TAG, "a button was clicked .. yay!");
     }
 
     @Override
@@ -99,8 +99,19 @@ public final class ScriptingFragment extends Fragment implements OnElementSelect
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_scripting, container, false);
         ButterKnife.inject(this, view);
-        mLogicElemBtn.setImageDrawable(mLogicBlockElement.getDrawable());
-        //mElementSelectorView.setOnElementSelectorListener(this);
+
+        mLogicElemBtn.setLayerType(LAYER_TYPE_SOFTWARE, null);
+        mLogicElemBtn.setCompoundDrawables(mLogicBlockElement.getDrawable(), null, null, null);
+        mLogicElemBtn.setOnTouchListener(new StickyButtonOnTouchListener(mLogicElemBtn));
+
+        mDiamondElemBtn.setLayerType(LAYER_TYPE_SOFTWARE, null);
+        mDiamondElemBtn.setCompoundDrawables(mDiamondElement.getDrawable(), null, null, null);
+        mDiamondElemBtn.setOnTouchListener(new StickyButtonOnTouchListener(mDiamondElemBtn));
+
+        mArrowElemBtn.setLayerType(LAYER_TYPE_SOFTWARE, null);
+        mArrowElemBtn.setCompoundDrawables(mArrowElement.getDrawable(), null, null, null);
+        mArrowElemBtn.setOnTouchListener(new StickyButtonOnTouchListener(mArrowElemBtn));
+
         return view;
     }
 
@@ -150,5 +161,30 @@ public final class ScriptingFragment extends Fragment implements OnElementSelect
     public interface OnScriptingFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onScriptingFragmentInteraction(Uri uri);
+    }
+
+    /**
+     * This listener turns our buttons into stateful push buttons
+     */
+    private static class StickyButtonOnTouchListener implements View.OnTouchListener {
+        boolean isPressed = false;
+        private final Button mPressableElement;
+
+        public StickyButtonOnTouchListener(Button logicElemBtn) {
+            this.mPressableElement = logicElemBtn;
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                isPressed = !isPressed;
+                mPressableElement.setPressed(isPressed);
+            }
+            return true; //consumed .. don't send to any other listeners
+        }
+
+        public void doOnClick() {
+            Log.d(TAG, "Clicked " + mPressableElement);
+        }
     }
 }

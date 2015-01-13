@@ -24,7 +24,7 @@ public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBloc
     private final List<ArrowAnchorPoint> mAnchorPoints;
     private Path logicBlockPath;
     private PathShape logicBlockShape;
-    private ShapeDrawable logicBlock;
+    private ShapeDrawable mLogicBlock;
 
     public LogicBlockUiElement(int width, int height) {
         super(0f, 0f, width, height);
@@ -57,19 +57,19 @@ public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBloc
         logicBlockPath.lineTo(1.75f, 0f);
         logicBlockPath.close();
         logicBlockShape = new PathShape(logicBlockPath, 2f, 2f);
-        logicBlock = new ShapeDrawable(logicBlockShape);
-        logicBlock.getPaint().setAntiAlias(true);
-        logicBlock.getPaint().setStyle(Paint.Style.STROKE);
-        logicBlock.getPaint().setStrokeWidth(0.05f);
-        logicBlock.getPaint().setColor(Color.GREEN);
-        logicBlock.setBounds(0, 0, mWidth, mHeight);
+        mLogicBlock = new ShapeDrawable(logicBlockShape);
+        mLogicBlock.getPaint().setAntiAlias(true);
+        mLogicBlock.getPaint().setStyle(Paint.Style.STROKE);
+        mLogicBlock.getPaint().setStrokeWidth(0.05f);
+        mLogicBlock.getPaint().setColor(Color.GREEN);
+        mLogicBlock.setBounds(0, 0, mWidth, mHeight);
     }
 
     @Override
     public void draw(Canvas canvas) {
         int saveCount = canvas.save();
         canvas.translate(mXPos, mYPos);
-        logicBlock.draw(canvas);
+        mLogicBlock.draw(canvas);
         canvas.restoreToCount(saveCount);
     }
 
@@ -78,7 +78,8 @@ public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBloc
         return mAnchorPoints;
     }
 
+    @Override
     public Drawable getDrawable() {
-        return logicBlock;
+        return mLogicBlock;
     }
 }
