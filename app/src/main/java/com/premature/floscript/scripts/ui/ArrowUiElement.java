@@ -9,7 +9,10 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 import android.graphics.drawable.shapes.RectShape;
+import android.support.annotation.Nullable;
 import android.util.Log;
+
+import com.premature.floscript.scripts.ui.touching.TouchEvent;
 
 /**
  * Created by martin on 04/01/15.
@@ -162,11 +165,13 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
     public void anchorStart(ArrowTargetableDiagramElement<?> elem, ArrowTargetableDiagramElement.ArrowAnchorPoint arrowAnchorPoint) {
         Log.d(TAG, "starting anchor " + arrowAnchorPoint + " for arrow " + toString());
         moveTo(arrowAnchorPoint.getXPosDip(), arrowAnchorPoint.getYPosDip());
+        setStartPoint(elem);
     }
 
     public void anchorEnd(ArrowTargetableDiagramElement<?> elem, ArrowTargetableDiagramElement.ArrowAnchorPoint arrowAnchorPoint) {
         Log.d(TAG, "ending anchor " + arrowAnchorPoint + " for arrow " + toString());
-        onArrowHeadDrag(arrowAnchorPoint.getXPosDip(), arrowAnchorPoint.getYPosDip());
+        setEndPoint(elem);
+        //onArrowHeadDrag(arrowAnchorPoint.getXPosDip(), arrowAnchorPoint.getYPosDip());
     }
 
     @Override
@@ -177,5 +182,28 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
                 ", mArrowHeadXPos=" + mArrowHeadXPos +
                 ", mArrowHeadYPos=" + mArrowHeadYPos +
                 '}';
+    }
+
+    public void anchorEndPoint(@Nullable ArrowTargetableDiagramElement<?> end, TouchEvent touchEvent) {
+        if (end == null) {
+            end.unanchor(this);
+            this.setEndPoint(null);
+            return;
+        }
+
+        ArrowTargetableDiagramElement.ArrowAnchorPoint arrowAnchorPoint = end.connectArrow(this, touchEvent.getXPosDips(), touchEvent.getYPosDips());
+        Log.d(TAG, "arrow end anchoring  " +  end + " at anchor point " + arrowAnchorPoint);
+        this.anchorEnd(end, arrowAnchorPoint);
+    }
+
+    public void anchorStartPoint(@Nullable ArrowTargetableDiagramElement<?> start, TouchEvent touchEvent) {
+        if (start == null) {
+            start.unanchor(this);
+            this.setStartPoint(null);
+            return;
+        }
+        ArrowTargetableDiagramElement.ArrowAnchorPoint arrowAnchorPoint = start.connectArrow(this, (int)this.getXPos(), (int)this.getYPos());
+        Log.d(TAG, "arrow start anchoring  " +  start + " at anchor point " + arrowAnchorPoint);
+        this.anchorStart(start, arrowAnchorPoint);
     }
 }

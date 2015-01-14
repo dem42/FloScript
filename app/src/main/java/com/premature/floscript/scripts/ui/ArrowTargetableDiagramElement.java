@@ -35,7 +35,7 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
      */
     public ArrowAnchorPoint connectArrow(ArrowUiElement arrow, int arrowXPosDp, int arrowYPosDp) {
         ArrowAnchorPoint nearest = getNearestAnchorPoint(arrowXPosDp, arrowYPosDp);
-        ArrowAnchorPoint existingAnchor = null;//mArrowToAnchor.putIfAbsent(arrow, nearest);
+        ArrowAnchorPoint existingAnchor = mArrowToAnchor.putIfAbsent(arrow, nearest);
         return existingAnchor != null ? existingAnchor : nearest;
     }
 
@@ -55,6 +55,10 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
 
     public ArrowAnchorPoint getAnchorFor(ArrowUiElement arrowUiElement) {
         return mArrowToAnchor.get(arrowUiElement);
+    }
+
+    public void unanchor(ArrowUiElement arrowUiElement) {
+        mArrowToAnchor.remove(arrowUiElement);
     }
 
     /**
