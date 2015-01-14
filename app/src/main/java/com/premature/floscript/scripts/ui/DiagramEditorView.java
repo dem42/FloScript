@@ -9,19 +9,15 @@ import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.premature.floscript.R;
-import com.premature.floscript.scripts.ui.touching.CollectingTouchInputDevice;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
 import com.premature.floscript.scripts.ui.touching.TouchEventType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This view is responsible for drawing a diagram of a floscript instance encapsulated
@@ -34,12 +30,9 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
     private static final String TAG = "DIAGRAM_EDITOR";
 
-    private CollectingTouchInputDevice touchInputDevice;
     private int mBgColor;
-    private float densityScale;
+    private float mDensityScale;
 
-    private ScheduledExecutorService executor;
-    private ScheduledFuture<?> scheduledFuture;
     private List<DiagramElement<?>> elements = new ArrayList<>();
     private List<ArrowUiElement> arrows = new ArrayList<>();
     private List<ArrowTargetableDiagramElement<?>> connectables = new ArrayList<>();
@@ -50,6 +43,8 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private ArrowUiElement floatingArrow;
 
     private EditingState mEdittingState = EditingState.ELEMENT_EDITING;
+    private ElementMover mElementMover;
+
     private enum EditingState {
         ELEMENT_EDITING, ARROW_EDITING;
     }
@@ -80,10 +75,8 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         // Load attributes
         loadAttributes(attrs, defStyle);
 
-        densityScale = getResources().getDisplayMetrics().density;
-        touchInputDevice = new CollectingTouchInputDevice(densityScale);
-        this.setOnTouchListener(touchInputDevice);
-        executor = Executors.newScheduledThreadPool(1);
+        mDensityScale = getResources().getDisplayMetrics().density;
+        mElementMover = new ElementMover(this);
     }
 
     private void loadAttributes(AttributeSet attrs, int defStyle) {
@@ -94,18 +87,11 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     }
 
     @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        scheduledFuture = executor.scheduleWithFixedDelay(new ElementMover(this), 0, 1000, TimeUnit.MICROSECONDS);
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        if (scheduledFuture != null) {
-            scheduledFuture.cancel(true);
-            scheduledFuture = null;
-        }
+    public boolean onTouchEvent(MotionEvent event) {
+        mElementMover.handleEvents(TouchEvent.eventsFrom(event, mDensityScale));
+        // we care about these gestures and want to receive the following move,touch_up
+        // events so we return true here, which indicates that this view will handle them
+        return true;
     }
 
     public void setOnDiagramEditorListener(OnDiagramEditorListener onDiagramEditorListener) {
@@ -141,18 +127,18 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     /**
      * This class is responsible for moving elements in response to touches
      */
-    private static final class ElementMover implements Runnable {
+    private static final class ElementMover {
 
         private final DiagramEditorView editorView;
-        private volatile DiagramElement<?> touchedElement = null;
+        private DiagramElement<?> touchedElement = null;
 
         ElementMover(DiagramEditorView editorView) {
             this.editorView = editorView;
         }
 
-        public void run() {
+        public void handleEvents(List<TouchEvent> touchEvents) {
             try {
-                for (TouchEvent touchEvent : editorView.touchInputDevice.getEvents()) {
+                for (TouchEvent touchEvent : touchEvents) {
                     if (touchEvent.getTouchType() == TouchEventType.TOUCH_UP) {
                         // LETTING GO
                         touchedElement = null;
@@ -208,8 +194,10 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         }
     }
 
-    private synchronized DiagramElement<?> placeFloatingConnectable(int xPosDips, int yPosDips) {
+    private DiagramElement<?> placeFloatingConnectable(int xPosDips, int yPosDips) {
         ArrowTargetableDiagramElement<?> temp = floatingConnectable;
+        temp.moveCenterTo(xPosDips, yPosDips);
+        mOnDiagramEditorListener.onElementPlaced();
         floatingConnectable = null;
         connectables.add(temp);
         elements.add(temp);
@@ -222,19 +210,19 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         super.onDraw(canvas);
         drawBackground(canvas);
         int saveCount0 = canvas.save();
-        float paddingLeft = getPaddingLeft() / densityScale;
-        float paddingTop = getPaddingTop() / densityScale;
-        float paddingRight = getPaddingRight() / densityScale;
-        float paddingBottom = getPaddingBottom() /densityScale;
-        float contentWidth = getWidth() / densityScale - paddingLeft - paddingRight;
-        float contentHeight = getHeight() / densityScale - paddingTop - paddingBottom;
+        float paddingLeft = getPaddingLeft() / mDensityScale;
+        float paddingTop = getPaddingTop() / mDensityScale;
+        float paddingRight = getPaddingRight() / mDensityScale;
+        float paddingBottom = getPaddingBottom() / mDensityScale;
+        float contentWidth = getWidth() / mDensityScale - paddingLeft - paddingRight;
+        float contentHeight = getHeight() / mDensityScale - paddingTop - paddingBottom;
         int center_x = (int) (paddingLeft + contentWidth / 2);
         int center_y = (int) (paddingTop + contentHeight / 2);
 
         // we will draw everything in mdpi coords so that we can use a physical coord system
         // this means that we need to scale up to the size of our device
         // and then everything will have the same physical size on all devices
-        canvas.scale(densityScale, densityScale);
+        canvas.scale(mDensityScale, mDensityScale);
 
         for (DiagramElement<?> element : elements) {
             element.draw(canvas);

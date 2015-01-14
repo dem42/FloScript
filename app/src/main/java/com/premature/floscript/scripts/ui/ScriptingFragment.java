@@ -13,6 +13,9 @@ import android.widget.Button;
 
 import com.premature.floscript.R;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -26,7 +29,7 @@ import static android.view.View.LAYER_TYPE_SOFTWARE;
  * Use the {@link ScriptingFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public final class ScriptingFragment extends Fragment implements OnDiagramEditorListener {
+public final class ScriptingFragment extends Fragment {
     private static final String TAG = "SCRIPT_FRAG";
     private static final String PINNED_TEXT = "Unpin";
     private static final String UNPINNED_TEXT = "Pin";
@@ -50,6 +53,7 @@ public final class ScriptingFragment extends Fragment implements OnDiagramEditor
     Button mPinUnpinBtn;
 
     private float mDensity;
+    private StickyButtonCoordinator mBtnCoordinator;
 
     /**
      * Use this factory method to create a new instance of
@@ -98,50 +102,64 @@ public final class ScriptingFragment extends Fragment implements OnDiagramEditor
         final View view = inflater.inflate(R.layout.fragment_scripting, container, false);
         ButterKnife.inject(this, view);
         initButtons();
-        mDiagramEditorView.setOnDiagramEditorListener(this);
         return view;
     }
 
     private void initButtons() {
+        mBtnCoordinator = new StickyButtonCoordinator();
+        mDiagramEditorView.setOnDiagramEditorListener(mBtnCoordinator);
 
         mLogicElemBtn.setLayerType(LAYER_TYPE_SOFTWARE, null);
         mLogicElemBtn.setCompoundDrawables(mLogicBlockElement.getDrawable(), null, null, null);
-        mLogicElemBtn.setOnTouchListener(new StickyButtonOnTouchListener(mLogicElemBtn, mDiagramEditorView) {
+        StickyButtonOnTouchListener logicListener = new StickyButtonOnTouchListener(mLogicElemBtn,
+                mDiagramEditorView, mBtnCoordinator) {
             @Override
             public void doOnClick() {
                 super.doOnClick();
-                this.mOnElementSelectorListener.onDiamondElementClicked();
+                this.mOnElementSelectorListener.onLogicElementClicked();
             }
-        });
+        };
+        mLogicElemBtn.setOnTouchListener(logicListener);
+        mBtnCoordinator.registerElementButtonListener(logicListener);
 
         mDiamondElemBtn.setLayerType(LAYER_TYPE_SOFTWARE, null);
         mDiamondElemBtn.setCompoundDrawables(mDiamondElement.getDrawable(), null, null, null);
-        mDiamondElemBtn.setOnTouchListener(new StickyButtonOnTouchListener(mDiamondElemBtn, mDiagramEditorView) {
+        StickyButtonOnTouchListener diamondListener = new StickyButtonOnTouchListener(mDiamondElemBtn,
+                mDiagramEditorView, mBtnCoordinator) {
             @Override
             public void doOnClick() {
                 super.doOnClick();
                 this.mOnElementSelectorListener.onDiamondElementClicked();
             }
-        });
+        };
+        mDiamondElemBtn.setOnTouchListener(diamondListener);
+        mBtnCoordinator.registerElementButtonListener(diamondListener);
 
         mArrowElemBtn.setLayerType(LAYER_TYPE_SOFTWARE, null);
         mArrowElemBtn.setCompoundDrawables(mArrowElement.getDrawable(), null, null, null);
-        mArrowElemBtn.setOnTouchListener(new StickyButtonOnTouchListener(mArrowElemBtn, mDiagramEditorView) {
+        StickyButtonOnTouchListener arrowListener = new StickyButtonOnTouchListener(mArrowElemBtn,
+                mDiagramEditorView, mBtnCoordinator) {
             @Override
             public void doOnClick() {
                 super.doOnClick();
                 this.mOnElementSelectorListener.onArrowClicked();
             }
-        });
+        };
+        mArrowElemBtn.setOnTouchListener(arrowListener);
+        mBtnCoordinator.registerElementButtonListener(arrowListener);
 
         mPinUnpinBtn.setText(UNPINNED_TEXT);
-        mPinUnpinBtn.setOnTouchListener(new StickyButtonOnTouchListener(mPinUnpinBtn, mDiagramEditorView) {
+        StickyButtonOnTouchListener pinUnpinListener = new StickyButtonOnTouchListener(mPinUnpinBtn,
+                mDiagramEditorView, mBtnCoordinator) {
             @Override
             public void doOnClick() {
                 super.doOnClick();
                 this.mOnElementSelectorListener.pinningStateToggled();
             }
-        });
+        };
+        mPinUnpinBtn.setOnTouchListener(pinUnpinListener);
+        mBtnCoordinator.setPinUButton(mPinUnpinBtn);
+        mBtnCoordinator.setPinUnpinListener(pinUnpinListener);
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -168,15 +186,7 @@ public final class ScriptingFragment extends Fragment implements OnDiagramEditor
         mListener = null;
     }
 
-    @Override
-    public void onElementSelected(DiagramElement<?> element) {
-        mPinUnpinBtn.setText(element.isPinned() ? PINNED_TEXT : UNPINNED_TEXT);
-    }
 
-    @Override
-    public void onElementPlaced() {
-
-    }
 
     /**
      * This interface must be implemented by activities that contain this
@@ -194,29 +204,101 @@ public final class ScriptingFragment extends Fragment implements OnDiagramEditor
     }
 
     /**
-     * This mOnElementSelectorListener turns our buttons into stateful push buttons
+     * This class turns our buttons into stateful push buttons.
+     * </p>
+     * This means that they can no longer register click events, because this class consumes all touch
+     * events. For that reason, a user of this class who desires custom behaviour for onClick events
+     * should extend this class and place the logic inside the {@link #doOnClick()} method
      */
     private static class StickyButtonOnTouchListener implements View.OnTouchListener {
         boolean isPressed = false;
         private final Button mPressableElement;
-        private final OnElementSelectorListener mOnElementSelectorListener;
+        private final StickyButtonCoordinator mBtnCoordinator;
+        protected final OnElementSelectorListener mOnElementSelectorListener;
 
-        public StickyButtonOnTouchListener(Button logicElemBtn, OnElementSelectorListener listener) {
+        public StickyButtonOnTouchListener(Button logicElemBtn, OnElementSelectorListener listener, StickyButtonCoordinator btnCoordinator) {
             this.mPressableElement = logicElemBtn;
             this.mOnElementSelectorListener = listener;
+            this.mBtnCoordinator = btnCoordinator;
         }
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (mBtnCoordinator.isAllowedToToggle(this) && event.getAction() == MotionEvent.ACTION_DOWN) {
                 isPressed = !isPressed;
                 mPressableElement.setPressed(isPressed);
+                doOnClick();
             }
             return true; //consumed .. don't send to any other listeners
         }
 
+        public boolean isPressed() {
+            return isPressed;
+        }
+
+        public void setPressed(boolean isPressed) {
+            mPressableElement.setPressed(isPressed);
+            this.isPressed = isPressed;
+        }
+
         public void doOnClick() {
             Log.d(TAG, "Clicked " + mPressableElement);
+        }
+    }
+
+    /**
+     * This class acts as a nexus for the communication of sticky button listeners
+     * </p>
+     * The main task of this class is to coordinate that no more than one touch element
+     * has been pressed and also to receive callbacks from the diagram editor about element placement
+     * or element selection which affects the pin-unpin button.
+     */
+    private static class StickyButtonCoordinator implements OnDiagramEditorListener{
+        private List<StickyButtonOnTouchListener> mElementButtons = new ArrayList<>();
+        private StickyButtonOnTouchListener mPinUnpinListener;
+        private Button mPinUButton;
+
+        @Override
+        public void onElementSelected(DiagramElement<?> element) {
+            if (mPinUButton != null) {
+                mPinUButton.setText(element.isPinned() ? PINNED_TEXT : UNPINNED_TEXT);
+            }
+        }
+
+        @Override
+        public void onElementPlaced() {
+            for (StickyButtonOnTouchListener listener : mElementButtons) {
+                listener.setPressed(false);
+            }
+        }
+
+        public void registerElementButtonListener(StickyButtonOnTouchListener elementBtnListener) {
+            mElementButtons.add(elementBtnListener);
+        }
+
+        public void setPinUnpinListener(StickyButtonOnTouchListener PinUnpinListener) {
+            this.mPinUnpinListener = PinUnpinListener;
+        }
+
+        public void setPinUButton(Button PinUButton) {
+            this.mPinUButton = PinUButton;
+        }
+
+        public boolean isAllowedToToggle(StickyButtonOnTouchListener stickyButtonOnTouchListener) {
+            if (stickyButtonOnTouchListener == mPinUnpinListener) {
+                // we do identity comparison here
+                return true;
+            }
+            if (!stickyButtonOnTouchListener.isPressed()) {
+                for (StickyButtonOnTouchListener listener : mElementButtons) {
+                    if (listener.isPressed()) {
+                        return false;
+                    }
+                }
+            }
+            // we are always allowed to release a pressed button
+            // or we are allowed to press if no other element button is currently pressed
+            return true;
         }
     }
 

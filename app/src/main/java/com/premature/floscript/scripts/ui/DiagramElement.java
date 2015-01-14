@@ -16,7 +16,7 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
     protected float mYPos;
     protected int mWidth;
     protected int mHeight;
-    protected volatile boolean mPinned = false;
+    protected boolean mPinned = false;
 
     protected DiagramElement(float xPos, float yPos, int width, int height) {
         this.mXPos = xPos;
@@ -25,7 +25,7 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
         this.mHeight = height;
     }
 
-    public synchronized SELF_TYPE moveTo(float xPos, float yPos) {
+    public SELF_TYPE moveTo(float xPos, float yPos) {
         if (!mPinned) {
             this.mXPos = xPos;
             this.mYPos = yPos;
@@ -33,7 +33,7 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
         return self();
     }
 
-    public synchronized SELF_TYPE moveCenterTo(float xPos, float yPos) {
+    public SELF_TYPE moveCenterTo(float xPos, float yPos) {
         if (!mPinned) {
             this.mXPos = xPos - mWidth / 2;
             this.mYPos = yPos - mHeight / 2;
@@ -41,7 +41,7 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
         return self();
     }
 
-    public synchronized SELF_TYPE advanceBy(float xStep, float yStep) {
+    public SELF_TYPE advanceBy(float xStep, float yStep) {
         if (!mPinned) {
             this.mXPos += xStep;
             this.mYPos += yStep;
@@ -49,7 +49,7 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
         return self();
     }
 
-    public synchronized boolean contains(int xPosDps, int yPosDps) {
+    public boolean contains(int xPosDps, int yPosDps) {
         return mXPos <= xPosDps && xPosDps <= mXPos + mWidth
                 && mYPos <= yPosDps && yPosDps <= mYPos + mHeight;
     }
