@@ -33,6 +33,8 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private int mBgColor;
     private float mDensityScale;
 
+    // there should be only one and it will also be inside the elements and connectables list
+    private StartUiElement mEntryElement;
     private List<DiagramElement<?>> elements = new ArrayList<>();
     private List<ArrowUiElement> arrows = new ArrayList<>();
     private List<ArrowTargetableDiagramElement<?>> connectables = new ArrayList<>();
@@ -74,7 +76,9 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
         // Load attributes
         loadAttributes(attrs, defStyle);
-
+        mEntryElement = new StartUiElement();
+        elements.add(mEntryElement);
+        connectables.add(mEntryElement);
         mDensityScale = getResources().getDisplayMetrics().density;
         mElementMover = new ElementMover(this);
     }
@@ -221,21 +225,36 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         return temp;
     }
 
-
     @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        drawBackground(canvas);
-        int saveCount0 = canvas.save();
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        // this method may get called with 0 values, if it does it will get called again with correct
+        // values later
+        if (w == 0 || h == 0) {
+            return;
+        }
+
         float paddingLeft = getPaddingLeft() / mDensityScale;
         float paddingTop = getPaddingTop() / mDensityScale;
         float paddingRight = getPaddingRight() / mDensityScale;
         float paddingBottom = getPaddingBottom() / mDensityScale;
-        float contentWidth = getWidth() / mDensityScale - paddingLeft - paddingRight;
-        float contentHeight = getHeight() / mDensityScale - paddingTop - paddingBottom;
+        float contentWidth = w / mDensityScale - paddingLeft - paddingRight;
+        float contentHeight = h / mDensityScale - paddingTop - paddingBottom;
         int center_x = (int) (paddingLeft + contentWidth / 2);
         int center_y = (int) (paddingTop + contentHeight / 2);
 
+        Log.d(TAG, "Size changed. New size : (" + w + ", " + h + ")");
+        // TODO this needs to be adjusted to work on screen orientation changes
+        mEntryElement.moveCenterTo(center_x, 40);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        int saveCount0 = canvas.save();
+
+
+        canvas.drawColor(mBgColor);
         // we will draw everything in mdpi coords so that we can use a physical coord system
         // this means that we need to scale up to the size of our device
         // and then everything will have the same physical size on all devices
@@ -251,9 +270,4 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
         canvas.restoreToCount(saveCount0);
     }
-
-    private void drawBackground(Canvas canvas) {
-        canvas.drawColor(mBgColor);
-    }
-
 }

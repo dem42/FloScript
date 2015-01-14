@@ -8,18 +8,29 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Created by martin on 11/01/15.
  * </p>
  * This element has no functionality and is merely a marker of the entrypoint into the flowscript
  */
-public final class StartUiElement extends DiagramElement<StartUiElement> {
+public final class StartUiElement extends ArrowTargetableDiagramElement<StartUiElement> {
 
     private ShapeDrawable outsideCircle;
     private ShapeDrawable innerCircle;
+    private final List<ArrowAnchorPoint> mAnchorPoints;
 
     public StartUiElement() {
         super(0, 0, 30, 30);
+        List<ArrowAnchorPoint> anchorPoints = new ArrayList<>();
+        anchorPoints.add(new ArrowAnchorPoint(15, 0, this));
+        anchorPoints.add(new ArrowAnchorPoint(30, 15, this));
+        anchorPoints.add(new ArrowAnchorPoint(15, 30, this));
+        anchorPoints.add(new ArrowAnchorPoint(0, 15, this));
+        mAnchorPoints = Collections.unmodifiableList(anchorPoints);
         init();
     }
 
@@ -53,4 +64,8 @@ public final class StartUiElement extends DiagramElement<StartUiElement> {
         return new LayerDrawable(new Drawable[]{outsideCircle, innerCircle});
     }
 
+    @Override
+    public Iterable<ArrowAnchorPoint> getAnchorPoints() {
+        return mAnchorPoints;
+    }
 }
