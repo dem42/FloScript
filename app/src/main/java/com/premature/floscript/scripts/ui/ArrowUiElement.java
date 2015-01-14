@@ -83,7 +83,7 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         mArrowHead.setBounds(0, 0, mArrowHeadWidth, mArrowHeadHeight);
     }
 
-    private void onDiagramElementEndpointChange() {
+    void onDiagramElementEndpointChange() {
         if (mEndPoint == null || mStartPoint == null) {
             return;
         }

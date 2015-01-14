@@ -26,6 +26,33 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
 
     public abstract Iterable<ArrowAnchorPoint> getAnchorPoints();
 
+    @Override
+    public SELF_TYPE moveTo(float xPos, float yPos) {
+        super.moveTo(xPos, yPos);
+        refreshConnectedArrows();
+        return self();
+    }
+
+    @Override
+    public SELF_TYPE moveCenterTo(float xPos, float yPos) {
+        super.moveCenterTo(xPos, yPos);
+        refreshConnectedArrows();
+        return self();
+    }
+
+    @Override
+    public SELF_TYPE advanceBy(float xStep, float yStep) {
+        super.advanceBy(xStep, yStep);
+        refreshConnectedArrows();
+        return self();
+    }
+
+    private void refreshConnectedArrows() {
+        for (ArrowUiElement connectedArrow : mArrowToAnchor.keySet()) {
+            connectedArrow.onDiagramElementEndpointChange();
+        }
+    }
+
     /**
      * Connects an arrow to this diagram element
      * @param arrow
