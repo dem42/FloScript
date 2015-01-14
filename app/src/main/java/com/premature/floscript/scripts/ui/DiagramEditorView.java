@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -29,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * <p/>
  * It is a custom view which draws diagram elements onto its canvas.
  */
-public final class DiagramEditorView extends View {
+public final class DiagramEditorView extends View implements OnElementSelectorListener {
 
     private static final String TAG = "DIAGRAM_EDITOR";
 
@@ -37,17 +38,23 @@ public final class DiagramEditorView extends View {
     private int mBgColor;
     private float densityScale;
 
-    private ArrowUiElement arrow;
-    private DiamondUiElement diamond;
-    private LogicBlockUiElement logicBlock;
-    private LogicBlockUiElement logicBlock2;
-    private StartUiElement startElem;
     private ScheduledExecutorService executor;
-
     private ScheduledFuture<?> scheduledFuture;
     private List<DiagramElement<?>> elements = new ArrayList<>();
     private List<ArrowUiElement> arrows = new ArrayList<>();
     private List<ArrowTargetableDiagramElement<?>> connectables = new ArrayList<>();
+
+    @Nullable
+    private ArrowTargetableDiagramElement<?> floatingConnectable;
+    @Nullable
+    private ArrowUiElement floatingArrow;
+
+    private EditingState mEdittingState = EditingState.ELEMENT_EDITING;
+    private enum EditingState {
+        ELEMENT_EDITING, ARROW_EDITING;
+    }
+
+    private OnDiagramEditorListener mOnDiagramEditorListener;
 
     public DiagramEditorView(Context context) {
         super(context);
@@ -72,22 +79,6 @@ public final class DiagramEditorView extends View {
 
         // Load attributes
         loadAttributes(attrs, defStyle);
-
-        // get the drawable ui elements
-        arrow = new ArrowUiElement().advanceBy(10, 10);
-        diamond = new DiamondUiElement().advanceBy(10, 10);
-        logicBlock = new LogicBlockUiElement().advanceBy(10, 10);
-        logicBlock2 = new LogicBlockUiElement().advanceBy(200, 200);
-        startElem = new StartUiElement().advanceBy(10, 10);
-        elements.add(arrow);
-        elements.add(diamond);
-        elements.add(logicBlock);
-        elements.add(logicBlock2);
-        elements.add(startElem);
-
-        arrows.add(arrow);
-        connectables.add(logicBlock);
-        connectables.add(logicBlock2);
 
         densityScale = getResources().getDisplayMetrics().density;
         touchInputDevice = new CollectingTouchInputDevice(densityScale);
@@ -117,6 +108,36 @@ public final class DiagramEditorView extends View {
         }
     }
 
+    public void setOnDiagramEditorListener(OnDiagramEditorListener onDiagramEditorListener) {
+        this.mOnDiagramEditorListener = onDiagramEditorListener;
+    }
+
+    @Override
+    public void onLogicElementClicked() {
+        LogicBlockUiElement newLogicBlock = new LogicBlockUiElement();
+        floatingConnectable = newLogicBlock;
+    }
+    @Override
+    public void onDiamondElementClicked() {
+        DiamondUiElement newDiamond = new DiamondUiElement();
+        floatingConnectable = newDiamond;
+    }
+    @Override
+    public void onArrowClicked() {
+        if (mEdittingState != EditingState.ARROW_EDITING) {
+            mEdittingState = EditingState.ARROW_EDITING;
+            floatingArrow = new ArrowUiElement();
+        }
+        else {
+            mEdittingState = EditingState.ELEMENT_EDITING;
+            floatingArrow = null;
+        }
+    }
+    @Override
+    public void pinningStateToggled() {
+
+    }
+
     /**
      * This class is responsible for moving elements in response to touches
      */
@@ -138,11 +159,10 @@ public final class DiagramEditorView extends View {
                         Log.d(TAG, "letting go " + touchEvent);
                     } else if (touchedElement != null) {
                         //DRAGGING
-                        if (touchEvent.getPointerId() == 0) {
-                            touchedElement.moveCenterTo(touchEvent.getXPosDips(), touchEvent.getYPosDips());
-                        } else if (touchedElement instanceof ArrowUiElement) {
+                        touchedElement.moveCenterTo(touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                        /*if (touchedElement instanceof ArrowUiElement) {
                             ((ArrowUiElement) touchedElement).onArrowHeadDrag(touchEvent.getXPosDips(), touchEvent.getYPosDips());
-                        }
+                        }*/
 
                         if (touchedElement instanceof ArrowUiElement) {
                             ArrowTargetableDiagramElement<?> elemTouchingStart = findTouchedElement(editorView.connectables, (int) touchedElement.getXPos(), (int) touchedElement.getYPos());
@@ -162,7 +182,10 @@ public final class DiagramEditorView extends View {
                         Log.d(TAG, "moving " + touchedElement + " in resp to " + touchEvent);
                     } else {
                         // SELECTING
-                        if (touchEvent.getPointerId() == 0) {
+                        if (editorView.floatingConnectable != null) {
+                            touchedElement = editorView.placeFloatingConnectable(touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                        }
+                        else {
                             touchedElement = findTouchedElement(editorView.elements, touchEvent.getXPosDips(), touchEvent.getYPosDips());
                         }
                         Log.d(TAG, "looking for a new element " + touchedElement + " in resp to " + touchEvent);
@@ -185,6 +208,15 @@ public final class DiagramEditorView extends View {
         }
     }
 
+    private synchronized DiagramElement<?> placeFloatingConnectable(int xPosDips, int yPosDips) {
+        ArrowTargetableDiagramElement<?> temp = floatingConnectable;
+        floatingConnectable = null;
+        connectables.add(temp);
+        elements.add(temp);
+        return temp;
+    }
+
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -204,9 +236,9 @@ public final class DiagramEditorView extends View {
         // and then everything will have the same physical size on all devices
         canvas.scale(densityScale, densityScale);
 
-        arrow.draw(canvas);
-        logicBlock.draw(canvas);
-        logicBlock2.draw(canvas);
+        for (DiagramElement<?> element : elements) {
+            element.draw(canvas);
+        }
 
         canvas.restoreToCount(saveCount0);
     }
@@ -214,4 +246,5 @@ public final class DiagramEditorView extends View {
     private void drawBackground(Canvas canvas) {
         canvas.drawColor(mBgColor);
     }
+
 }

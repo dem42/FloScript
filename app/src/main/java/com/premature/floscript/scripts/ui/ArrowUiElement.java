@@ -155,6 +155,7 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
     @Override
     public Drawable getDrawable() {
         LayerDrawable arrow = new LayerDrawable(new Drawable[]{mArrowBody, mArrowHead});
+        arrow.setBounds(0, 0, getWidth(), getHeight());
         return arrow;
     }
 

@@ -17,8 +17,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 import static android.view.View.LAYER_TYPE_SOFTWARE;
-import static com.premature.floscript.scripts.ui.ElementSelectionView.OnElementSelectorListener;
-
 
 /**
  * A simple {@link Fragment} subclass.
@@ -28,12 +26,10 @@ import static com.premature.floscript.scripts.ui.ElementSelectionView.OnElementS
  * Use the {@link ScriptingFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public final class ScriptingFragment extends Fragment implements OnElementSelectorListener {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+public final class ScriptingFragment extends Fragment implements OnDiagramEditorListener {
     private static final String TAG = "SCRIPT_FRAG";
+    private static final String PINNED_TEXT = "Unpin";
+    private static final String UNPINNED_TEXT = "Pin";
 
 
     private LogicBlockUiElement mLogicBlockElement;
@@ -50,6 +46,8 @@ public final class ScriptingFragment extends Fragment implements OnElementSelect
     Button mDiamondElemBtn;
     @InjectView(R.id.arrow_elem_btn)
     Button mArrowElemBtn;
+    @InjectView(R.id.pin_btn)
+    Button mPinUnpinBtn;
 
     private float mDensity;
 
@@ -65,8 +63,8 @@ public final class ScriptingFragment extends Fragment implements OnElementSelect
     public static ScriptingFragment newInstance(String param1, String param2) {
         ScriptingFragment fragment = new ScriptingFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        //args.putString(ARG_PARAM1, param1);
+        //args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -99,20 +97,51 @@ public final class ScriptingFragment extends Fragment implements OnElementSelect
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_scripting, container, false);
         ButterKnife.inject(this, view);
+        initButtons();
+        mDiagramEditorView.setOnDiagramEditorListener(this);
+        return view;
+    }
+
+    private void initButtons() {
 
         mLogicElemBtn.setLayerType(LAYER_TYPE_SOFTWARE, null);
         mLogicElemBtn.setCompoundDrawables(mLogicBlockElement.getDrawable(), null, null, null);
-        mLogicElemBtn.setOnTouchListener(new StickyButtonOnTouchListener(mLogicElemBtn));
+        mLogicElemBtn.setOnTouchListener(new StickyButtonOnTouchListener(mLogicElemBtn, mDiagramEditorView) {
+            @Override
+            public void doOnClick() {
+                super.doOnClick();
+                this.mOnElementSelectorListener.onDiamondElementClicked();
+            }
+        });
 
         mDiamondElemBtn.setLayerType(LAYER_TYPE_SOFTWARE, null);
         mDiamondElemBtn.setCompoundDrawables(mDiamondElement.getDrawable(), null, null, null);
-        mDiamondElemBtn.setOnTouchListener(new StickyButtonOnTouchListener(mDiamondElemBtn));
+        mDiamondElemBtn.setOnTouchListener(new StickyButtonOnTouchListener(mDiamondElemBtn, mDiagramEditorView) {
+            @Override
+            public void doOnClick() {
+                super.doOnClick();
+                this.mOnElementSelectorListener.onDiamondElementClicked();
+            }
+        });
 
         mArrowElemBtn.setLayerType(LAYER_TYPE_SOFTWARE, null);
         mArrowElemBtn.setCompoundDrawables(mArrowElement.getDrawable(), null, null, null);
-        mArrowElemBtn.setOnTouchListener(new StickyButtonOnTouchListener(mArrowElemBtn));
+        mArrowElemBtn.setOnTouchListener(new StickyButtonOnTouchListener(mArrowElemBtn, mDiagramEditorView) {
+            @Override
+            public void doOnClick() {
+                super.doOnClick();
+                this.mOnElementSelectorListener.onArrowClicked();
+            }
+        });
 
-        return view;
+        mPinUnpinBtn.setText(UNPINNED_TEXT);
+        mPinUnpinBtn.setOnTouchListener(new StickyButtonOnTouchListener(mPinUnpinBtn, mDiagramEditorView) {
+            @Override
+            public void doOnClick() {
+                super.doOnClick();
+                this.mOnElementSelectorListener.pinningStateToggled();
+            }
+        });
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -139,13 +168,14 @@ public final class ScriptingFragment extends Fragment implements OnElementSelect
         mListener = null;
     }
 
-    public void onElementAdded(ArrowTargetableDiagramElement<?> element) {
-        Log.d(TAG, "Element " + element + " added");
+    @Override
+    public void onElementSelected(DiagramElement<?> element) {
+        mPinUnpinBtn.setText(element.isPinned() ? PINNED_TEXT : UNPINNED_TEXT);
     }
 
     @Override
-    public void pinningStateToggled() {
-        Log.d(TAG, "Pinning state was toggled");
+    public void onElementPlaced() {
+
     }
 
     /**
@@ -164,14 +194,16 @@ public final class ScriptingFragment extends Fragment implements OnElementSelect
     }
 
     /**
-     * This listener turns our buttons into stateful push buttons
+     * This mOnElementSelectorListener turns our buttons into stateful push buttons
      */
     private static class StickyButtonOnTouchListener implements View.OnTouchListener {
         boolean isPressed = false;
         private final Button mPressableElement;
+        private final OnElementSelectorListener mOnElementSelectorListener;
 
-        public StickyButtonOnTouchListener(Button logicElemBtn) {
+        public StickyButtonOnTouchListener(Button logicElemBtn, OnElementSelectorListener listener) {
             this.mPressableElement = logicElemBtn;
+            this.mOnElementSelectorListener = listener;
         }
 
         @Override
@@ -187,4 +219,5 @@ public final class ScriptingFragment extends Fragment implements OnElementSelect
             Log.d(TAG, "Clicked " + mPressableElement);
         }
     }
+
 }
