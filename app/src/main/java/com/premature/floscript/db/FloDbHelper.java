@@ -27,13 +27,35 @@ public class FloDbHelper extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "floscript_db";
     public static final int VERSION = 1;
-    private static final String CREATE_SQL_VERSION_1 = "";
     private static final String TAG = "DB_HELPER";
+
     private final Context mContext;
+    // dotall means end of line characters also match the dot
+    private final Pattern mCreatePattern;
 
     public FloDbHelper(Context context) {
         super(context, DB_NAME, null, VERSION);
         this.mContext = context;
+        this.mCreatePattern = Pattern.compile("(create table.*?;)", Pattern.DOTALL);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        executeCreateStatements(db, readSqlFile(R.raw.create_sql_version1));
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        Log.d(TAG, "in upgrade " + oldVersion + " , " + newVersion);
+    }
+
+    private void executeCreateStatements(SQLiteDatabase db, String createStatements) {
+        Matcher matcher = mCreatePattern.matcher(createStatements);
+        while(matcher.find()) {
+            String group = matcher.group(1).replaceAll("\\s+", " ");
+            Log.d(TAG, "Found create statement \"" + group + "\"");
+            db.execSQL(group);
+        }
     }
 
     private String readSqlFile(int resourceId) {
@@ -51,29 +73,7 @@ public class FloDbHelper extends SQLiteOpenHelper {
         return bob.toString();
     }
 
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        executeCreateStatements(db, readSqlFile(R.raw.create_sql_version1));
-    }
-
-    private void executeCreateStatements(SQLiteDatabase db, String createStatements) {
-        Log.d(TAG, "in execute create statements " + createStatements);
-        // dotall means end of line characters also match the dot
-        Pattern createPattern = Pattern.compile("(create table.*?;)", Pattern.DOTALL);
-        Matcher matcher = createPattern.matcher(createStatements);
-        while(matcher.find()) {
-            String group = matcher.group(1).replaceAll("\\s+", " ");
-            Log.d(TAG, "Found group " + group);
-            db.execSQL(group);
-        }
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        Log.d(TAG, "in upgrade " + oldVersion + " , " + newVersion);
-    }
-
-    public void dropDatabase() {
+    private void dropDatabase() {
         mContext.deleteDatabase(DB_NAME);
     }
 }

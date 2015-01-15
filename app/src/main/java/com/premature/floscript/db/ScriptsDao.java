@@ -22,10 +22,9 @@ public class ScriptsDao {
     public static final String SCRIPTS_CODE = "code";
     public static final String SCRIPTS_TABLE = "scripts";
     private final FloDbHelper mDbHelper;
-
+    private SQLiteDatabase mWritableDatabase;
     private static final String[] SCRIPTS_COLUMNS = {SCRIPTS_NAME,
             SCRIPTS_VERSION, SCRIPTS_DESCRIPTION, SCRIPTS_CREATED, SCRIPTS_CODE};
-    private SQLiteDatabase mWritableDatabase;
 
     public ScriptsDao(FloDbHelper mDbHelper) {
         this.mDbHelper = mDbHelper;
