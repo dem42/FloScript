@@ -1,7 +1,5 @@
 package com.premature.floscript.scripts.ui;
 
-import static com.premature.floscript.scripts.ui.ArrowTargetableDiagramElement.ArrowAnchorPoint;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -14,17 +12,15 @@ import android.view.View;
 
 import com.premature.floscript.R;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
-import com.premature.floscript.scripts.ui.touching.TouchEventType;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This view is responsible for drawing a diagram of a floscript instance encapsulated
+ * This view is responsible for drawing a mDiagram of a floscript instance encapsulated
  * inside a {@link com.premature.floscript.scripts.logic.Script} object. The view furthermore allows us to edit
  * the script by dragging around flowchart elements and by adding new elements from a palette to the flowchart.
  * <p/>
- * It is a custom view which draws diagram elements onto its canvas.
+ * It is a custom view which draws mDiagram elements onto its canvas.
  */
 public final class DiagramEditorView extends View implements OnElementSelectorListener {
 
@@ -33,11 +29,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private int mBgColor;
     private float mDensityScale;
 
-    // there should be only one and it will also be inside the elements and connectables list
-    private StartUiElement mEntryElement;
-    private List<DiagramElement<?>> elements = new ArrayList<>();
-    private List<ArrowUiElement> arrows = new ArrayList<>();
-    private List<ArrowTargetableDiagramElement<?>> connectables = new ArrayList<>();
+    private Diagram mDiagram;
 
     @Nullable
     private ArrowTargetableDiagramElement<?> mFloatingConnectable;
@@ -47,8 +39,12 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private EditingState mEdittingState = EditingState.ELEMENT_EDITING;
     private ElementMover mElementMover;
 
+    public Diagram getDiagram() {
+        return mDiagram;
+    }
+
     private enum EditingState {
-        ELEMENT_EDITING, ARROW_PLACING, ARROW_DRAGGING;
+        ELEMENT_EDITING, ARROW_PLACING, ARROW_PLACED, ARROW_DRAGGING;
     }
 
     private OnDiagramEditorListener mOnDiagramEditorListener;
@@ -76,9 +72,8 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
         // Load attributes
         loadAttributes(attrs, defStyle);
-        mEntryElement = new StartUiElement();
-        elements.add(mEntryElement);
-        connectables.add(mEntryElement);
+        mDiagram = new Diagram();
+        mDiagram.setEntryElement(new StartUiElement());
         mDensityScale = getResources().getDisplayMetrics().density;
         mElementMover = new ElementMover(this);
     }
@@ -146,12 +141,16 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
                 case TOUCH_UP:
                     // LETTING GO
                     mTouchedElement = null;
+                    if (mEditorView.mEdittingState == EditingState.ARROW_DRAGGING) {
+                        mEditorView.mEdittingState = EditingState.ARROW_PLACED;
+                    }
                     Log.d(TAG, "letting go " + touchEvent);
                     break;
                 case TOUCH_DRAGGED:
                     //DRAGGING
-                    if (mEditorView.mEdittingState == EditingState.ARROW_DRAGGING) {
-                        ArrowTargetableDiagramElement<?> end = findTouchedElement(mEditorView.connectables, touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                    if (mEditorView.mEdittingState == EditingState.ARROW_DRAGGING || mEditorView.mEdittingState == EditingState.ARROW_PLACED) {
+                        mEditorView.mEdittingState = EditingState.ARROW_DRAGGING;
+                        ArrowTargetableDiagramElement<?> end = findTouchedElement(mEditorView.getDiagram().getConnectables(), touchEvent.getXPosDips(), touchEvent.getYPosDips());
                         if (end != null && end != mEditorView.mFloatingArrow.getStartPoint()) {
                             mEditorView.mFloatingArrow.anchorEndPoint(end, touchEvent);
                             mEditorView.placeFloatingArrow();
@@ -169,17 +168,20 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
                 case TOUCH_DOWN:
                     // SELECTING
                     if (mEditorView.mEdittingState == EditingState.ARROW_PLACING) {
-                        ArrowTargetableDiagramElement<?> start = findTouchedElement(mEditorView.connectables, touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                        ArrowTargetableDiagramElement<?> start = findTouchedElement(mEditorView.getDiagram().getConnectables(), touchEvent.getXPosDips(), touchEvent.getYPosDips());
                         if (start != null) {
                             mEditorView.mFloatingArrow.anchorStartPoint(start, touchEvent);
                             mEditorView.mEdittingState = EditingState.ARROW_DRAGGING;
                             doInvalidate = true;
                         }
+                    } else if (mEditorView.mEdittingState == EditingState.ARROW_PLACED || mEditorView.mEdittingState == EditingState.ARROW_DRAGGING){
+                        // user is screwing around with the arrow .. don't select any elements
+                        ;
                     } else if (mEditorView.mFloatingConnectable != null) {
                         mTouchedElement = mEditorView.placeFloatingConnectable(touchEvent.getXPosDips(), touchEvent.getYPosDips());
                         doInvalidate = true;
                     } else {
-                        mTouchedElement = findTouchedElement(mEditorView.connectables, touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                        mTouchedElement = findTouchedElement(mEditorView.getDiagram().getConnectables(), touchEvent.getXPosDips(), touchEvent.getYPosDips());
                     }
                     Log.d(TAG, "looking for a new element " + mTouchedElement + " in resp to " + touchEvent);
                     break;
@@ -210,9 +212,9 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
     private void placeFloatingArrow() {
         mEdittingState = EditingState.ELEMENT_EDITING;
-        arrows.add(mFloatingArrow);
-        elements.add(mFloatingArrow);
+        mDiagram.addArrow(mFloatingArrow);
         mOnDiagramEditorListener.onElementPlaced();
+        mFloatingArrow = null;
     }
 
     private DiagramElement<?> placeFloatingConnectable(int xPosDips, int yPosDips) {
@@ -220,8 +222,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         temp.moveCenterTo(xPosDips, yPosDips);
         mOnDiagramEditorListener.onElementPlaced();
         mFloatingConnectable = null;
-        connectables.add(temp);
-        elements.add(temp);
+        mDiagram.addConnectable(temp);
         return temp;
     }
 
@@ -245,7 +246,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
         Log.d(TAG, "Size changed. New size : (" + w + ", " + h + ")");
         // TODO this needs to be adjusted to work on screen orientation changes
-        mEntryElement.moveCenterTo(center_x, 40);
+        mDiagram.getEntryElement().moveCenterTo(center_x, 40);
     }
 
     @Override
@@ -260,7 +261,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         // and then everything will have the same physical size on all devices
         canvas.scale(mDensityScale, mDensityScale);
 
-        for (DiagramElement<?> element : elements) {
+        for (DiagramElement<?> element : mDiagram.getElements()) {
             element.draw(canvas);
         }
 
