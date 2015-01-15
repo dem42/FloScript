@@ -28,7 +28,7 @@ public final class DiamondUiElement extends ArrowTargetableDiagramElement<Diamon
     public DiamondUiElement(int width, int height) {
         super(0f, 0f, width, height);
         ArrayList<ArrowTargetableDiagramElement.ArrowAnchorPoint> list = new ArrayList<>();
-        list.add(new ArrowTargetableDiagramElement.ArrowAnchorPoint(0,width/2, this));
+        list.add(new ArrowTargetableDiagramElement.ArrowAnchorPoint(width/2,0, this));
         list.add(new ArrowTargetableDiagramElement.ArrowAnchorPoint(0,height/2, this));
         list.add(new ArrowTargetableDiagramElement.ArrowAnchorPoint(width/2, height, this));
         list.add(new ArrowTargetableDiagramElement.ArrowAnchorPoint(width,height/2, this));

@@ -90,10 +90,17 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         if (mEndPoint == null || mStartPoint == null) {
             return;
         }
-        ArrowAnchorPoint startA = mStartPoint.getAnchorFor(this);
+
+        // the old anchor was picked based on nearest point .. we now want to pick anchors
+        // based on closest anchor to end element
+        mStartPoint.unanchor(this);
+        mEndPoint.unanchor(this);
+        Pair<ArrowAnchorPoint, ArrowAnchorPoint> startEndAnchors = mStartPoint.connectElement(mEndPoint, this);
+
+        ArrowAnchorPoint startA = startEndAnchors.first;
         this.mXPos = startA.getXPosDip();
         this.mYPos = startA.getYPosDip();
-        ArrowAnchorPoint endA = mEndPoint.getAnchorFor(this);
+        ArrowAnchorPoint endA = startEndAnchors.second;
         setDistanceAngAngle(startA.getXPosDip(), startA.getYPosDip(), endA.getXPosDip(), endA.getYPosDip());
     }
 
@@ -129,6 +136,10 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
 
     public void setEndPoint(ArrowTargetableDiagramElement<?> endPoint) {
         this.mEndPoint = endPoint;
+        if (endPoint == null) {
+            endPoint.unanchor(this);
+            return;
+        }
         onDiagramElementEndpointChange();
     }
 
@@ -165,18 +176,6 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         return arrow;
     }
 
-    public void anchorStart(ArrowTargetableDiagramElement<?> elem, ArrowAnchorPoint arrowAnchorPoint) {
-        Log.d(TAG, "starting anchor " + arrowAnchorPoint + " for arrow " + toString());
-        moveTo(arrowAnchorPoint.getXPosDip(), arrowAnchorPoint.getYPosDip());
-        setStartPoint(elem);
-    }
-
-    public void anchorEnd(ArrowTargetableDiagramElement<?> elem, ArrowAnchorPoint arrowAnchorPoint) {
-        Log.d(TAG, "ending anchor " + arrowAnchorPoint + " for arrow " + toString());
-        setEndPoint(elem);
-        // this is now done in onDiagramElementEndpointChange
-        //onArrowHeadDrag(arrowAnchorPoint.getXPosDip(), arrowAnchorPoint.getYPosDip());
-    }
 
     @Override
     public String toString() {
@@ -189,20 +188,8 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
     }
 
     public void anchorEndPoint(@Nullable ArrowTargetableDiagramElement<?> end, TouchEvent touchEvent) {
-        if (end == null) {
-            end.unanchor(this);
-            this.setEndPoint(null);
-            return;
-        }
-
-        // the old anchor was picked based on nearest point .. we now want to pick anchors
-        // based on closest anchor to end element
-        mStartPoint.unanchor(this);
-        Pair<ArrowAnchorPoint, ArrowAnchorPoint> startEndAnchors = mStartPoint.connectElement(end, this);
-        this.anchorStart(mStartPoint, startEndAnchors.first);
-
-        Log.d(TAG, "arrow end anchoring  " +  end + " at anchor point " + startEndAnchors.second);
-        this.anchorEnd(end, startEndAnchors.second);
+        setEndPoint(end);
+        Log.d(TAG, "arrow end anchoring  ");
     }
 
     public void anchorStartPoint(@Nullable ArrowTargetableDiagramElement<?> start, TouchEvent touchEvent) {
@@ -213,6 +200,7 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         }
         ArrowAnchorPoint arrowAnchorPoint = start.connectArrow(this, (int)this.getXPos(), (int)this.getYPos());
         Log.d(TAG, "arrow start anchoring  " +  start + " at anchor point " + arrowAnchorPoint);
-        this.anchorStart(start, arrowAnchorPoint);
+        moveTo(arrowAnchorPoint.getXPosDip(), arrowAnchorPoint.getYPosDip());
+        setStartPoint(start);
     }
 }
