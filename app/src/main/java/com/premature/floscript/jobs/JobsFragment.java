@@ -14,7 +14,12 @@ import android.widget.TextView;
 
 import com.premature.floscript.R;
 
+import com.premature.floscript.db.FloDbHelper;
+import com.premature.floscript.db.ScriptsDao;
 import com.premature.floscript.jobs.dummy.DummyContent;
+
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * A fragment representing a list of Items.
@@ -37,6 +42,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     private String mParam2;
 
     private OnJobsFragmentInteractionListener mListener;
+    private FloDbHelper mDbHelper;
 
     /**
      * The fragment's ListView/GridView.
@@ -78,6 +84,8 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         // TODO: Change Adapter to display your content
         mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
                 android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
+
+        mDbHelper = new FloDbHelper(getActivity());
     }
 
     @Override
@@ -85,6 +93,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_job, container, false);
 
+        ButterKnife.inject(this, view);
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
         ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
@@ -93,6 +102,12 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         mListView.setOnItemClickListener(this);
 
         return view;
+    }
+
+    @OnClick(R.id.db_test_button)
+    public void testDb(View view) {
+        ScriptsDao scriptDao = new ScriptsDao(mDbHelper);
+        scriptDao.printTestsInDb();
     }
 
     @Override
