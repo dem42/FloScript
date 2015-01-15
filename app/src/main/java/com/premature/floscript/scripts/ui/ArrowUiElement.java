@@ -11,8 +11,11 @@ import android.graphics.drawable.shapes.PathShape;
 import android.graphics.drawable.shapes.RectShape;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.util.Pair;
 
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
+
+import static com.premature.floscript.scripts.ui.ArrowTargetableDiagramElement.ArrowAnchorPoint;
 
 /**
  * Created by martin on 04/01/15.
@@ -87,10 +90,10 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         if (mEndPoint == null || mStartPoint == null) {
             return;
         }
-        ArrowTargetableDiagramElement.ArrowAnchorPoint startA = mStartPoint.getAnchorFor(this);
+        ArrowAnchorPoint startA = mStartPoint.getAnchorFor(this);
         this.mXPos = startA.getXPosDip();
         this.mYPos = startA.getYPosDip();
-        ArrowTargetableDiagramElement.ArrowAnchorPoint endA = mEndPoint.getAnchorFor(this);
+        ArrowAnchorPoint endA = mEndPoint.getAnchorFor(this);
         setDistanceAngAngle(startA.getXPosDip(), startA.getYPosDip(), endA.getXPosDip(), endA.getYPosDip());
     }
 
@@ -162,15 +165,16 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         return arrow;
     }
 
-    public void anchorStart(ArrowTargetableDiagramElement<?> elem, ArrowTargetableDiagramElement.ArrowAnchorPoint arrowAnchorPoint) {
+    public void anchorStart(ArrowTargetableDiagramElement<?> elem, ArrowAnchorPoint arrowAnchorPoint) {
         Log.d(TAG, "starting anchor " + arrowAnchorPoint + " for arrow " + toString());
         moveTo(arrowAnchorPoint.getXPosDip(), arrowAnchorPoint.getYPosDip());
         setStartPoint(elem);
     }
 
-    public void anchorEnd(ArrowTargetableDiagramElement<?> elem, ArrowTargetableDiagramElement.ArrowAnchorPoint arrowAnchorPoint) {
+    public void anchorEnd(ArrowTargetableDiagramElement<?> elem, ArrowAnchorPoint arrowAnchorPoint) {
         Log.d(TAG, "ending anchor " + arrowAnchorPoint + " for arrow " + toString());
         setEndPoint(elem);
+        // this is now done in onDiagramElementEndpointChange
         //onArrowHeadDrag(arrowAnchorPoint.getXPosDip(), arrowAnchorPoint.getYPosDip());
     }
 
@@ -191,9 +195,14 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
             return;
         }
 
-        ArrowTargetableDiagramElement.ArrowAnchorPoint arrowAnchorPoint = end.connectArrow(this, touchEvent.getXPosDips(), touchEvent.getYPosDips());
-        Log.d(TAG, "arrow end anchoring  " +  end + " at anchor point " + arrowAnchorPoint);
-        this.anchorEnd(end, arrowAnchorPoint);
+        // the old anchor was picked based on nearest point .. we now want to pick anchors
+        // based on closest anchor to end element
+        mStartPoint.unanchor(this);
+        Pair<ArrowAnchorPoint, ArrowAnchorPoint> startEndAnchors = mStartPoint.connectElement(end, this);
+        this.anchorStart(mStartPoint, startEndAnchors.first);
+
+        Log.d(TAG, "arrow end anchoring  " +  end + " at anchor point " + startEndAnchors.second);
+        this.anchorEnd(end, startEndAnchors.second);
     }
 
     public void anchorStartPoint(@Nullable ArrowTargetableDiagramElement<?> start, TouchEvent touchEvent) {
@@ -202,7 +211,7 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
             this.setStartPoint(null);
             return;
         }
-        ArrowTargetableDiagramElement.ArrowAnchorPoint arrowAnchorPoint = start.connectArrow(this, (int)this.getXPos(), (int)this.getYPos());
+        ArrowAnchorPoint arrowAnchorPoint = start.connectArrow(this, (int)this.getXPos(), (int)this.getYPos());
         Log.d(TAG, "arrow start anchoring  " +  start + " at anchor point " + arrowAnchorPoint);
         this.anchorStart(start, arrowAnchorPoint);
     }

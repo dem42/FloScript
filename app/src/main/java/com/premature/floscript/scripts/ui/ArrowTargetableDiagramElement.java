@@ -1,6 +1,7 @@
 package com.premature.floscript.scripts.ui;
 
 import android.util.Log;
+import android.util.Pair;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -86,6 +87,31 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
 
     public void unanchor(ArrowUiElement arrowUiElement) {
         mArrowToAnchor.remove(arrowUiElement);
+    }
+
+    public Pair<ArrowAnchorPoint, ArrowAnchorPoint> connectElement(ArrowTargetableDiagramElement<?> end, ArrowUiElement arrow) {
+        Iterable<ArrowAnchorPoint> ourAnchors = getAnchorPoints();
+        Iterable<ArrowAnchorPoint> hisAnchors = end.getAnchorPoints();
+
+        ArrowAnchorPoint bestOur = null;
+        ArrowAnchorPoint bestHis = null;
+        int minManhDist = Integer.MAX_VALUE;
+        for (ArrowAnchorPoint ourAnchor : ourAnchors) {
+            for (ArrowAnchorPoint hisAnchor : hisAnchors) {
+                int manhDist = Math.abs(ourAnchor.getXPosDip() - hisAnchor.getXPosDip()) + Math.abs(ourAnchor.getYPosDip() - hisAnchor.getYPosDip());
+                if (manhDist < minManhDist) {
+                    minManhDist = manhDist;
+                    bestOur = ourAnchor;
+                    bestHis = hisAnchor;
+                }
+            }
+        }
+        mArrowToAnchor.remove(arrow);
+        end.mArrowToAnchor.remove(arrow);
+        mArrowToAnchor.put(arrow, bestOur);
+        end.mArrowToAnchor.put(arrow, bestHis);
+
+        return new Pair<>(bestOur, bestHis);
     }
 
     /**

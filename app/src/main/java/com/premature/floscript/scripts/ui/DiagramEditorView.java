@@ -143,6 +143,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
                     mTouchedElement = null;
                     if (mEditorView.mEdittingState == EditingState.ARROW_DRAGGING) {
                         mEditorView.mEdittingState = EditingState.ARROW_PLACED;
+                        doInvalidate = true;
                     }
                     Log.d(TAG, "letting go " + touchEvent);
                     break;
@@ -158,7 +159,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
                             mEditorView.mFloatingArrow.onArrowHeadDrag(touchEvent.getXPosDips(), touchEvent.getYPosDips());
                         }
                         doInvalidate = true;
-                        Log.d(TAG, "dragging " + mEditorView.mFloatingArrow + " in resp to " + touchEvent);
+                        Log.d(TAG, "dragging " + mEditorView.mFloatingArrow + " in resp to " + touchEvent + " touched elem is " + end);
                     } else if (mTouchedElement != null) {
                         mTouchedElement.moveCenterTo(touchEvent.getXPosDips(), touchEvent.getYPosDips());
                         doInvalidate = true;
@@ -171,12 +172,9 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
                         ArrowTargetableDiagramElement<?> start = findTouchedElement(mEditorView.getDiagram().getConnectables(), touchEvent.getXPosDips(), touchEvent.getYPosDips());
                         if (start != null) {
                             mEditorView.mFloatingArrow.anchorStartPoint(start, touchEvent);
-                            mEditorView.mEdittingState = EditingState.ARROW_DRAGGING;
+                            mEditorView.mEdittingState = EditingState.ARROW_PLACED;
                             doInvalidate = true;
                         }
-                    } else if (mEditorView.mEdittingState == EditingState.ARROW_PLACED || mEditorView.mEdittingState == EditingState.ARROW_DRAGGING){
-                        // user is screwing around with the arrow .. don't select any elements
-                        ;
                     } else if (mEditorView.mFloatingConnectable != null) {
                         mTouchedElement = mEditorView.placeFloatingConnectable(touchEvent.getXPosDips(), touchEvent.getYPosDips());
                         doInvalidate = true;

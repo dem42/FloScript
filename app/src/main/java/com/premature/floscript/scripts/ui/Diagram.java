@@ -33,7 +33,7 @@ public final class Diagram {
     }
 
     public void addConnectable(ArrowTargetableDiagramElement<?> connectable) {
-        elements.add(connectable);
+        connectables.add(connectable);
         elements.add(connectable);
     }
 
