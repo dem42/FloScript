@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.premature.floscript.R;
 import com.premature.floscript.db.DiagramDao;
@@ -135,6 +136,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     private void saveDiagram() {
         Diagram diagram = mDiagramEditorView.getDiagram();
         SaveDialog dialog = new SaveDialog();
+        dialog.setTargetFragment(this, 1);
         dialog.show(getActivity().getSupportFragmentManager(), "save dialog");
     }
 
@@ -142,7 +144,12 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     public void saveClicked(String name) {
         Diagram diagram = mDiagramEditorView.getDiagram();
         diagram.setName(name);
-        mDiagramDao.saveDiagram(diagram);
+        if(mDiagramDao.saveDiagram(diagram)) {
+            Toast.makeText(getActivity(), "Diagram saved", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toast.makeText(getActivity(), "Failed to save diagram", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.widget.EditText;
 
 /**
@@ -17,6 +18,18 @@ import android.widget.EditText;
 */
 public class SaveDialog extends DialogFragment {
 
+    public OnSaveDialogListener getTargetListener() {
+        Fragment frag = getTargetFragment();
+        if (frag == null) {
+            return null;
+        }
+        try {
+            return (OnSaveDialogListener) frag;
+        } catch (ClassCastException cce) {
+            throw new ClassCastException(frag.getTag() + " must implement OnSaveDialogListener");
+        }
+    }
+
     public interface OnSaveDialogListener {
         void saveClicked(String name);
     }
@@ -25,17 +38,18 @@ public class SaveDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        mListener = getTargetListener();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         final EditText view = new EditText(getActivity());
         builder.setTitle("Script name")
-               .setView(view)
-               .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                   @Override
-                   public void onClick(DialogInterface dialog, int which) {
-                       mListener.saveClicked(view.getText().toString());
-                   }
-               })
-               .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                .setView(view)
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mListener.saveClicked(view.getText().toString());
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
@@ -43,15 +57,5 @@ public class SaveDialog extends DialogFragment {
                 });
 
         return builder.create();
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListener = (OnSaveDialogListener) getActivity();
-        } catch(ClassCastException cce) {
-            throw new ClassCastException(activity + " must implement OnSaveDialogListener");
-        }
     }
 }
