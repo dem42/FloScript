@@ -16,7 +16,15 @@ public final class Diagram {
     private List<DiagramElement<?>> elements = new ArrayList<>();
     private List<ArrowUiElement> arrows = new ArrayList<>();
     private List<ArrowTargetableDiagramElement<?>> connectables = new ArrayList<>();
+    private String mName;
 
+    public String getName() {
+        return mName;
+    }
+
+    public void setName(String name) {
+        this.mName = name;
+    }
 
     public void setEntryElement(StartUiElement startUiElement) {
         this.mEntryElement = startUiElement;

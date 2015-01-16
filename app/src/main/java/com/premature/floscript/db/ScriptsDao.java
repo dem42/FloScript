@@ -9,7 +9,7 @@ import java.util.Date;
 
 /**
  * Created by martin on 15/01/15.
- * </p>
+ * <p/>
  * Scripts data access object
  */
 public class ScriptsDao {

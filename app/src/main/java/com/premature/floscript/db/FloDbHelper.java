@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 /**
  * Created by martin on 14/01/15.
- * </p>
+ * <p/>
  * This class is responsible for creating and managing the flo database
  */
 public class FloDbHelper extends SQLiteOpenHelper {

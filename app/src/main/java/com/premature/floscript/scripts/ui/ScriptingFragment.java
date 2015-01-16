@@ -6,18 +6,23 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.premature.floscript.R;
+import com.premature.floscript.db.FloDbHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 
 import static android.view.View.LAYER_TYPE_SOFTWARE;
 
@@ -54,21 +59,23 @@ public final class ScriptingFragment extends Fragment {
 
     private float mDensity;
     private StickyButtonCoordinator mBtnCoordinator;
+    private FloDbHelper mFloDatabase;
 
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * We use this instead of a overloaded constructor because
+     * android will call the no argument constructor when it decides to
+     * recreate our fragment later. So we shouldn't use those all over the place
+     * instead we should pass arguments through the setArguments method (these will
+     * be retained between recreations)
+     *
      * @return A new instance of fragment ScriptingFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static ScriptingFragment newInstance(String param1, String param2) {
+    public static ScriptingFragment newInstance() {
         ScriptingFragment fragment = new ScriptingFragment();
         Bundle args = new Bundle();
-        //args.putString(ARG_PARAM1, param1);
-        //args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -81,17 +88,44 @@ public final class ScriptingFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            //mParam1 = getArguments().getString(ARG_PARAM1);
+            // looks like there may be multiple onCreate calls but one will have the arguments
             //mParam2 = getArguments().getString(ARG_PARAM2);
         }
         init();
+
+        // need to call this if we want to manipulate the options menu
+        setHasOptionsMenu(true);
     }
 
     private void init() {
+        this.mFloDatabase = new FloDbHelper(getActivity());
         this.mDensity = getResources().getDisplayMetrics().density;
-        this.mLogicBlockElement = new LogicBlockUiElement(null, (int)(40 * mDensity), (int)(40 * mDensity));
-        this.mDiamondElement = new DiamondUiElement(null, (int)(40 * mDensity), (int)(40 * mDensity));
-        this.mArrowElement = new ArrowUiElement(null, (int)(40 * mDensity), (int)(40 * mDensity));
+        this.mLogicBlockElement = new LogicBlockUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
+        this.mDiamondElement = new DiamondUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
+        this.mArrowElement = new ArrowUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
+
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        Log.d(TAG, "inflating our menu " + menu);
+        inflater.inflate(R.menu.menu_scripts, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch(id) {
+            case R.id.action_save:
+                saveDiagram();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void saveDiagram() {
 
     }
 
