@@ -1,6 +1,7 @@
 package com.premature.floscript.scripts.logic;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.Pair;
 
 import com.premature.floscript.R;
@@ -21,9 +22,10 @@ import java.util.Map;
  * representation
  */
 public final class DiagramToScriptCompiler {
-    private String codeShell;
+    private static final String TAG = "COMPILER";
+    private String mCodeShell;
     public DiagramToScriptCompiler(Context ctx) {
-        codeShell = ResourceAndFileUtils.readSqlFile(ctx, R.raw.script_shell);
+        mCodeShell = ResourceAndFileUtils.readFile(ctx, R.raw.script_shell, true);
     }
     public Script compile(Diagram diagram) throws ScriptCompilationException {
         StringBuilder code = new StringBuilder();
@@ -37,11 +39,13 @@ public final class DiagramToScriptCompiler {
 
         List<Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement>> connectedElements = entryElement.getConnectedElements();
         if (connectedElements.size() > 1) {
+            Log.d(TAG, "connected to start are " + connectedElements);
             throw new ScriptCompilationException(CompilationErrorCode.ENTRY_MUST_HAVE_SINGLE_CHILD);
         }
 
         depthFirstCompile(entryElement, connectedElements, code, generatedFunNames);
 
+        code.append(mCodeShell);
         return new Script(code.toString(), diagram.getName());
     }
 

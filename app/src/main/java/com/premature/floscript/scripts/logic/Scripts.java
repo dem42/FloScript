@@ -11,7 +11,7 @@ public final class Scripts {
 
     private Scripts() {}
 
-    public static final Script ENTRY_POINT_SCRIPT = new Script("entryFunction", "");
+    public static final Script ENTRY_POINT_SCRIPT = new Script("", "entryFunction");
     public static Script getHelloDiamond(String name) {
         return new Script("java.lang.System.out.println(\"HELLO DIAMOND\")", name);
     }
@@ -38,7 +38,7 @@ public final class Scripts {
         else {
             ;
         }
-        bob.append("}");
+        bob.append("}").append("\n");
         return bob.toString();
     }
 }

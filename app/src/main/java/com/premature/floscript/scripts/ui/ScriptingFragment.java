@@ -22,6 +22,7 @@ import com.premature.floscript.db.FloDbHelper;
 import com.premature.floscript.scripts.logic.DiagramToScriptCompiler;
 import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.logic.ScriptCompilationException;
+import com.premature.floscript.scripts.logic.ScriptEngine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,8 +134,28 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
                 Log.d(TAG, "Compiling");
                 compileDiagram();
                 return true;
+            case R.id.action_test:
+                Log.d(TAG, "Testing code");
+                compileAndRunDiagram();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void compileAndRunDiagram() {
+        DiagramToScriptCompiler compiler = new DiagramToScriptCompiler(getActivity());
+
+        try {
+            Script script = compiler.compile(mDiagramEditorView.getDiagram());
+            String result = ScriptEngine.runScript(script);
+            TextPopupDialog popup = TextPopupDialog.newInstance(script.getSourceCode() +
+                    "\n\nWith result: " + result);
+            popup.show(getActivity().getSupportFragmentManager(), "popup dialog");
+        } catch (ScriptCompilationException e) {
+            TextPopupDialog popup = TextPopupDialog.newInstance(e.getMessage());
+            popup.show(getActivity().getSupportFragmentManager(), "popup dialog");
+            Log.e(TAG, "compile exp", e);
         }
     }
 

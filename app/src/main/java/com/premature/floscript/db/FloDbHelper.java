@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 public class FloDbHelper extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "floscript_db";
-    public static final int VERSION = 3;
+    public static final int VERSION = 4;
     private static final String TAG = "DB_HELPER";
 
     private final Context mContext;

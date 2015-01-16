@@ -1,4 +1,3 @@
-//xx execute the code
 var env = {};
 var function_stack = [];
 env.execute = function(next_fun) {

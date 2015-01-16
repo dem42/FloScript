@@ -217,11 +217,15 @@ public class DiagramDao {
                 while (!query.isAfterLast()) {
                     Long id = query.getLong(query.getColumnIndex(CONNECT_ID));
                     String type = query.getString(query.getColumnIndex(CONNECT_TYPE));
+
                     float xPos = query.getFloat(query.getColumnIndex(CONNECT_XPOS));
                     float yPos = query.getFloat(query.getColumnIndex(CONNECT_YPOS));
                     int pinned = query.getInt(query.getColumnIndex(CONNECT_PINNED));
                     ArrowTargetableDiagramElement<?> connectable = createConnectableFromType(diagram, type);
                     diagram.addConnectable(connectable);
+                    if (connectable instanceof StartUiElement) {
+                        diagram.setEntryElement((StartUiElement)connectable);
+                    }
                     connectable.moveTo(xPos, yPos);
                     connectable.setPinned(pinned == 0 ? false : true);
                     connectableIds.put(id, connectable);
