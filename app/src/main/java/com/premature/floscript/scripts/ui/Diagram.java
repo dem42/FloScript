@@ -42,7 +42,7 @@ public final class Diagram {
         connectables.add(mEntryElement);
     }
 
-    public DiagramElement getEntryElement() {
+    public StartUiElement getEntryElement() {
         return mEntryElement;
     }
 

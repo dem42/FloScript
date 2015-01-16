@@ -1,21 +1,13 @@
 package com.premature.floscript.db;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.premature.floscript.R;
+import com.premature.floscript.util.ResourceAndFileUtils;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,7 +34,7 @@ public class FloDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        executeCreateStatements(db, readSqlFile(R.raw.create_sql_version1));
+        executeCreateStatements(db, ResourceAndFileUtils.readSqlFile(mContext, R.raw.create_sql_version1));
     }
 
     @Override
@@ -64,21 +56,6 @@ public class FloDbHelper extends SQLiteOpenHelper {
             Log.d(TAG, "Found create statement \"" + group + "\"");
             db.execSQL(group);
         }
-    }
-
-    private String readSqlFile(int resourceId) {
-        BufferedReader br = new BufferedReader(new InputStreamReader(mContext.getResources().openRawResource(resourceId)));
-        StringBuilder bob = new StringBuilder();
-        String line;
-        try {
-            while ((line = br.readLine()) != null) {
-                bob.append(line);
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "Problem reading sql resource " + resourceId, e);
-            bob = new StringBuilder("");
-        }
-        return bob.toString();
     }
 
     public void dropDatabase() {

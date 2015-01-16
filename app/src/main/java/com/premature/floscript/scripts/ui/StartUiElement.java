@@ -8,6 +8,9 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
 
+import com.premature.floscript.scripts.logic.Script;
+import com.premature.floscript.scripts.logic.Scripts;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -73,5 +76,10 @@ public final class StartUiElement extends ArrowTargetableDiagramElement<StartUiE
     @Override
     public String getTypeDesc() {
         return TYPE_TOKEN;
+    }
+
+    @Override
+    public Script getScript() {
+        return Scripts.ENTRY_POINT_SCRIPT;
     }
 }

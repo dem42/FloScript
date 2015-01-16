@@ -13,6 +13,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 
+import com.premature.floscript.scripts.logic.Condition;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
 
 import static com.premature.floscript.scripts.ui.ArrowTargetableDiagramElement.ArrowAnchorPoint;
@@ -43,6 +44,7 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
     // this is important for knowing the extends of the arrow
     private float mArrowHeadXPos;
     private float mArrowHeadYPos;
+    private Condition condition = Condition.NONE;
 
     public ArrowUiElement(Diagram diagram) {
         this(diagram, DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -202,5 +204,13 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         Log.d(TAG, "arrow start anchoring  " +  start + " at anchor point " + arrowAnchorPoint);
         moveTo(arrowAnchorPoint.getXPosDip(), arrowAnchorPoint.getYPosDip());
         setStartPoint(start);
+    }
+
+    public Condition getCondition() {
+        return condition;
+    }
+
+    public void setCondition(Condition condition) {
+        this.condition = condition;
     }
 }

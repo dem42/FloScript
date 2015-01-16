@@ -4,7 +4,7 @@ create table scripts (
     name text not null,
     version integer not null,
     created integer not null,
-    description text not null,
+    description text,
     code text
 );
 
@@ -15,6 +15,7 @@ create table diagrams (
     name text not null,
     version integer not null,
     created integer not null,
+    description text,
     script_id integer,
     foreign key (script_id) references scripts(_id)
 );

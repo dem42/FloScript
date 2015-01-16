@@ -3,6 +3,11 @@ package com.premature.floscript.scripts.ui;
 import android.util.Log;
 import android.util.Pair;
 
+import com.premature.floscript.scripts.logic.Script;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -19,6 +24,7 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
      * {@link com.premature.floscript.scripts.ui.DiagramEditorView.ElementMover} runnables
      */
     private final ConcurrentHashMap<ArrowUiElement, ArrowAnchorPoint> mArrowToAnchor;
+    private Script script;
 
     protected ArrowTargetableDiagramElement(Diagram diagram, float xPos, float yPos, int width, int height) {
         super(diagram, xPos, yPos, width, height);
@@ -26,6 +32,27 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
     }
 
     public abstract Iterable<ArrowAnchorPoint> getAnchorPoints();
+
+    /** Returns an iterable of all the elements that this element is connected to
+     * through an arrow.
+     */
+    public List<Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement>> getConnectedElements() {
+        List<Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement>> result = new ArrayList<>();
+        for (ArrowUiElement arrow : mArrowToAnchor.keySet()) {
+            if (arrow.getEndPoint() != this) {
+                result.add(new Pair(arrow.getEndPoint(), arrow));
+            }
+        }
+        return result;
+    }
+
+    public Script getScript() {
+        return script;
+    }
+
+    public void setScript(Script script) {
+        this.script = script;
+    }
 
     @Override
     public SELF_TYPE moveTo(float xPos, float yPos) {
