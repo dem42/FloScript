@@ -7,5 +7,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="jobs_fragment">Jobs</string>
     <string name="scripting_fragment">Scripting</string>
+    <string name="action_load">Load</string>
 
 </resources>

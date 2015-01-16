@@ -1,6 +1,7 @@
 package com.premature.floscript.db;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -10,9 +11,12 @@ import com.premature.floscript.scripts.ui.ArrowUiElement;
 import com.premature.floscript.scripts.ui.Diagram;
 import com.premature.floscript.scripts.ui.DiamondUiElement;
 import com.premature.floscript.scripts.ui.LogicBlockUiElement;
+import com.premature.floscript.scripts.ui.StartUiElement;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,40 +29,38 @@ public class DiagramDao {
     private static final String TAG = "DIAGRAM_DAO";
 
     // diagrams table
-    private static final String DIAGRAMS_TABLE = "diagrams";
-    private static final String DIAGRAMS_ID = "id";
-    private static final String DIAGRAMS_VERSION = "version";
-    private static final String DIAGRAMS_NAME = "name";
-    private static final String DIAGRAMS_CREATED = "created";
-    private static final String[] DIAGRAMS_COLUMNS = {DIAGRAMS_ID, DIAGRAMS_NAME,
+    public static final String DIAGRAMS_TABLE = "diagrams";
+    public static final String DIAGRAMS_ID = "_id";
+    public static final String DIAGRAMS_VERSION = "version";
+    public static final String DIAGRAMS_NAME = "name";
+    public static final String DIAGRAMS_CREATED = "created";
+    public static final String[] DIAGRAMS_COLUMNS = {DIAGRAMS_ID, DIAGRAMS_NAME, DIAGRAMS_VERSION,
             DIAGRAMS_CREATED,};
 
     // connectables table
-    private static final String CONNECT_TABLE = "connectable_diagram_elements";
-    private static final String CONNECT_ID = "id";
-    private static final String CONNECT_TYPE = "type";
-    private static final String CONNECT_XPOS = "x_pos";
-    private static final String CONNECT_YPOS = "y_pos";
-    private static final String CONNECT_PINNED = "pinned";
-    private static final String CONNECT_DIAGRAM = "diagram_id";
-    private static final String[] CONNECT_COLUMNS = {CONNECT_ID, CONNECT_TYPE,
+    public static final String CONNECT_TABLE = "connectable_diagram_elements";
+    public static final String CONNECT_ID = "_id";
+    public static final String CONNECT_TYPE = "type";
+    public static final String CONNECT_XPOS = "x_pos";
+    public static final String CONNECT_YPOS = "y_pos";
+    public static final String CONNECT_PINNED = "pinned";
+    public static final String CONNECT_DIAGRAM = "diagram_id";
+    public static final String[] CONNECT_COLUMNS = {CONNECT_ID, CONNECT_TYPE,
             CONNECT_XPOS, CONNECT_YPOS, CONNECT_PINNED, CONNECT_DIAGRAM};
 
     // arrows table
-    private static final String ARROWS_TABLE = "arrows";
-    private static final String ARROWS_SRC = "source";
-    private static final String ARROWS_TARGET = "target";
-    private static final String ARROWS_DIAGRAM = "diagram_id";
-    private static final String[] ARROWS_COLUMNS = {ARROWS_SRC, ARROWS_TARGET,
+    public static final String ARROWS_TABLE = "arrows";
+    public static final String ARROWS_SRC = "source";
+    public static final String ARROWS_TARGET = "target";
+    public static final String ARROWS_DIAGRAM = "diagram_id";
+    public static final String[] ARROWS_COLUMNS = {ARROWS_SRC, ARROWS_TARGET,
             ARROWS_DIAGRAM,};
 
-    private final FloDbHelper mDbHelper;
     private SQLiteDatabase mWritableDatabase;
 
 
-    public DiagramDao(FloDbHelper mDbHelper) {
-        this.mDbHelper = mDbHelper;
-        this.mWritableDatabase = mDbHelper.getWritableDatabase();
+    public DiagramDao(Context ctx) {
+        this.mWritableDatabase = FloDatabaseManager.getInstance(ctx).getWritableDatabase();
     }
 
     public boolean saveDiagram(Diagram diagram) {
@@ -121,23 +123,126 @@ public class DiagramDao {
         return true;
     }
 
-    public Diagram getDiagram(String name) {
+    public List<String> getDiagramNames() {
         Cursor query = null;
+        List<String> names = new ArrayList<>();
         try {
-            query = mWritableDatabase.query(DIAGRAMS_TABLE, DIAGRAMS_COLUMNS, "name=?", new String[]{name},
-                    null, null, "version desc", "limit 1");
-            if(query.getCount() == 0) {
-                return null;
-            }
+            // select distinct
+            query = getDiagramNamesAsCursor();
             query.moveToFirst();
-            int diagramId = query.getInt(query.getColumnIndex(DIAGRAMS_ID));
-            Date created = new Date(query.getLong(query.getColumnIndex(DIAGRAMS_CREATED)));
-            Log.d(TAG, "Found diagram with id " + diagramId + " created at " + created);
+            while(!query.isAfterLast()) {
+                String diagramName = query.getString(query.getColumnIndex(DIAGRAMS_NAME));
+                names.add(diagramName);
+                query.moveToNext();
+            }
         } finally {
             if (query != null) {
                 query.close();
             }
         }
-        return null;
+        return names;
     }
+
+    public Cursor getDiagramNamesAsCursor() {
+        return mWritableDatabase.query(true, DIAGRAMS_TABLE, new String[]{DIAGRAMS_ID, DIAGRAMS_NAME}, null, new String[]{},
+                null, null, "created desc", null);
+    }
+
+    public Diagram getDiagram(String name) {
+        Cursor query = null;
+        Diagram diagram = null;
+        try {
+            query = mWritableDatabase.query(DIAGRAMS_TABLE, DIAGRAMS_COLUMNS, "name=?", new String[]{name},
+                    null, null, "version desc", "1");
+            if(!query.moveToFirst()) {
+                return null;
+            }
+            long diagramId = query.getLong(query.getColumnIndex(DIAGRAMS_ID));
+            int version = query.getInt(query.getColumnIndex(DIAGRAMS_VERSION));
+            Date created = new Date(query.getLong(query.getColumnIndex(DIAGRAMS_CREATED)));
+            Log.d(TAG, "Found diagram with id " + diagramId + " created at " + created);
+
+            diagram = new Diagram();
+            diagram.setName(name);
+            diagram.setVersion(version);
+            Map<Long, ArrowTargetableDiagramElement<?>> connectableIds = new HashMap<>();
+            loadConnectables(diagramId, diagram, connectableIds);
+            loadArrows(diagramId, diagram, connectableIds);
+        } finally {
+            if (query != null) {
+                query.close();
+            }
+        }
+        return diagram;
+    }
+
+    private void loadArrows(long diagramId, Diagram diagram, Map<Long, ArrowTargetableDiagramElement<?>> connectableIds) {
+        Cursor query = null;
+        try {
+            // select distinct
+            query = mWritableDatabase.query(true, ARROWS_TABLE, ARROWS_COLUMNS,
+                    "diagram_id=?", new String[]{Long.toString(diagramId)},
+                    null, null, null, null);
+            if (query.moveToFirst()) {
+                while (!query.isAfterLast()) {
+                    Long src = query.getLong(query.getColumnIndex(ARROWS_SRC));
+                    Long dest = query.getLong(query.getColumnIndex(ARROWS_TARGET));
+                    ArrowUiElement arrow = new ArrowUiElement(diagram);
+                    arrow.setStartPoint(connectableIds.get(src));
+                    arrow.setEndPoint(connectableIds.get(dest));
+                    diagram.addArrow(arrow);
+                    query.moveToNext();
+                }
+        }
+        } finally {
+            if (query != null) {
+                query.close();
+            }
+        }
+    }
+
+    private void loadConnectables(long diagramId, Diagram diagram, Map<Long, ArrowTargetableDiagramElement<?>> connectableIds) {
+        Cursor query = null;
+        try {
+            // select distinct
+            query = mWritableDatabase.query(true, CONNECT_TABLE, CONNECT_COLUMNS,
+                    "diagram_id=?", new String[]{Long.toString(diagramId)},
+                    null, null, null, null);
+            if(query.moveToFirst()) {
+                while (!query.isAfterLast()) {
+                    Long id = query.getLong(query.getColumnIndex(CONNECT_ID));
+                    String type = query.getString(query.getColumnIndex(CONNECT_TYPE));
+                    float xPos = query.getFloat(query.getColumnIndex(CONNECT_XPOS));
+                    float yPos = query.getFloat(query.getColumnIndex(CONNECT_YPOS));
+                    int pinned = query.getInt(query.getColumnIndex(CONNECT_PINNED));
+                    ArrowTargetableDiagramElement<?> connectable = createConnectableFromType(diagram, type);
+                    diagram.addConnectable(connectable);
+                    connectable.moveTo(xPos, yPos);
+                    connectable.setPinned(pinned == 0 ? false : true);
+                    connectableIds.put(id, connectable);
+                    query.moveToNext();
+                }
+            }
+        } finally {
+            if (query != null) {
+                query.close();
+            }
+        }
+
+    }
+
+    private ArrowTargetableDiagramElement<?> createConnectableFromType(Diagram diagram, String type) {
+        switch(type) {
+            case LogicBlockUiElement.TYPE_TOKEN:
+                return new LogicBlockUiElement(diagram);
+            case DiamondUiElement.TYPE_TOKEN:
+                return new DiamondUiElement(diagram);
+            case StartUiElement.TYPE_TOKEN:
+                return new StartUiElement(diagram);
+            default:
+                throw new IllegalArgumentException("Unrecognized connectable type " + type);
+        }
+    }
+
+
 }

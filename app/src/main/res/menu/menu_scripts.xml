@@ -5,6 +5,8 @@
     tools:context="com.premature.floscript.scripts.ui.ScriptingFragment">
     <item android:id="@+id/action_save" android:title="@string/action_save"
         android:orderInCategory="100" app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_load" android:title="@string/action_load"
+        android:orderInCategory="100" app:showAsAction="ifRoom" />
     <item android:id="@+id/action_clear_db" android:title="Clear db"
         android:orderInCategory="100" app:showAsAction="never" />
 

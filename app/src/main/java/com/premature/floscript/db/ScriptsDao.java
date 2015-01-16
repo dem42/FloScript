@@ -1,6 +1,7 @@
 package com.premature.floscript.db;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
@@ -21,14 +22,12 @@ public class ScriptsDao {
     public static final String SCRIPTS_CREATED = "created";
     public static final String SCRIPTS_CODE = "code";
     public static final String SCRIPTS_TABLE = "scripts";
-    private final FloDbHelper mDbHelper;
     private SQLiteDatabase mWritableDatabase;
     private static final String[] SCRIPTS_COLUMNS = {SCRIPTS_NAME,
             SCRIPTS_VERSION, SCRIPTS_DESCRIPTION, SCRIPTS_CREATED, SCRIPTS_CODE};
 
-    public ScriptsDao(FloDbHelper mDbHelper) {
-        this.mDbHelper = mDbHelper;
-        this.mWritableDatabase = mDbHelper.getWritableDatabase();
+    public ScriptsDao(Context ctx) {
+        this.mWritableDatabase = FloDatabaseManager.getInstance(ctx).getWritableDatabase();
     }
 
     public void testInsertScript() {

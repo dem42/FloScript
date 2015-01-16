@@ -36,7 +36,8 @@ import static android.view.View.LAYER_TYPE_SOFTWARE;
  * Use the {@link ScriptingFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public final class ScriptingFragment extends Fragment implements SaveDialog.OnSaveDialogListener {
+public final class ScriptingFragment extends Fragment implements SaveDialog.OnSaveDialogListener,
+        LoadDialog.OnLoadDialogListener {
     private static final String TAG = "SCRIPT_FRAG";
     private static final String PINNED_TEXT = "Unpin";
     private static final String UNPINNED_TEXT = "Pin";
@@ -101,8 +102,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     }
 
     private void init() {
-        this.mFloDatabase = new FloDbHelper(getActivity());
-        this.mDiagramDao = new DiagramDao(mFloDatabase);
+        this.mDiagramDao = new DiagramDao(getActivity());
         this.mDensity = getResources().getDisplayMetrics().density;
         this.mLogicBlockElement = new LogicBlockUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
         this.mDiamondElement = new DiamondUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
@@ -124,6 +124,9 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
             case R.id.action_save:
                 saveDiagram();
                 return true;
+            case R.id.action_load:
+                loadDiagram();
+                return true;
             case R.id.action_clear_db:
                 Log.d(TAG, "DROPPING THE DB");
                 mFloDatabase.dropDatabase();
@@ -133,11 +136,22 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         }
     }
 
+    private void loadDiagram() {
+        LoadDialog dialog = new LoadDialog();
+        dialog.setTargetFragment(this, 1);
+        dialog.show(getActivity().getSupportFragmentManager(), "load dialog");
+    }
+
     private void saveDiagram() {
-        Diagram diagram = mDiagramEditorView.getDiagram();
         SaveDialog dialog = new SaveDialog();
         dialog.setTargetFragment(this, 1);
         dialog.show(getActivity().getSupportFragmentManager(), "save dialog");
+    }
+
+    @Override
+    public void loadClicked(String name) {
+        Diagram diagram = mDiagramDao.getDiagram(name);
+        mDiagramEditorView.setDiagram(diagram);
     }
 
     @Override

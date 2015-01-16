@@ -1,6 +1,7 @@
 package com.premature.floscript.db;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -26,7 +27,7 @@ import java.util.regex.Pattern;
 public class FloDbHelper extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "floscript_db";
-    public static final int VERSION = 1;
+    public static final int VERSION = 3;
     private static final String TAG = "DB_HELPER";
 
     private final Context mContext;
@@ -46,6 +47,13 @@ public class FloDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (oldVersion < newVersion) {
+            db.execSQL("drop table if exists " + ScriptsDao.SCRIPTS_TABLE);
+            db.execSQL("drop table if exists " + DiagramDao.ARROWS_TABLE);
+            db.execSQL("drop table if exists " + DiagramDao.CONNECT_TABLE);
+            db.execSQL("drop table if exists " + DiagramDao.DIAGRAMS_TABLE);
+            onCreate(db);
+        }
         Log.d(TAG, "in upgrade " + oldVersion + " , " + newVersion);
     }
 

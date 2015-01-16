@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import com.premature.floscript.R;
 
-import com.premature.floscript.db.FloDbHelper;
 import com.premature.floscript.db.ScriptsDao;
 import com.premature.floscript.jobs.dummy.DummyContent;
 
@@ -42,7 +41,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     private String mParam2;
 
     private OnJobsFragmentInteractionListener mListener;
-    private FloDbHelper mDbHelper;
+    private ScriptsDao mScriptsDao;
 
     /**
      * The fragment's ListView/GridView.
@@ -85,7 +84,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
                 android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
 
-        mDbHelper = new FloDbHelper(getActivity());
+        mScriptsDao = new ScriptsDao(getActivity());
     }
 
     @Override
@@ -106,8 +105,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
 
     @OnClick(R.id.db_test_button)
     public void testDb(View view) {
-        ScriptsDao scriptDao = new ScriptsDao(mDbHelper);
-        scriptDao.printTestsInDb();
+        mScriptsDao.printTestsInDb();
     }
 
     @Override
