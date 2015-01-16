@@ -38,6 +38,7 @@ create table arrows (
     _id integer primary key autoincrement,
     source integer not null,
     target integer not null,
+    condition integer,
     diagram_id integer not null,
     foreign key (source) references connectable_diagram_elements(_id),
     foreign key (target) references connectable_diagram_elements(_id),

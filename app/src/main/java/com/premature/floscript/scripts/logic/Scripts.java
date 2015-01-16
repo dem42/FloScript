@@ -10,14 +10,19 @@ import java.util.Map;
  * Utility class for script helper
  */
 public final class Scripts {
-    private static final String NO_CONDITION = "<NO_CONDITION>";
 
     private Scripts() {}
 
     public static final Script ENTRY_POINT_SCRIPT = new Script("entryFunction", "");
+    public static Script getHelloDiamond(String name) {
+        return new Script("java.lang.System.out.println(\"HELLO DIAMOND\")", name);
+    }
+    public static Script getHelloLogic(String name) {
+        return new Script("java.lang.System.out.println(\"HELLO LOGIC\")", name);
+    }
 
     public static String createFunctionWrapper(Script codeToWrap, @Nullable Script yesOrDefaultScript, @Nullable Script noScript) {
-        StringBuilder bob = new StringBuilder("function " + codeToWrap.getName() + " (env) {");
+        StringBuilder bob = new StringBuilder("function " + codeToWrap.getName() + " (env) {\n");
 
         bob.append(codeToWrap.getSourceCode()).append("\n");
 

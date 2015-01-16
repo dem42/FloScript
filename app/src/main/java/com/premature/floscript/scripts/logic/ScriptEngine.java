@@ -17,7 +17,7 @@ public class ScriptEngine {
         this.writer = new StringWriter();
     }
 
-    public String runScript(com.premature.floscript.scripts.logic.Script script) {
+    public static String runScript(com.premature.floscript.scripts.logic.Script script) {
         // Creates and enters a Context. The Context stores information
         // about the execution environment of a script.
         org.mozilla.javascript.Context cx = org.mozilla.javascript.Context.enter();
@@ -28,7 +28,7 @@ public class ScriptEngine {
             // a scope object that we use in later calls.
             Scriptable scope = cx.initStandardObjects();
 
-            // Now evaluate the string we've colected.
+            // Now evaluate the string we've collected.
             Object result = cx.evaluateString(scope, script.getSourceCode(), "<test-script>", 1, null);
 
             // Convert the result to a string and print it.
@@ -38,5 +38,21 @@ public class ScriptEngine {
             // Exit from the context.
             org.mozilla.javascript.Context.exit();
         }
+    }
+
+    public static void main(String... args) {
+        Script s1 = new Script("java.lang.System.out.println(\"HELLO1\")", "test1");
+        Script s2 = new Script("java.lang.System.out.println(\"HELLO2\")", "test2");
+        Script s3 = new Script("java.lang.System.out.println(\"HELLO3\")", "test3");
+        runScript(s1);
+
+        System.out.println(Scripts.createFunctionWrapper(s1, null, null));
+        System.out.println(Scripts.createFunctionWrapper(s1, s2, null));
+        System.out.println(Scripts.createFunctionWrapper(s1, s2, s3));
+
+        Script s4 = new Script("var z = true; z === true;", "test4");
+        System.out.println(runScript(s4));
+        Script s5 = new Script("var z = true; z === false;", "test5");
+        System.out.println(runScript(s5));
     }
 }
