@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.premature.floscript.scripts.logic.Condition;
 import com.premature.floscript.scripts.ui.ArrowTargetableDiagramElement;
 import com.premature.floscript.scripts.ui.ArrowUiElement;
 import com.premature.floscript.scripts.ui.Diagram;
@@ -53,8 +54,9 @@ public class DiagramDao {
     public static final String ARROWS_SRC = "source";
     public static final String ARROWS_TARGET = "target";
     public static final String ARROWS_DIAGRAM = "diagram_id";
+    public static final String ARROWS_CONDITION = "condition";
     public static final String[] ARROWS_COLUMNS = {ARROWS_SRC, ARROWS_TARGET,
-            ARROWS_DIAGRAM,};
+            ARROWS_DIAGRAM, ARROWS_CONDITION};
 
     private SQLiteDatabase mWritableDatabase;
 
@@ -101,6 +103,7 @@ public class DiagramDao {
         columnToValue.put(ARROWS_DIAGRAM, diagramId);
         columnToValue.put(ARROWS_SRC, connectableIds.get(arrow.getStartPoint()));
         columnToValue.put(ARROWS_TARGET, connectableIds.get(arrow.getEndPoint()));
+        columnToValue.put(ARROWS_CONDITION, Condition.convertToInt(arrow.getCondition()));
         long id = mWritableDatabase.insert(ARROWS_TABLE, null, columnToValue);
         if (id == -1) {
             return false;
@@ -187,9 +190,11 @@ public class DiagramDao {
                 while (!query.isAfterLast()) {
                     Long src = query.getLong(query.getColumnIndex(ARROWS_SRC));
                     Long dest = query.getLong(query.getColumnIndex(ARROWS_TARGET));
+                    Condition condition = Condition.fromInt(query.getInt(query.getColumnIndex(ARROWS_CONDITION)));
                     ArrowUiElement arrow = new ArrowUiElement(diagram);
                     arrow.setStartPoint(connectableIds.get(src));
                     arrow.setEndPoint(connectableIds.get(dest));
+                    arrow.setCondition(condition);
                     diagram.addArrow(arrow);
                     query.moveToNext();
                 }

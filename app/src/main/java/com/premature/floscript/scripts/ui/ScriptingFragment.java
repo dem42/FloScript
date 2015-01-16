@@ -19,6 +19,9 @@ import android.widget.Toast;
 import com.premature.floscript.R;
 import com.premature.floscript.db.DiagramDao;
 import com.premature.floscript.db.FloDbHelper;
+import com.premature.floscript.scripts.logic.DiagramToScriptCompiler;
+import com.premature.floscript.scripts.logic.Script;
+import com.premature.floscript.scripts.logic.ScriptCompilationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +65,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
     private float mDensity;
     private StickyButtonCoordinator mBtnCoordinator;
-    private FloDbHelper mFloDatabase;
     private DiagramDao mDiagramDao;
 
     /**
@@ -127,12 +129,26 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
             case R.id.action_load:
                 loadDiagram();
                 return true;
-            case R.id.action_clear_db:
-                Log.d(TAG, "DROPPING THE DB");
-                mFloDatabase.dropDatabase();
+            case R.id.action_compile:
+                Log.d(TAG, "Compiling");
+                compileDiagram();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void compileDiagram() {
+        DiagramToScriptCompiler compiler = new DiagramToScriptCompiler(getActivity());
+
+        try {
+            Script script = compiler.compile(mDiagramEditorView.getDiagram());
+            TextPopupDialog popup = TextPopupDialog.newInstance(script.getSourceCode());
+            popup.show(getActivity().getSupportFragmentManager(), "popup dialog");
+        } catch (ScriptCompilationException e) {
+            TextPopupDialog popup = TextPopupDialog.newInstance(e.getMessage());
+            popup.show(getActivity().getSupportFragmentManager(), "popup dialog");
+            Log.e(TAG, "compile exp", e);
         }
     }
 

@@ -46,9 +46,9 @@ public class ScriptEngine {
         Script s3 = new Script("java.lang.System.out.println(\"HELLO3\")", "test3");
         runScript(s1);
 
-        System.out.println(Scripts.createFunctionWrapper(s1, null, null));
-        System.out.println(Scripts.createFunctionWrapper(s1, s2, null));
-        System.out.println(Scripts.createFunctionWrapper(s1, s2, s3));
+        System.out.println(Scripts.createFunctionWrapper(s1, "test1", null, null));
+        System.out.println(Scripts.createFunctionWrapper(s1, "test1", "test3", null));
+        System.out.println(Scripts.createFunctionWrapper(s1, "test1", "yesfun", "nofun"));
 
         Script s4 = new Script("var z = true; z === true;", "test4");
         System.out.println(runScript(s4));

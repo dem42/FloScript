@@ -7,7 +7,7 @@
         android:orderInCategory="100" app:showAsAction="ifRoom" />
     <item android:id="@+id/action_load" android:title="@string/action_load"
         android:orderInCategory="100" app:showAsAction="ifRoom" />
-    <item android:id="@+id/action_clear_db" android:title="Clear db"
+    <item android:id="@+id/action_compile" android:title="Compile"
         android:orderInCategory="100" app:showAsAction="never" />
 
 </menu>
