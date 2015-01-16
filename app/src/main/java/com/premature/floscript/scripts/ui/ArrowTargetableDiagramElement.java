@@ -20,8 +20,8 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
      */
     private final ConcurrentHashMap<ArrowUiElement, ArrowAnchorPoint> mArrowToAnchor;
 
-    protected ArrowTargetableDiagramElement(float xPos, float yPos, int width, int height) {
-        super(xPos, yPos, width, height);
+    protected ArrowTargetableDiagramElement(Diagram diagram, float xPos, float yPos, int width, int height) {
+        super(diagram, xPos, yPos, width, height);
         mArrowToAnchor = new ConcurrentHashMap<>();
     }
 

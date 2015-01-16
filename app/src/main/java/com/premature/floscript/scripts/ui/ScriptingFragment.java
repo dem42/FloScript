@@ -89,9 +89,9 @@ public final class ScriptingFragment extends Fragment {
 
     private void init() {
         this.mDensity = getResources().getDisplayMetrics().density;
-        this.mLogicBlockElement = new LogicBlockUiElement((int)(40 * mDensity), (int)(40 * mDensity));
-        this.mDiamondElement = new DiamondUiElement((int)(40 * mDensity), (int)(40 * mDensity));
-        this.mArrowElement = new ArrowUiElement((int)(40 * mDensity), (int)(40 * mDensity));
+        this.mLogicBlockElement = new LogicBlockUiElement(null, (int)(40 * mDensity), (int)(40 * mDensity));
+        this.mDiamondElement = new DiamondUiElement(null, (int)(40 * mDensity), (int)(40 * mDensity));
+        this.mArrowElement = new ArrowUiElement(null, (int)(40 * mDensity), (int)(40 * mDensity));
 
     }
 

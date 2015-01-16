@@ -26,8 +26,8 @@ public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBloc
     private PathShape logicBlockShape;
     private ShapeDrawable mLogicBlock;
 
-    public LogicBlockUiElement(int width, int height) {
-        super(0f, 0f, width, height);
+    public LogicBlockUiElement(Diagram diagram, int width, int height) {
+        super(diagram, 0f, 0f, width, height);
         ArrayList<ArrowAnchorPoint> list = new ArrayList<>();
         list.add(new ArrowAnchorPoint(0,0, this));
         list.add(new ArrowAnchorPoint(0,height/2, this));
@@ -41,8 +41,8 @@ public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBloc
         initShape();
     }
 
-    public LogicBlockUiElement() {
-        this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    public LogicBlockUiElement(Diagram diagram) {
+        this(diagram, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
     private void initShape() {

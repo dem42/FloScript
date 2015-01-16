@@ -25,8 +25,8 @@ public final class DiamondUiElement extends ArrowTargetableDiagramElement<Diamon
     private PathShape diamondShape;
     private ShapeDrawable mDiamond;
 
-    public DiamondUiElement(int width, int height) {
-        super(0f, 0f, width, height);
+    public DiamondUiElement(Diagram diagram, int width, int height) {
+        super(diagram, 0f, 0f, width, height);
         ArrayList<ArrowTargetableDiagramElement.ArrowAnchorPoint> list = new ArrayList<>();
         list.add(new ArrowTargetableDiagramElement.ArrowAnchorPoint(width/2,0, this));
         list.add(new ArrowTargetableDiagramElement.ArrowAnchorPoint(0,height/2, this));
@@ -36,8 +36,8 @@ public final class DiamondUiElement extends ArrowTargetableDiagramElement<Diamon
         initShape();
     }
 
-    public DiamondUiElement() {
-        this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    public DiamondUiElement(Diagram diagram) {
+        this(diagram, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
     private void initShape() {

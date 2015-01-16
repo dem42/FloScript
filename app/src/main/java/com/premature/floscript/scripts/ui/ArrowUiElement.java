@@ -44,12 +44,12 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
     private float mArrowHeadXPos;
     private float mArrowHeadYPos;
 
-    public ArrowUiElement() {
-        this(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    public ArrowUiElement(Diagram diagram) {
+        this(diagram, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
-    public ArrowUiElement(int width, int height) {
-        super(0f, 0f, width, height);
+    public ArrowUiElement(Diagram diagram, int width, int height) {
+        super(diagram, 0f, 0f, width, height);
         this.mArrowHeadHeight = (int)(2.5f * mHeight);
         this.mArrowHeadWidth = mWidth / 5;
         this.mArrowHeadXPos = mWidth + mArrowHeadWidth;

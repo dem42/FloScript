@@ -23,8 +23,8 @@ public final class StartUiElement extends ArrowTargetableDiagramElement<StartUiE
     private ShapeDrawable innerCircle;
     private final List<ArrowAnchorPoint> mAnchorPoints;
 
-    public StartUiElement() {
-        super(0, 0, 30, 30);
+    public StartUiElement(Diagram diagram) {
+        super(diagram, 0, 0, 30, 30);
         List<ArrowAnchorPoint> anchorPoints = new ArrayList<>();
         anchorPoints.add(new ArrowAnchorPoint(15, 0, this));
         anchorPoints.add(new ArrowAnchorPoint(30, 15, this));

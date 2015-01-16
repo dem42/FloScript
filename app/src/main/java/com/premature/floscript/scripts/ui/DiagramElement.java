@@ -12,13 +12,15 @@ import android.graphics.drawable.Drawable;
  */
 public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>> {
 
+    private final Diagram mDiagram;
     protected float mXPos;
     protected float mYPos;
     protected int mWidth;
     protected int mHeight;
     protected boolean mPinned = false;
 
-    protected DiagramElement(float xPos, float yPos, int width, int height) {
+    protected DiagramElement(Diagram diagram, float xPos, float yPos, int width, int height) {
+        this.mDiagram = diagram;
         this.mXPos = xPos;
         this.mYPos = yPos;
         this.mWidth = width;

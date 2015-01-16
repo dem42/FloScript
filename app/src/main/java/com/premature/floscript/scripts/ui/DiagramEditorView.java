@@ -73,7 +73,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         // Load attributes
         loadAttributes(attrs, defStyle);
         mDiagram = new Diagram();
-        mDiagram.setEntryElement(new StartUiElement());
+        mDiagram.setEntryElement(new StartUiElement(mDiagram));
         mDensityScale = getResources().getDisplayMetrics().density;
         mElementMover = new ElementMover(this);
     }
@@ -99,19 +99,19 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
     @Override
     public void onLogicElementClicked() {
-        LogicBlockUiElement newLogicBlock = new LogicBlockUiElement();
+        LogicBlockUiElement newLogicBlock = new LogicBlockUiElement(mDiagram);
         mFloatingConnectable = newLogicBlock;
     }
     @Override
     public void onDiamondElementClicked() {
-        DiamondUiElement newDiamond = new DiamondUiElement();
+        DiamondUiElement newDiamond = new DiamondUiElement(mDiagram);
         mFloatingConnectable = newDiamond;
     }
     @Override
     public void onArrowClicked() {
         if (mEdittingState != EditingState.ARROW_PLACING) {
             mEdittingState = EditingState.ARROW_PLACING;
-            mFloatingArrow = new ArrowUiElement();
+            mFloatingArrow = new ArrowUiElement(mDiagram);
         }
         else {
             mEdittingState = EditingState.ELEMENT_EDITING;
