@@ -18,6 +18,8 @@ import java.util.List;
  * The mDiamond element encapsulates the view logic for floscript if-else code elements
  */
 public final class DiamondUiElement extends ArrowTargetableDiagramElement<DiamondUiElement> {
+    public static final String TYPE_TOKEN = "DIAMOND";
+
     private static final int DEFAULT_WIDTH = 50;
     private static final int DEFAULT_HEIGHT = 60;
     private final List<ArrowTargetableDiagramElement.ArrowAnchorPoint> mAnchorPoints;
@@ -75,5 +77,10 @@ public final class DiamondUiElement extends ArrowTargetableDiagramElement<Diamon
     @Override
     public Iterable<ArrowAnchorPoint> getAnchorPoints() {
         return mAnchorPoints;
+    }
+
+    @Override
+    public String getTypeDesc() {
+        return TYPE_TOKEN;
     }
 }

@@ -73,7 +73,7 @@ public class FloDbHelper extends SQLiteOpenHelper {
         return bob.toString();
     }
 
-    private void dropDatabase() {
+    public void dropDatabase() {
         mContext.deleteDatabase(DB_NAME);
     }
 }

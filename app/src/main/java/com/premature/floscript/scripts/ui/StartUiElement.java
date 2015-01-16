@@ -19,6 +19,7 @@ import java.util.List;
  */
 public final class StartUiElement extends ArrowTargetableDiagramElement<StartUiElement> {
 
+    public static final String TYPE_TOKEN = "ENTRY_ELEM";
     private ShapeDrawable outsideCircle;
     private ShapeDrawable innerCircle;
     private final List<ArrowAnchorPoint> mAnchorPoints;
@@ -67,5 +68,10 @@ public final class StartUiElement extends ArrowTargetableDiagramElement<StartUiE
     @Override
     public Iterable<ArrowAnchorPoint> getAnchorPoints() {
         return mAnchorPoints;
+    }
+
+    @Override
+    public String getTypeDesc() {
+        return TYPE_TOKEN;
     }
 }

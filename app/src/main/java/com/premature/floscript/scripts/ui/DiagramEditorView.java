@@ -250,23 +250,23 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        int saveCount0 = canvas.save();
-
-
+        canvas.save();
         canvas.drawColor(mBgColor);
         // we will draw everything in mdpi coords so that we can use a physical coord system
         // this means that we need to scale up to the size of our device
         // and then everything will have the same physical size on all devices
         canvas.scale(mDensityScale, mDensityScale);
 
-        for (DiagramElement<?> element : mDiagram.getElements()) {
-            element.draw(canvas);
-        }
-
         if (mEdittingState == EditingState.ARROW_DRAGGING) {
             mFloatingArrow.draw(canvas);
         }
-
-        canvas.restoreToCount(saveCount0);
+        // we draw arrows first so that they don't get drawn on top of the other elements
+        for (ArrowUiElement arrow: mDiagram.getArrows()) {
+            arrow.draw(canvas);
+        }
+        for (ArrowTargetableDiagramElement<?> element : mDiagram.getConnectables()) {
+            element.draw(canvas);
+        }
+        canvas.restore();
     }
 }

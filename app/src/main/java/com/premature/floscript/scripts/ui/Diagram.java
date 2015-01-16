@@ -16,7 +16,9 @@ public final class Diagram {
     private List<DiagramElement<?>> elements = new ArrayList<>();
     private List<ArrowUiElement> arrows = new ArrayList<>();
     private List<ArrowTargetableDiagramElement<?>> connectables = new ArrayList<>();
+
     private String mName;
+    private int version;
 
     public String getName() {
         return mName;
@@ -24,6 +26,14 @@ public final class Diagram {
 
     public void setName(String name) {
         this.mName = name;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 
     public void setEntryElement(StartUiElement startUiElement) {
@@ -52,5 +62,9 @@ public final class Diagram {
 
     public List<DiagramElement<?>> getElements() {
         return elements;
+    }
+
+    public List<ArrowUiElement> getArrows() {
+        return arrows;
     }
 }

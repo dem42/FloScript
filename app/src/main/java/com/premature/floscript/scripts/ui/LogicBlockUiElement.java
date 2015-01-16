@@ -19,6 +19,8 @@ import java.util.List;
  * contains some code logic that will get executed should the control flow reach this element.
  */
 public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBlockUiElement> {
+    public static final String TYPE_TOKEN = "LOGIC_BLOCK";
+
     private static final int DEFAULT_WIDTH = 70;
     private static final int DEFAULT_HEIGHT = 70;
     private final List<ArrowAnchorPoint> mAnchorPoints;
@@ -81,5 +83,10 @@ public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBloc
     @Override
     public Drawable getDrawable() {
         return mLogicBlock;
+    }
+
+    @Override
+    public String getTypeDesc() {
+        return TYPE_TOKEN;
     }
 }

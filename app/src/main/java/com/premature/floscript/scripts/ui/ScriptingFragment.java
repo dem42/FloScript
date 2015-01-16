@@ -1,6 +1,7 @@
 package com.premature.floscript.scripts.ui;
 
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.premature.floscript.R;
+import com.premature.floscript.db.DiagramDao;
 import com.premature.floscript.db.FloDbHelper;
 
 import java.util.ArrayList;
@@ -22,7 +24,6 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import butterknife.OnClick;
 
 import static android.view.View.LAYER_TYPE_SOFTWARE;
 
@@ -34,7 +35,7 @@ import static android.view.View.LAYER_TYPE_SOFTWARE;
  * Use the {@link ScriptingFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public final class ScriptingFragment extends Fragment {
+public final class ScriptingFragment extends Fragment implements SaveDialog.OnSaveDialogListener {
     private static final String TAG = "SCRIPT_FRAG";
     private static final String PINNED_TEXT = "Unpin";
     private static final String UNPINNED_TEXT = "Pin";
@@ -60,6 +61,7 @@ public final class ScriptingFragment extends Fragment {
     private float mDensity;
     private StickyButtonCoordinator mBtnCoordinator;
     private FloDbHelper mFloDatabase;
+    private DiagramDao mDiagramDao;
 
     /**
      * Use this factory method to create a new instance of
@@ -99,6 +101,7 @@ public final class ScriptingFragment extends Fragment {
 
     private void init() {
         this.mFloDatabase = new FloDbHelper(getActivity());
+        this.mDiagramDao = new DiagramDao(mFloDatabase);
         this.mDensity = getResources().getDisplayMetrics().density;
         this.mLogicBlockElement = new LogicBlockUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
         this.mDiamondElement = new DiamondUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
@@ -120,13 +123,26 @@ public final class ScriptingFragment extends Fragment {
             case R.id.action_save:
                 saveDiagram();
                 return true;
+            case R.id.action_clear_db:
+                Log.d(TAG, "DROPPING THE DB");
+                mFloDatabase.dropDatabase();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
     private void saveDiagram() {
+        Diagram diagram = mDiagramEditorView.getDiagram();
+        SaveDialog dialog = new SaveDialog();
+        dialog.show(getActivity().getSupportFragmentManager(), "save dialog");
+    }
 
+    @Override
+    public void saveClicked(String name) {
+        Diagram diagram = mDiagramEditorView.getDiagram();
+        diagram.setName(name);
+        mDiagramDao.saveDiagram(diagram);
     }
 
     @Override
@@ -219,8 +235,6 @@ public final class ScriptingFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
-
-
 
     /**
      * This interface must be implemented by activities that contain this

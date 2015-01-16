@@ -114,6 +114,9 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
         return new Pair<>(bestOur, bestHis);
     }
 
+    /** A connectable type must have a descriptor which specifies its type */
+    public abstract String getTypeDesc();
+
     /**
      * This class represents a point on the diagram element where an arrow can
      * be connected
