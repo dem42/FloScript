@@ -14,6 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 
+import com.premature.floscript.db.DbAsyncActionsFragment;
 import com.premature.floscript.jobs.JobsFragment;
 import com.premature.floscript.scripts.ui.ScriptingFragment;
 
@@ -45,6 +46,14 @@ public class MainActivity extends ActionBarActivity implements JobsFragment.OnJo
         actionBar.addTab(actionBar.newTab()
                 .setText(R.string.jobs_fragment)
                 .setTabListener(new TabListener<>(this, JobsFragment.class)));
+
+
+        DbAsyncActionsFragment asyncFrag = (DbAsyncActionsFragment) getSupportFragmentManager().findFragmentByTag(DbAsyncActionsFragment.TAG);
+        if (asyncFrag == null) {
+            asyncFrag = DbAsyncActionsFragment.newInstance();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.add(asyncFrag, DbAsyncActionsFragment.TAG).commit();
+        }
     }
 
 

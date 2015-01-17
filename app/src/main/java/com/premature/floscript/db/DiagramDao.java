@@ -58,22 +58,23 @@ public class DiagramDao {
     public static final String[] ARROWS_COLUMNS = {ARROWS_SRC, ARROWS_TARGET,
             ARROWS_DIAGRAM, ARROWS_CONDITION};
 
-    private SQLiteDatabase mWritableDatabase;
+    private FloDbHelper mDb;
 
 
     public DiagramDao(Context ctx) {
-        this.mWritableDatabase = FloDatabaseManager.getInstance(ctx).getWritableDatabase();
+        this.mDb = FloDatabaseManager.getInstance(ctx);
     }
 
     public boolean saveDiagram(Diagram diagram) {
-        mWritableDatabase.beginTransaction();
+        SQLiteDatabase db = mDb.getWritableDatabase();
+        db.beginTransaction();
         try {
             //mDbHelper.dropDatabase();
             ContentValues columnToValue = new ContentValues();
             columnToValue.put(DIAGRAMS_NAME, diagram.getName());
             columnToValue.put(DIAGRAMS_VERSION, diagram.getVersion());
             columnToValue.put(DIAGRAMS_CREATED, new Date().getTime());
-            long id = mWritableDatabase.insert(DIAGRAMS_TABLE, null, columnToValue);
+            long id = db.insert(DIAGRAMS_TABLE, null, columnToValue);
             if (id == -1) {
                 // error occurred
                 return false;
@@ -90,10 +91,10 @@ public class DiagramDao {
                     return false;
                 }
             }
-            mWritableDatabase.setTransactionSuccessful(); // commits the tran
+            db.setTransactionSuccessful(); // commits the tran
         } finally {
             // this rolls back the tran unless setTranSuc was called
-            mWritableDatabase.endTransaction();
+            db.endTransaction();
         }
         return true;
     }
@@ -104,7 +105,7 @@ public class DiagramDao {
         columnToValue.put(ARROWS_SRC, connectableIds.get(arrow.getStartPoint()));
         columnToValue.put(ARROWS_TARGET, connectableIds.get(arrow.getEndPoint()));
         columnToValue.put(ARROWS_CONDITION, Condition.convertToInt(arrow.getCondition()));
-        long id = mWritableDatabase.insert(ARROWS_TABLE, null, columnToValue);
+        long id = mDb.getWritableDatabase().insert(ARROWS_TABLE, null, columnToValue);
         if (id == -1) {
             return false;
         }
@@ -118,7 +119,7 @@ public class DiagramDao {
         columnToValue.put(CONNECT_YPOS, connectable.getYPos());
         columnToValue.put(CONNECT_PINNED, connectable.isPinned());
         columnToValue.put(CONNECT_TYPE, connectable.getTypeDesc());
-        long id = mWritableDatabase.insert(CONNECT_TABLE, null, columnToValue);
+        long id = mDb.getWritableDatabase().insert(CONNECT_TABLE, null, columnToValue);
         if (id == -1) {
             return false;
         }
@@ -147,7 +148,7 @@ public class DiagramDao {
     }
 
     public Cursor getDiagramNamesAsCursor() {
-        return mWritableDatabase.query(true, DIAGRAMS_TABLE, new String[]{DIAGRAMS_ID, DIAGRAMS_NAME}, null, new String[]{},
+        return mDb.getReadableDatabase().query(true, DIAGRAMS_TABLE, new String[]{DIAGRAMS_ID, DIAGRAMS_NAME}, null, new String[]{},
                 null, null, "created desc", null);
     }
 
@@ -155,7 +156,7 @@ public class DiagramDao {
         Cursor query = null;
         Diagram diagram = null;
         try {
-            query = mWritableDatabase.query(DIAGRAMS_TABLE, DIAGRAMS_COLUMNS, "name=?", new String[]{name},
+            query = mDb.getReadableDatabase().query(DIAGRAMS_TABLE, DIAGRAMS_COLUMNS, "name=?", new String[]{name},
                     null, null, "version desc", "1");
             if(!query.moveToFirst()) {
                 return null;
@@ -183,7 +184,7 @@ public class DiagramDao {
         Cursor query = null;
         try {
             // select distinct
-            query = mWritableDatabase.query(true, ARROWS_TABLE, ARROWS_COLUMNS,
+            query = mDb.getReadableDatabase().query(true, ARROWS_TABLE, ARROWS_COLUMNS,
                     "diagram_id=?", new String[]{Long.toString(diagramId)},
                     null, null, null, null);
             if (query.moveToFirst()) {
@@ -210,7 +211,7 @@ public class DiagramDao {
         Cursor query = null;
         try {
             // select distinct
-            query = mWritableDatabase.query(true, CONNECT_TABLE, CONNECT_COLUMNS,
+            query = mDb.getReadableDatabase().query(true, CONNECT_TABLE, CONNECT_COLUMNS,
                     "diagram_id=?", new String[]{Long.toString(diagramId)},
                     null, null, null, null);
             if(query.moveToFirst()) {
@@ -252,6 +253,4 @@ public class DiagramDao {
                 throw new IllegalArgumentException("Unrecognized connectable type " + type);
         }
     }
-
-
 }

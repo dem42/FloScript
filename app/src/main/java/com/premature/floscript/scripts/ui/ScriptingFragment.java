@@ -193,14 +193,19 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
     @Override
     public void saveClicked(String name) {
-        Diagram diagram = mDiagramEditorView.getDiagram();
+        final Diagram diagram = mDiagramEditorView.getDiagram();
         diagram.setName(name);
-        if(mDiagramDao.saveDiagram(diagram)) {
-            Toast.makeText(getActivity(), "Diagram saved", Toast.LENGTH_SHORT).show();
-        }
-        else {
-            Toast.makeText(getActivity(), "Failed to save diagram", Toast.LENGTH_SHORT).show();
-        }
+        /*
+         * We are only interested in kicking this off, so we don't worry about config changes
+         * that might bounce the activity and this fragment.
+         * TODO: A nice to have would be a way to get a callback for the toast response
+         */
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mDiagramDao.saveDiagram(diagram);
+            }
+        }).start();
     }
 
     @Override
@@ -282,6 +287,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         super.onAttach(activity);
         try {
             mListener = (OnScriptingFragmentInteractionListener) activity;
+
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");

@@ -22,12 +22,12 @@ public class ScriptsDao {
     public static final String SCRIPTS_CREATED = "created";
     public static final String SCRIPTS_CODE = "code";
     public static final String SCRIPTS_TABLE = "scripts";
-    private SQLiteDatabase mWritableDatabase;
+    private FloDbHelper mDb;
     private static final String[] SCRIPTS_COLUMNS = {SCRIPTS_NAME,
             SCRIPTS_VERSION, SCRIPTS_DESCRIPTION, SCRIPTS_CREATED, SCRIPTS_CODE};
 
     public ScriptsDao(Context ctx) {
-        this.mWritableDatabase = FloDatabaseManager.getInstance(ctx).getWritableDatabase();
+        this.mDb = FloDatabaseManager.getInstance(ctx);
     }
 
     public void testInsertScript() {
@@ -39,7 +39,7 @@ public class ScriptsDao {
         columnToValue.put(SCRIPTS_DESCRIPTION, "This is my first test script");
         columnToValue.put(SCRIPTS_CREATED, new Date().getTime());
         columnToValue.put(SCRIPTS_CODE, "function() { var i = 0; i++; }");
-        mWritableDatabase.insert(SCRIPTS_TABLE, null, columnToValue);
+        mDb.getWritableDatabase().insert(SCRIPTS_TABLE, null, columnToValue);
 
         columnToValue.clear();
         columnToValue.put(SCRIPTS_NAME, "test script2");
@@ -48,13 +48,13 @@ public class ScriptsDao {
         columnToValue.put(SCRIPTS_CREATED, new Date().getTime());
         columnToValue.put(SCRIPTS_CODE, "function() { while(true) { console.log(2); } }");
 
-        mWritableDatabase.insert(SCRIPTS_TABLE, null, columnToValue);
+        mDb.getWritableDatabase().insert(SCRIPTS_TABLE, null, columnToValue);
     }
 
     public void printTestsInDb() {
         Cursor query = null;
         try {
-            query = mWritableDatabase.query(SCRIPTS_TABLE, SCRIPTS_COLUMNS, null, new String[]{}, null, null, null);
+            query = mDb.getReadableDatabase().query(SCRIPTS_TABLE, SCRIPTS_COLUMNS, null, new String[]{}, null, null, null);
             query.moveToFirst();
             while(!query.isAfterLast()) {
                 String name = query.getString(query.getColumnIndex(SCRIPTS_NAME));
