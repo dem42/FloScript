@@ -3,6 +3,7 @@ package com.premature.floscript.scripts.ui;
 import android.app.Activity;
 import android.app.DialogFragment;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -187,25 +188,14 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
     @Override
     public void loadClicked(String name) {
-        Diagram diagram = mDiagramDao.getDiagram(name);
-        mDiagramEditorView.setDiagram(diagram);
+        new LoadTask(this).execute(name);
     }
 
     @Override
     public void saveClicked(String name) {
         final Diagram diagram = mDiagramEditorView.getDiagram();
         diagram.setName(name);
-        /*
-         * We are only interested in kicking this off, so we don't worry about config changes
-         * that might bounce the activity and this fragment.
-         * TODO: A nice to have would be a way to get a callback for the toast response
-         */
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mDiagramDao.saveDiagram(diagram);
-            }
-        }).start();
+        new SaveTask(this).execute(diagram);
     }
 
     @Override
@@ -298,6 +288,15 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    // these methods are for the interaction with nested async task (dont want inner class asyncs)
+    DiagramDao getDiagramDao() {
+        return mDiagramDao;
+    }
+    // these methods are for the interaction with nested async task (dont want inner class asyncs)
+    void showDiagram(Diagram diagram) {
+        mDiagramEditorView.setDiagram(diagram);
     }
 
     /**
@@ -413,5 +412,64 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
             return true;
         }
     }
+
+    private static final class SaveTask extends AsyncTask<Diagram, Void, Boolean> {
+
+        private final ScriptingFragment mFrag;
+
+        private SaveTask(ScriptingFragment mFrag) {
+            this.mFrag = mFrag;
+        }
+
+        @Override
+        protected Boolean doInBackground(Diagram... params) {
+            if (mFrag != null) {
+                return mFrag.getDiagramDao().saveDiagram(params[0]);
+            }
+            else {
+                return false;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            if (mFrag != null) {
+                if (aBoolean) {
+                    Toast.makeText(mFrag.getActivity(), "Diagram saved", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(mFrag.getActivity(), "Failed to save diagram", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    }
+
+
+    private static final class LoadTask extends AsyncTask<String, Void, Diagram> {
+
+        private final ScriptingFragment mFrag;
+
+        private LoadTask(ScriptingFragment mFrag) {
+            this.mFrag = mFrag;
+        }
+
+        @Override
+        protected Diagram doInBackground(String... params) {
+            if (mFrag != null) {
+                return mFrag.getDiagramDao().getDiagram(params[0]);
+            }
+            else {
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Diagram diagram) {
+            if (mFrag != null) {
+                mFrag.showDiagram(diagram);
+            }
+        }
+    }
+
+
 
 }

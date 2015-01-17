@@ -3,17 +3,23 @@ package com.premature.floscript.scripts.ui;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.support.v4.app.LoaderManager;
 import android.content.DialogInterface;
+import android.support.v4.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.widget.Adapter;
+import android.widget.CursorAdapter;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.SimpleCursorAdapter;
 
 import com.premature.floscript.R;
+import com.premature.floscript.db.CursorFromDbLoader;
 import com.premature.floscript.db.DiagramDao;
 
 import java.util.Arrays;
@@ -24,9 +30,11 @@ import java.util.Arrays;
  * A dialog used by the {@link com.premature.floscript.scripts.ui.ScriptingFragment} to
  * query the user when loading a dialog
  */
-public class LoadDialog extends DialogFragment {
+public class LoadDialog extends DialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = "LOAD_DIAG";
+    private static final int LOADER = 1;
+    private SimpleCursorAdapter mCursorAdapter;
 
     public OnLoadDialogListener getTargetListener() {
         Fragment frag = getTargetFragment();
@@ -40,6 +48,36 @@ public class LoadDialog extends DialogFragment {
         }
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        if (id == LOADER) {
+            return new CursorFromDbLoader(getActivity()) {
+                @Override
+                public Cursor runQuery() {
+                    return new DiagramDao(getContext()).getDiagramNamesAsCursor();
+                }
+            };
+        }
+        else {
+            return null;
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (mCursorAdapter != null) {
+            mCursorAdapter.swapCursor(data);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        if (mCursorAdapter != null) {
+            mCursorAdapter.swapCursor(null);
+        }
+
+    }
+
     public interface OnLoadDialogListener {
         void loadClicked(String name);
     }
@@ -49,17 +87,19 @@ public class LoadDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         mListener = getTargetListener();
+
+        mCursorAdapter = new SimpleCursorAdapter(getActivity(), R.layout.diagram_list_element,
+                null,
+                new String[] {DiagramDao.DIAGRAMS_NAME}, new int[]{R.id.diagram_name}, Adapter.NO_SELECTION);
+
+        initOrRestartTheLoader();
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
-        final SimpleCursorAdapter cursorAdapter = new SimpleCursorAdapter(getActivity(), R.layout.diagram_list_element,
-                new DiagramDao(getActivity()).getDiagramNamesAsCursor(),
-                new String[] {DiagramDao.DIAGRAMS_NAME}, new int[]{R.id.diagram_name});
-
         builder.setTitle("Select script")
-                .setAdapter(cursorAdapter, new DialogInterface.OnClickListener() {
+                .setAdapter(mCursorAdapter, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Cursor cursor = cursorAdapter.getCursor();
+                        Cursor cursor = mCursorAdapter.getCursor();
                         cursor.moveToPosition(which);
                         String diagramName = cursor.getString(cursor.getColumnIndex(DiagramDao.DIAGRAMS_NAME));
                         mListener.loadClicked(diagramName);
@@ -68,5 +108,16 @@ public class LoadDialog extends DialogFragment {
                 });
 
         return builder.create();
+    }
+
+    private void initOrRestartTheLoader() {
+        LoaderManager manager = getActivity().getSupportLoaderManager();
+        Loader<Object> loader = manager.getLoader(LOADER);
+        if (loader == null) {
+            manager.initLoader(LOADER, null, this);
+        }
+        else {
+            manager.restartLoader(LOADER, null, this);
+        }
     }
 }

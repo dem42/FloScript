@@ -46,14 +46,6 @@ public class MainActivity extends ActionBarActivity implements JobsFragment.OnJo
         actionBar.addTab(actionBar.newTab()
                 .setText(R.string.jobs_fragment)
                 .setTabListener(new TabListener<>(this, JobsFragment.class)));
-
-
-        DbAsyncActionsFragment asyncFrag = (DbAsyncActionsFragment) getSupportFragmentManager().findFragmentByTag(DbAsyncActionsFragment.TAG);
-        if (asyncFrag == null) {
-            asyncFrag = DbAsyncActionsFragment.newInstance();
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.add(asyncFrag, DbAsyncActionsFragment.TAG).commit();
-        }
     }
 
 
