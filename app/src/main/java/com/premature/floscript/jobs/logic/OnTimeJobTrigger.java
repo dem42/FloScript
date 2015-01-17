@@ -1,4 +1,4 @@
-package com.premature.floscript.jobs;
+package com.premature.floscript.jobs.logic;
 
 import java.util.Date;
 

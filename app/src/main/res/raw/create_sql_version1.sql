@@ -5,6 +5,8 @@ create table scripts (
     version integer not null,
     created integer not null,
     description text,
+    diagram_name text,
+    diagram_version int,
     code text
 );
 
@@ -49,7 +51,7 @@ create table arrows (
 create table jobs (
     _id integer primary key autoincrement,
     name text not null,
-    diagram_id integer not null,
+    script_id integer not null,
     created integer not null,
     comments text,
     foreign key (diagram_id) references diagrams(_id)

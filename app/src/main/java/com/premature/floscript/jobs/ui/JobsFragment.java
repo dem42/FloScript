@@ -1,4 +1,4 @@
-package com.premature.floscript.jobs;
+package com.premature.floscript.jobs.ui;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -26,19 +26,10 @@ import butterknife.OnClick;
  * Large screen devices (such as tablets) are supported by replacing the ListView
  * with a GridView.
  * <p/>
- * Activities containing this fragment MUST implement the {@link com.premature.floscript.jobs.JobsFragment.OnJobsFragmentInteractionListener}
+ * Activities containing this fragment MUST implement the {@link JobsFragment.OnJobsFragmentInteractionListener}
  * interface.
  */
 public class JobsFragment extends Fragment implements AbsListView.OnItemClickListener {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private OnJobsFragmentInteractionListener mListener;
     private ScriptsDao mScriptsDao;
@@ -58,8 +49,6 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     public static JobsFragment newInstance(String param1, String param2) {
         JobsFragment fragment = new JobsFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -74,11 +63,6 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
 
         // TODO: Change Adapter to display your content
         mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
@@ -101,11 +85,6 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         mListView.setOnItemClickListener(this);
 
         return view;
-    }
-
-    @OnClick(R.id.db_test_button)
-    public void testDb(View view) {
-        mScriptsDao.printTestsInDb();
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.premature.floscript.jobs;
+package com.premature.floscript.jobs.logic;
 
 import com.premature.floscript.scripts.logic.Script;
 

@@ -1,4 +1,4 @@
-package com.premature.floscript.jobs;
+package com.premature.floscript.jobs.logic;
 
 /**
  * Created by martin on 17/01/15.

@@ -4,28 +4,20 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 
-import com.premature.floscript.db.DbAsyncActionsFragment;
-import com.premature.floscript.jobs.JobsFragment;
+import com.premature.floscript.jobs.ui.JobsFragment;
 import com.premature.floscript.scripts.ui.ScriptingFragment;
-
-import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 import static android.support.v7.app.ActionBar.*;
 
 
 /**
- * The top level class of the floscript app. All it does is contain two fragments a {@link com.premature.floscript.jobs.JobsFragment}
+ * The top level class of the floscript app. All it does is contain two fragments a {@link com.premature.floscript.jobs.ui.JobsFragment}
  * and a {@link com.premature.floscript.scripts.ui.ScriptingFragment}
  */
 public class MainActivity extends ActionBarActivity implements JobsFragment.OnJobsFragmentInteractionListener, ScriptingFragment.OnScriptingFragmentInteractionListener {
