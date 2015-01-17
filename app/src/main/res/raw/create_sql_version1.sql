@@ -44,3 +44,23 @@ create table arrows (
     foreign key (target) references connectable_diagram_elements(_id),
     foreign key (diagram_id) references diagrams(_id)
 );
+
+-- jobs for the job execution service to execute
+create table jobs (
+    _id integer primary key autoincrement,
+    name text not null,
+    diagram_id integer not null,
+    created integer not null,
+    comments text,
+    foreign key (diagram_id) references diagrams(_id)
+);
+
+-- triggers
+create table job_triggers (
+    _id integer primary key autoincrement,
+    type integer not null,
+    job_id integer not null,
+    date_trigger integer,
+    event_trigger integer,
+    foreign key (job_id) references jobs(_id)
+);
