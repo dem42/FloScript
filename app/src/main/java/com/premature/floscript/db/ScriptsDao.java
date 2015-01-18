@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.premature.floscript.scripts.logic.Script;
+
 import java.util.Date;
 
 /**
@@ -16,6 +18,7 @@ import java.util.Date;
 public class ScriptsDao {
     private static final String TAG = "SCRIPTS_DAO";
 
+    public static final String SCRIPTS_ID = "_id";
     public static final String SCRIPTS_NAME = "name";
     public static final String SCRIPTS_VERSION = "version";
     public static final String SCRIPTS_DESCRIPTION = "description";
@@ -67,5 +70,24 @@ public class ScriptsDao {
                 query.close();
             }
         }
+    }
+
+    public Long getScriptId(Script script) {
+        Cursor query = null;
+        try {
+            query = mDb.getReadableDatabase().query(SCRIPTS_TABLE, new String[]{SCRIPTS_ID}, "name=?", new String[]{script.getName()}, null, null, null);
+            if(query.moveToFirst()) {
+                return query.getLong(query.getColumnIndex(SCRIPTS_ID));
+            }
+            return null;
+        } finally {
+            if (query != null) {
+                query.close();
+            }
+        }
+    }
+
+    public Script getScriptById(Long scriptId) {
+        return null;
     }
 }

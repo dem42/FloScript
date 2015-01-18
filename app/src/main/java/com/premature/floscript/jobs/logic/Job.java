@@ -27,23 +27,23 @@ public class Job {
         this.mComment = mComment;
     }
 
-    public String getmJobName() {
+    public String getJobName() {
         return mJobName;
     }
 
-    public Script getmScript() {
+    public Script getScript() {
         return mScript;
     }
 
-    public List<JobTriggerCondition> getmTriggers() {
+    public List<JobTriggerCondition> getTriggers() {
         return mTriggers;
     }
 
-    public Date getmCreated() {
+    public Date getCreated() {
         return mCreated;
     }
 
-    public String getmComment() {
+    public String getComment() {
         return mComment;
     }
 

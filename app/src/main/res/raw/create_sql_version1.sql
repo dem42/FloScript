@@ -64,5 +64,6 @@ create table job_triggers (
     job_id integer not null,
     date_trigger integer,
     event_trigger integer,
+    condition integer not null,
     foreign key (job_id) references jobs(_id)
 );

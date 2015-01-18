@@ -19,4 +19,5 @@ public class JobTriggerCondition {
     public TriggerConnector getConnector() {
         return connector;
     }
+
 }

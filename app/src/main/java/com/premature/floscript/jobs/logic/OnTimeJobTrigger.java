@@ -13,6 +13,10 @@ public class OnTimeJobTrigger extends JobTrigger {
         this.mTriggerDateTime = triggerDateTime;
     }
 
+    public Date getTriggerDateTime() {
+        return mTriggerDateTime;
+    }
+
     @Override
     public TriggerType getType() {
         return TriggerType.TIME;

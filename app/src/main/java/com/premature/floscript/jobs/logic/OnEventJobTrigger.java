@@ -11,7 +11,7 @@ public class OnEventJobTrigger extends JobTrigger {
         this.mEventDescriptor = eventDescriptor;
     }
 
-    public String getmEventDescriptor() {
+    public String getEventDescriptor() {
         return mEventDescriptor;
     }
 
