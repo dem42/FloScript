@@ -95,7 +95,7 @@ public class JobsDao {
 
     public List<Job> getJobs() {
         Cursor query = null;
-        List<Job> names = new ArrayList<>();
+        List<Job> jobs = new ArrayList<>();
         try {
             // select distinct
             query = mDb.getReadableDatabase().query(JOBS_TABLE, JOBS_COLUMNS, null, new String[]{}, null, null, null);
@@ -109,7 +109,7 @@ public class JobsDao {
                     jobBuilder.fromScript(mScriptsDao.getScriptById(scriptId));
 
                     Long jobId = query.getLong(query.getColumnIndex(JOBS_ID));
-                    addTriggers(jobBuilder, jobId);
+                    jobs.add(addTriggersAndBuildJob(jobBuilder, jobId));
 
                     query.moveToNext();
                 }
@@ -119,17 +119,17 @@ public class JobsDao {
                 query.close();
             }
         }
-        return names;
+        return jobs;
     }
 
-    private void addTriggers(Job.Builder jobBuilder, Long jobId) {
+    private Job addTriggersAndBuildJob(Job.Builder jobBuilder, Long jobId) {
         Cursor query = null;
         Job.Builder.TriggerBuilder triggerBuilder = null;
         try {
             // select distinct
-            query = mDb.getReadableDatabase().query(true, TRIGGER_TABLE, TRIGGER_COLUMNS,
+            query = mDb.getReadableDatabase().query(TRIGGER_TABLE, TRIGGER_COLUMNS,
                     "job_id=?", new String[]{Long.toString(jobId)},
-                    null, null, null, null);
+                    null, null, "_id asc");
             if (query.moveToFirst()) {
                 while (!query.isAfterLast()) {
 
@@ -147,9 +147,17 @@ public class JobsDao {
                         trigger = new OnTimeJobTrigger(trigDate);
                     }
 
-//                    if (triggerBuilder == null) {
-//                        triggerBuilder = jobBuilder.triggerWhen(new JobTriggerCondition(trigger, connector));
-//                    }
+                    // the triggers are ordered by id so their order is the same as the order on addition
+                    // this is a shit way to do this but i overcomplicated it with the connector nonsense
+                    if (triggerBuilder == null) {
+                        triggerBuilder = jobBuilder.triggerWhen(trigger);
+                    }
+                    else if (connector == TriggerConnector.AND) {
+                        triggerBuilder.andWhen(trigger);
+                    }
+                    else if (connector == TriggerConnector.OR) {
+                        triggerBuilder.orWhen(trigger);
+                    }
 
                     query.moveToNext();
                 }
@@ -159,5 +167,6 @@ public class JobsDao {
                 query.close();
             }
         }
+        return triggerBuilder.build();
     }
 }

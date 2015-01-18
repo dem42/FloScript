@@ -24,10 +24,13 @@ public class ScriptsDao {
     public static final String SCRIPTS_DESCRIPTION = "description";
     public static final String SCRIPTS_CREATED = "created";
     public static final String SCRIPTS_CODE = "code";
+    public static final String SCRIPTS_DIAGRAM_NAME = "diagram_name";
+    public static final String SCRIPTS_DIAGRAM_VERSION = "diagram_version";
     public static final String SCRIPTS_TABLE = "scripts";
     private FloDbHelper mDb;
     private static final String[] SCRIPTS_COLUMNS = {SCRIPTS_NAME,
-            SCRIPTS_VERSION, SCRIPTS_DESCRIPTION, SCRIPTS_CREATED, SCRIPTS_CODE};
+            SCRIPTS_VERSION, SCRIPTS_DESCRIPTION, SCRIPTS_CREATED, SCRIPTS_CODE,
+            SCRIPTS_DIAGRAM_NAME, SCRIPTS_DIAGRAM_VERSION};
 
     public ScriptsDao(Context ctx) {
         this.mDb = FloDatabaseManager.getInstance(ctx);
@@ -88,6 +91,26 @@ public class ScriptsDao {
     }
 
     public Script getScriptById(Long scriptId) {
-        return null;
+        Cursor query = null;
+        try {
+            query = mDb.getReadableDatabase().query(SCRIPTS_TABLE, SCRIPTS_COLUMNS, "_id=?", new String[]{Long.toString(scriptId)}, null, null, null);
+            if(query.moveToFirst()) {
+                String code = query.getString(query.getColumnIndex(SCRIPTS_CODE));
+                String name = query.getString(query.getColumnIndex(SCRIPTS_NAME));
+                Integer version = query.getInt(query.getColumnIndex(SCRIPTS_VERSION));
+                String diagramName = query.getString(query.getColumnIndex(SCRIPTS_DIAGRAM_NAME));
+                Integer diagramVersion = query.getInt(query.getColumnIndex(SCRIPTS_DIAGRAM_VERSION));
+                Script script = new Script(code, name, diagramName, diagramVersion);
+                if (version != null) {
+                    script.setVersion(version);
+                }
+                return script;
+            }
+            return null;
+        } finally {
+            if (query != null) {
+                query.close();
+            }
+        }
     }
 }
