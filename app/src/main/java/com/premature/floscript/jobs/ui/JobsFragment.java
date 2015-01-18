@@ -1,6 +1,7 @@
 package com.premature.floscript.jobs.ui;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -113,9 +114,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     private void addJob() {
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        JobAddDialog jobAddDialog = new JobAddDialog();
-        jobAddDialog.show(fragmentManager, "job add dialog");
+        startActivity(new Intent(getActivity(), JobAdditionActivity.class));
 
 //        FragmentTransaction transaction = fragmentManager.beginTransaction();
 //        // For a little polish, specify a transition animation
