@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Job name"
+        android:id="@+id/job_add_name_lbl"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/job_add_name_in"
+        android:layout_below="@id/job_add_name_lbl"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:width="200dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Description"
+        android:id="@+id/job_add_desc_lbl"
+        android:layout_below="@+id/job_add_name_in"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/job_add_desc_in"
+        android:layout_below="@+id/job_add_desc_lbl"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:width="200dp"
+        android:height="200dp"
+        android:layout_above="@+id/job_add_title" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Execution time"
+        android:id="@+id/job_add_time_lbl"
+        android:layout_above="@id/job_add_name_in"
+        android:layout_toRightOf="@+id/job_add_name_in"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TimePicker
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/job_add_time_picker"
+        android:layout_below="@+id/job_add_time_lbl"
+        android:layout_toRightOf="@+id/job_add_name_in"
+        android:layout_alignParentRight="true" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Select script"
+        android:id="@+id/job_add_title"
+        android:layout_below="@+id/job_add_time_picker"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/job_add_list"
+        android:layout_below="@id/job_add_title"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:choiceMode="singleChoice" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:id="@+id/job_add_save_btn"
+        android:layout_below="@+id/job_add_list"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Cancel"
+        android:id="@+id/job_add_cancel_btn"
+        android:layout_below="@+id/job_add_list"
+        android:layout_toLeftOf="@+id/job_add_save_btn"
+        android:layout_toStartOf="@+id/job_add_save_btn" />
+    android:height="200dp"/>
+
+
+</RelativeLayout>

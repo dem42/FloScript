@@ -8,5 +8,6 @@
     <string name="jobs_fragment">Jobs</string>
     <string name="scripting_fragment">Scripting</string>
     <string name="action_load">Load</string>
+    <string name="action_add_job">New job</string>
 
 </resources>

@@ -1,9 +1,14 @@
 package com.premature.floscript.jobs.ui;
 
 import android.app.Activity;
+import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -69,6 +74,8 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
                 android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
 
         mScriptsDao = new ScriptsDao(getActivity());
+
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -85,6 +92,38 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         mListView.setOnItemClickListener(this);
 
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_jobs, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch(id) {
+            case R.id.action_add_job:
+                addJob();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void addJob() {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        JobAddDialog jobAddDialog = new JobAddDialog();
+        jobAddDialog.show(fragmentManager, "job add dialog");
+
+//        FragmentTransaction transaction = fragmentManager.beginTransaction();
+//        // For a little polish, specify a transition animation
+//        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+//        // To make it fullscreen, use the 'content' root view as the container
+//        // for the fragment, which is always the root view for the activity
+//        transaction.add(android.R.id.content, jobAddDialog, "job add dialog")
+//                .addToBackStack(null).commit();
     }
 
     @Override

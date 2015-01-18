@@ -17,7 +17,7 @@ public class Script {
     @Nullable
     private String mDiagramName;
     @Nullable
-    private int mDiagramVersion;
+    private Integer mDiagramVersion;
 
     public Script(String sourceCode, String name) {
         this(sourceCode, name, null, null);
