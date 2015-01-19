@@ -1,6 +1,5 @@
 package com.premature.floscript.jobs.ui;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -14,37 +13,38 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Spinner;
 
 import com.premature.floscript.R;
-import com.premature.floscript.db.CursorFromDbLoader;
+import com.premature.floscript.db.CursorLoaderSinContentProvider;
 import com.premature.floscript.db.DiagramDao;
-import com.premature.floscript.db.JobsDao;
+import com.premature.floscript.db.ScriptsDao;
+import com.premature.floscript.scripts.logic.Script;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class JobAdditionActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class JobAdditionActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>,
+        AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "JOB_ADD_ACTIVITY";
     private static final int JOB_ADD = 2;
     private SimpleCursorAdapter mCursorAdapter;
 
-    @InjectView(R.id.job_add_list)
-    ListView mDiagramNameView;
+    @InjectView(R.id.job_add_spinner)
+    Spinner mDiagramNameSpinner;
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id == JOB_ADD) {
-            return new CursorFromDbLoader(this) {
+            return new CursorLoaderSinContentProvider(this) {
                 @Override
                 public Cursor runQuery() {
                     return new DiagramDao(getContext()).getDiagramNamesAsCursor();
                 }
             };
         }
-        else {
-            return null;
-        }
+        return null;
     }
 
     @Override
@@ -67,33 +67,45 @@ public class JobAdditionActivity extends ActionBarActivity implements LoaderMana
         super.onCreate(savedInstanceState);
         Log.d(TAG, "creating activity job addition");
 
-        mCursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1,
+        mCursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item,
                 null,
                 new String[] {DiagramDao.DIAGRAMS_NAME}, new int[]{android.R.id.text1}, Adapter.NO_SELECTION);
 
+        mCursorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         setContentView(R.layout.job_addition);
         ButterKnife.inject(this);
 
-        mDiagramNameView.setAdapter(mCursorAdapter);
-        mDiagramNameView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.d(TAG, "Selected item " + position);
-                mDiagramNameView.setSelection(position);
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
+        mDiagramNameSpinner.setAdapter(mCursorAdapter);
+        mDiagramNameSpinner.setOnItemSelectedListener(this);
 
         initOrRestartTheLoader();
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        Log.d(TAG, "selection at last!" + position);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        Log.d(TAG, "no selection :(!");
+    }
+
+    private void saveJob() {
+        long selectedId = mDiagramNameSpinner.getItemIdAtPosition(mDiagramNameSpinner.getSelectedItemPosition());
+        ScriptsDao scriptsDao = new ScriptsDao(this);
+        Script script = scriptsDao.getScriptById(selectedId);
+        Log.d(TAG, "Found script " + script);
+
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_job_add_save) {
+            saveJob();
+            finish(); // finish this activity and return to calling activity
             return true;
         }
         return super.onOptionsItemSelected(item);

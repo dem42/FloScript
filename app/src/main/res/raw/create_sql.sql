@@ -54,7 +54,7 @@ create table jobs (
     script_id integer not null,
     created integer not null,
     comments text,
-    foreign key (diagram_id) references diagrams(_id)
+    foreign key (script_id) references scripts(_id)
 );
 
 -- triggers

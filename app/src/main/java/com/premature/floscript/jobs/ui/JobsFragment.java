@@ -114,7 +114,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     private void addJob() {
-        startActivity(new Intent(getActivity(), JobAdditionActivity.class));
+        startActivity(new Intent(getActivity().getApplicationContext(), JobAdditionActivity.class));
 
 //        FragmentTransaction transaction = fragmentManager.beginTransaction();
 //        // For a little polish, specify a transition animation

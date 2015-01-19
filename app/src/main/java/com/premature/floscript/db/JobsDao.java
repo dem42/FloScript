@@ -11,8 +11,6 @@ import com.premature.floscript.jobs.logic.JobTriggerCondition;
 import com.premature.floscript.jobs.logic.OnEventJobTrigger;
 import com.premature.floscript.jobs.logic.OnTimeJobTrigger;
 import com.premature.floscript.jobs.logic.TriggerConnector;
-import com.premature.floscript.scripts.logic.Condition;
-import com.premature.floscript.scripts.ui.ArrowUiElement;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,7 +41,7 @@ public class JobsDao {
     private final ScriptsDao mScriptsDao;
 
     public JobsDao(Context context) {
-        this.mDb = FloDatabaseManager.getInstance(context);
+        this.mDb = FloDbHelper.getInstance(context);
         mScriptsDao = new ScriptsDao(context);
     }
 

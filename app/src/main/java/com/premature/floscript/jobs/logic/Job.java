@@ -47,6 +47,17 @@ public class Job {
         return mComment;
     }
 
+    @Override
+    public String toString() {
+        return "Job{" +
+                "mJobName='" + mJobName + '\'' +
+                ", mScript=" + mScript +
+                ", mTriggers=" + mTriggers +
+                ", mCreated=" + mCreated +
+                ", mComment='" + mComment + '\'' +
+                '}';
+    }
+
     /**
      * Builder class for creating scripts.
      * Usage:

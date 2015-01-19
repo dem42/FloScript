@@ -21,4 +21,11 @@ public class OnTimeJobTrigger extends JobTrigger {
     public TriggerType getType() {
         return TriggerType.TIME;
     }
+
+    @Override
+    public String toString() {
+        return "OnTimeJobTrigger{" +
+                "mTriggerDateTime=" + mTriggerDateTime +
+                '}';
+    }
 }

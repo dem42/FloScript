@@ -55,4 +55,15 @@ public class Script {
     public void setVersion(int version) {
         this.version = version;
     }
+
+    @Override
+    public String toString() {
+        return "Script{" +
+                "sourceCode='" + sourceCode + '\'' +
+                ", name='" + name + '\'' +
+                ", version=" + version +
+                ", mDiagramName='" + mDiagramName + '\'' +
+                ", mDiagramVersion=" + mDiagramVersion +
+                '}';
+    }
 }

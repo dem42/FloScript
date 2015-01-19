@@ -20,4 +20,11 @@ public class JobTriggerCondition {
         return connector;
     }
 
+    @Override
+    public String toString() {
+        return "JobTriggerCondition{" +
+                "trigger=" + trigger +
+                ", connector=" + connector +
+                '}';
+    }
 }

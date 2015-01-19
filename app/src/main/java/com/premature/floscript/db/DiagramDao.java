@@ -62,7 +62,7 @@ public class DiagramDao {
 
 
     public DiagramDao(Context ctx) {
-        this.mDb = FloDatabaseManager.getInstance(ctx);
+        this.mDb = FloDbHelper.getInstance(ctx);
     }
 
     public boolean saveDiagram(Diagram diagram) {

@@ -19,22 +19,42 @@ import java.util.regex.Pattern;
 public class FloDbHelper extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "floscript_db";
-    public static final int VERSION = 4;
+    public static final int VERSION = 5;
     private static final String TAG = "DB_HELPER";
+
+    // singleton db helper
+    private static FloDbHelper mDbHelper;
 
     private final Context mContext;
     // dotall means end of line characters also match the dot
     private final Pattern mCreatePattern;
 
-    public FloDbHelper(Context context) {
+    private FloDbHelper(Context context) {
         super(context, DB_NAME, null, VERSION);
         this.mContext = context;
         this.mCreatePattern = Pattern.compile("(create table.*?;)", Pattern.DOTALL);
     }
 
+    /**
+     * Created by martin on 16/01/15.
+     * <p/>
+     * Having many sqlite connections that try to write at the same
+     * time causes problems .. we don't want that so we use this
+     * synchronized singleton
+     */
+    public static synchronized FloDbHelper getInstance(Context ctx) {
+        if (mDbHelper == null) {
+            // fetching the application context keeps us from leaking
+            // and should make it safe to use the this class in asyncTasks
+            // that were disconnected from their activities on app bounce
+            mDbHelper = new FloDbHelper(ctx.getApplicationContext());
+        }
+        return mDbHelper;
+    }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
-        executeCreateStatements(db, ResourceAndFileUtils.readSqlFile(mContext, R.raw.create_sql_version1));
+        executeCreateStatements(db, ResourceAndFileUtils.readSqlFile(mContext, R.raw.create_sql));
     }
 
     @Override

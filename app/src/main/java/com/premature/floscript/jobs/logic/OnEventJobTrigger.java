@@ -19,4 +19,11 @@ public class OnEventJobTrigger extends JobTrigger {
     public TriggerType getType() {
         return TriggerType.EVENT;
     }
+
+    @Override
+    public String toString() {
+        return "OnEventJobTrigger{" +
+                "mEventDescriptor='" + mEventDescriptor + '\'' +
+                '}';
+    }
 }

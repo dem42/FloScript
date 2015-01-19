@@ -1,6 +1,5 @@
 package com.premature.floscript.scripts.ui;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.support.v4.app.LoaderManager;
@@ -13,16 +12,11 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.widget.Adapter;
-import android.widget.CursorAdapter;
-import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.SimpleCursorAdapter;
 
 import com.premature.floscript.R;
-import com.premature.floscript.db.CursorFromDbLoader;
+import com.premature.floscript.db.CursorLoaderSinContentProvider;
 import com.premature.floscript.db.DiagramDao;
-
-import java.util.Arrays;
 
 /**
  * Created by martin on 16/01/15.
@@ -50,15 +44,15 @@ public class LoadDialog extends DialogFragment implements LoaderManager.LoaderCa
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Log.d(TAG, "recreating the cursor");
         if (id == LOADER) {
-            return new CursorFromDbLoader(getActivity()) {
+            return new CursorLoaderSinContentProvider(getActivity()) {
                 @Override
                 public Cursor runQuery() {
                     return new DiagramDao(getContext()).getDiagramNamesAsCursor();
                 }
             };
-        }
-        else {
+        } else {
             return null;
         }
     }

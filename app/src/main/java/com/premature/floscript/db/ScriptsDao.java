@@ -3,12 +3,13 @@ package com.premature.floscript.db;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.premature.floscript.scripts.logic.Script;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by martin on 15/01/15.
@@ -33,7 +34,7 @@ public class ScriptsDao {
             SCRIPTS_DIAGRAM_NAME, SCRIPTS_DIAGRAM_VERSION};
 
     public ScriptsDao(Context ctx) {
-        this.mDb = FloDatabaseManager.getInstance(ctx);
+        this.mDb = FloDbHelper.getInstance(ctx);
     }
 
     public void testInsertScript() {
@@ -112,5 +113,32 @@ public class ScriptsDao {
                 query.close();
             }
         }
+    }
+
+    public List<Script> getScripts() {
+        Cursor query = null;
+        List<Script> scripts = new ArrayList<>();
+        try {
+            query = mDb.getReadableDatabase().query(SCRIPTS_TABLE, SCRIPTS_COLUMNS, null, new String[]{}, null, null, "created desc");
+            if(query.moveToFirst()) {
+                while(!query.isAfterLast()) {
+                    String code = query.getString(query.getColumnIndex(SCRIPTS_CODE));
+                    String name = query.getString(query.getColumnIndex(SCRIPTS_NAME));
+                    Integer version = query.getInt(query.getColumnIndex(SCRIPTS_VERSION));
+                    String diagramName = query.getString(query.getColumnIndex(SCRIPTS_DIAGRAM_NAME));
+                    Integer diagramVersion = query.getInt(query.getColumnIndex(SCRIPTS_DIAGRAM_VERSION));
+                    Script script = new Script(code, name, diagramName, diagramVersion);
+                    if (version != null) {
+                        script.setVersion(version);
+                    }
+                    scripts.add(script);
+                }
+            }
+        } finally {
+            if (query != null) {
+                query.close();
+            }
+        }
+        return scripts;
     }
 }

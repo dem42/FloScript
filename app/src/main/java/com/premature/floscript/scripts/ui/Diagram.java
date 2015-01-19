@@ -67,4 +67,14 @@ public final class Diagram {
     public List<ArrowUiElement> getArrows() {
         return arrows;
     }
+
+    @Override
+    public String toString() {
+        return "Diagram{" +
+                ", arrows=" + arrows +
+                ", connectables=" + connectables +
+                ", mName='" + mName + '\'' +
+                ", version=" + version +
+                '}';
+    }
 }

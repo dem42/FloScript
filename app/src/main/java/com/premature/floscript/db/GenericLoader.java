@@ -6,12 +6,18 @@ import android.database.Cursor;
 
 /**
  * Created by martin on 17/01/15.
+ * <p/>
+ * A generic (hopefully non-leaky) loader class that follows the pattern
+ * of {@link android.content.CursorLoader} but doesn't require a {@link android.content.ContentProvider}.
+ * Instead this loader can work with any data provider.
+ * <p/>
+ * The caveat is that the loader doesn't refresh and thus needs a call to {@code LoaderManager.restartLoader}
  */
-public abstract class CursorFromDbLoader extends AsyncTaskLoader<Cursor> {
+public abstract class GenericLoader<T> extends AsyncTaskLoader<T> {
 
-    private Cursor result;
+    private T result;
 
-    public CursorFromDbLoader(Context context) {
+    public GenericLoader(Context context) {
         super(context);
     }
 
@@ -20,27 +26,28 @@ public abstract class CursorFromDbLoader extends AsyncTaskLoader<Cursor> {
      * This method should preform the database query
      * @return
      */
-    abstract public Cursor runQuery();
+    abstract public T runQuery();
+
+    /**
+     * Use this method to clear the result
+     */
+    abstract protected void onReleaseResources(T result);
 
     @Override
-    public Cursor loadInBackground() {
-        Cursor newCursor = runQuery();
-        if (newCursor != null) {
-            // Ensure the cursor window is filled
-            newCursor.getCount();
-        }
-        return newCursor;
+    public T loadInBackground() {
+        T newResult = runQuery();
+        return newResult;
     }
 
     @Override
-    public void deliverResult(Cursor newResult) {
+    public void deliverResult(T newResult) {
         if (isReset()) {
             // the loader is stopped -> drop the result
             if (result != null) {
                 onReleaseResources(result);
             }
         }
-        Cursor oldResult = result;
+        T oldResult = result;
         result = newResult;
 
         if (isStarted()) {
@@ -57,11 +64,6 @@ public abstract class CursorFromDbLoader extends AsyncTaskLoader<Cursor> {
         }
     }
 
-    protected void onReleaseResources(Cursor result) {
-        if (result != null && !result.isClosed()) {
-            result.close();
-        }
-    }
 
     /**
      * Handles a request to start the Loader.
@@ -91,7 +93,7 @@ public abstract class CursorFromDbLoader extends AsyncTaskLoader<Cursor> {
     /**
      * Handles a request to cancel a load.
      */
-    @Override public void onCanceled(Cursor newResult) {
+    @Override public void onCanceled(T newResult) {
         super.onCanceled(newResult);
 
         // At this point we can release the resources associated with 'apps'
