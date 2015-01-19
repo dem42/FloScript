@@ -9,4 +9,8 @@ public class ScriptCompilationException extends Exception {
         super(code.reason);
     }
 
+
+    public ScriptCompilationException(CompilationErrorCode code, String dynamicMessage) {
+        super(code.reason + ", Message: " + dynamicMessage);
+    }
 }

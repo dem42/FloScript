@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.support.v4.app.DialogFragment;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 
 /**
  * Created by martin on 16/01/15.
@@ -32,5 +33,10 @@ public class TextPopupDialog extends DialogFragment {
             builder.setMessage(message);
         }
         return builder.create();
+    }
+
+    public static void showPopup(FragmentManager supportFragmentManager, String text) {
+        TextPopupDialog popup = TextPopupDialog.newInstance(text);
+        popup.show(supportFragmentManager, null);
     }
 }

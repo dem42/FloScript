@@ -68,6 +68,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     private float mDensity;
     private StickyButtonCoordinator mBtnCoordinator;
     private DiagramDao mDiagramDao;
+    private DiagramToScriptCompiler mCompiler;
 
     /**
      * Use this factory method to create a new instance of
@@ -106,6 +107,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     }
 
     private void init() {
+        this.mCompiler = new DiagramToScriptCompiler(getActivity());
         this.mDiagramDao = new DiagramDao(getActivity());
         this.mDensity = getResources().getDisplayMetrics().density;
         this.mLogicBlockElement = new LogicBlockUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
@@ -145,17 +147,13 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     }
 
     private void compileAndRunDiagram() {
-        DiagramToScriptCompiler compiler = new DiagramToScriptCompiler(getActivity());
-
         try {
-            Script script = compiler.compile(mDiagramEditorView.getDiagram());
+            Script script = mCompiler.compile(mDiagramEditorView.getDiagram());
             String result = ScriptEngine.runScript(script);
-            TextPopupDialog popup = TextPopupDialog.newInstance(script.getSourceCode() +
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), script.getSourceCode() +
                     "\n\nWith result: " + result);
-            popup.show(getActivity().getSupportFragmentManager(), "popup dialog");
         } catch (ScriptCompilationException e) {
-            TextPopupDialog popup = TextPopupDialog.newInstance(e.getMessage());
-            popup.show(getActivity().getSupportFragmentManager(), "popup dialog");
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getMessage());
             Log.e(TAG, "compile exp", e);
         }
     }
@@ -165,11 +163,9 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
         try {
             Script script = compiler.compile(mDiagramEditorView.getDiagram());
-            TextPopupDialog popup = TextPopupDialog.newInstance(script.getSourceCode());
-            popup.show(getActivity().getSupportFragmentManager(), "popup dialog");
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), script.getSourceCode());
         } catch (ScriptCompilationException e) {
-            TextPopupDialog popup = TextPopupDialog.newInstance(e.getMessage());
-            popup.show(getActivity().getSupportFragmentManager(), "popup dialog");
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getMessage());
             Log.e(TAG, "compile exp", e);
         }
     }
@@ -194,6 +190,13 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     @Override
     public void saveClicked(String name) {
         final Diagram diagram = mDiagramEditorView.getDiagram();
+        try {
+            Script compiledDiagram = mCompiler.compile(diagram);
+            diagram.setCompiledDiagram(compiledDiagram);
+        } catch (ScriptCompilationException e) {
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), "Failed to compile diagram. It will not be available" +
+                    "as a job\n\nReason:" + e.getMessage());
+        }
         diagram.setName(name);
         new SaveTask(this).execute(diagram);
     }

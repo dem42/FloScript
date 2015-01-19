@@ -26,7 +26,7 @@ import java.util.Map;
  * For storing and retrieving {@link com.premature.floscript.scripts.ui.Diagram} objects which can be rendered onto
  * the {@link com.premature.floscript.scripts.ui.DiagramEditorView}
  */
-public class DiagramDao {
+public final class DiagramDao {
     private static final String TAG = "DIAGRAM_DAO";
 
     // diagrams table
@@ -58,11 +58,12 @@ public class DiagramDao {
     public static final String[] ARROWS_COLUMNS = {ARROWS_SRC, ARROWS_TARGET,
             ARROWS_DIAGRAM, ARROWS_CONDITION};
 
-    private FloDbHelper mDb;
-
+    private final FloDbHelper mDb;
+    private final ScriptsDao mScriptsDao;
 
     public DiagramDao(Context ctx) {
         this.mDb = FloDbHelper.getInstance(ctx);
+        this.mScriptsDao = new ScriptsDao(ctx);
     }
 
     public boolean saveDiagram(Diagram diagram) {
@@ -76,21 +77,30 @@ public class DiagramDao {
             columnToValue.put(DIAGRAMS_CREATED, new Date().getTime());
             long id = db.insert(DIAGRAMS_TABLE, null, columnToValue);
             if (id == -1) {
-                // error occurred
+                Log.e(TAG, "Failed to insert diagram " + diagram);
                 return false;
             }
 
             Map<ArrowTargetableDiagramElement<?>, Long> connectableIds = new HashMap<>();
             for (ArrowTargetableDiagramElement<?> connectable : diagram.getConnectables()) {
                 if (!saveConnectable(id, connectable, connectableIds)) {
+                    Log.e(TAG, "Failed to insert connectable " + connectable);
                     return false;
                 }
             }
             for (ArrowUiElement arrow : diagram.getArrows()) {
                 if (!saveArrows(id, arrow, connectableIds)) {
+                    Log.e(TAG, "Failed to insert arrow " + arrow);
                     return false;
                 }
             }
+            if (diagram.getCompiledDiagram() != null) {
+                if(!mScriptsDao.saveScript(diagram.getCompiledDiagram())) {
+                    Log.e(TAG, "Failed to insert script " + diagram.getCompiledDiagram());
+                    return false;
+                }
+            }
+
             db.setTransactionSuccessful(); // commits the tran
         } finally {
             // this rolls back the tran unless setTranSuc was called

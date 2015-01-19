@@ -1,5 +1,7 @@
 package com.premature.floscript.scripts.logic;
 
+import android.util.Log;
+
 import org.mozilla.javascript.*;
 
 import java.io.StringWriter;
@@ -11,6 +13,7 @@ import java.io.StringWriter;
  */
 public class ScriptEngine {
 
+    private static final String TAG = "SCRIPT_ENGINE";
     private final StringWriter writer;
 
     public ScriptEngine() {
@@ -33,11 +36,13 @@ public class ScriptEngine {
 
             // Convert the result to a string and print it.
             return org.mozilla.javascript.Context.toString(result);
-
+        } catch (org.mozilla.javascript.EvaluatorException ee) {
+            Log.d(TAG, "execution of script failed with exception: ", ee);
         } finally {
             // Exit from the context.
             org.mozilla.javascript.Context.exit();
         }
+        return "";
     }
 
     public static void main(String... args) {
@@ -50,7 +55,7 @@ public class ScriptEngine {
         System.out.println(Scripts.createFunctionWrapper(s1, "test1", "test3", null));
         System.out.println(Scripts.createFunctionWrapper(s1, "test1", "yesfun", "nofun"));
 
-        Script s4 = new Script("var z = true; z === true;", "test4");
+        Script s4 = new Script("var z = true; z === true; return 3;", "test4");
         System.out.println(runScript(s4));
         Script s5 = new Script("var z = true; z === false;", "test5");
         System.out.println(runScript(s5));

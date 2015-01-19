@@ -1,5 +1,9 @@
 package com.premature.floscript.scripts.ui;
 
+import android.support.annotation.Nullable;
+
+import com.premature.floscript.scripts.logic.Script;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +21,8 @@ public final class Diagram {
     private List<ArrowUiElement> arrows = new ArrayList<>();
     private List<ArrowTargetableDiagramElement<?>> connectables = new ArrayList<>();
 
+    @Nullable
+    private Script compiledDiagram; // the diagram may not have been compiled yet
     private String mName;
     private int version;
 
@@ -66,6 +72,15 @@ public final class Diagram {
 
     public List<ArrowUiElement> getArrows() {
         return arrows;
+    }
+
+    @Nullable
+    public Script getCompiledDiagram() {
+        return compiledDiagram;
+    }
+
+    public void setCompiledDiagram(@Nullable Script compiledDiagram) {
+        this.compiledDiagram = compiledDiagram;
     }
 
     @Override

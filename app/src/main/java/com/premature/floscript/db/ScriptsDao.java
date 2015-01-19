@@ -16,7 +16,7 @@ import java.util.List;
  * <p/>
  * Scripts data access object
  */
-public class ScriptsDao {
+public final class ScriptsDao {
     private static final String TAG = "SCRIPTS_DAO";
 
     public static final String SCRIPTS_ID = "_id";
@@ -28,34 +28,23 @@ public class ScriptsDao {
     public static final String SCRIPTS_DIAGRAM_NAME = "diagram_name";
     public static final String SCRIPTS_DIAGRAM_VERSION = "diagram_version";
     public static final String SCRIPTS_TABLE = "scripts";
-    private FloDbHelper mDb;
     private static final String[] SCRIPTS_COLUMNS = {SCRIPTS_NAME,
             SCRIPTS_VERSION, SCRIPTS_DESCRIPTION, SCRIPTS_CREATED, SCRIPTS_CODE,
             SCRIPTS_DIAGRAM_NAME, SCRIPTS_DIAGRAM_VERSION};
+    private final FloDbHelper mDb;
 
     public ScriptsDao(Context ctx) {
         this.mDb = FloDbHelper.getInstance(ctx);
     }
 
-    public void testInsertScript() {
-
-        //mDbHelper.dropDatabase();
+    public boolean saveScript(Script script) {
         ContentValues columnToValue = new ContentValues();
-        columnToValue.put(SCRIPTS_NAME, "test script1");
-        columnToValue.put(SCRIPTS_VERSION, 1);
-        columnToValue.put(SCRIPTS_DESCRIPTION, "This is my first test script");
+        columnToValue.put(SCRIPTS_NAME, script.getName());
+        columnToValue.put(SCRIPTS_VERSION, script.getVersion());
         columnToValue.put(SCRIPTS_CREATED, new Date().getTime());
-        columnToValue.put(SCRIPTS_CODE, "function() { var i = 0; i++; }");
-        mDb.getWritableDatabase().insert(SCRIPTS_TABLE, null, columnToValue);
-
-        columnToValue.clear();
-        columnToValue.put(SCRIPTS_NAME, "test script2");
-        columnToValue.put(SCRIPTS_VERSION, 1);
-        columnToValue.put(SCRIPTS_DESCRIPTION, "This is my second test script");
-        columnToValue.put(SCRIPTS_CREATED, new Date().getTime());
-        columnToValue.put(SCRIPTS_CODE, "function() { while(true) { console.log(2); } }");
-
-        mDb.getWritableDatabase().insert(SCRIPTS_TABLE, null, columnToValue);
+        columnToValue.put(SCRIPTS_CODE, script.getSourceCode());
+        long id = mDb.getWritableDatabase().insert(SCRIPTS_TABLE, null, columnToValue);
+        return id != -1;
     }
 
     public void printTestsInDb() {

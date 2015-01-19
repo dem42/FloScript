@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.premature.floscript.jobs.logic.Job;
 import com.premature.floscript.jobs.logic.JobTrigger;
@@ -36,6 +37,7 @@ public class JobsDao {
     public static final String TRIGGER_EVENT = "event_trigger";
     public static final String TRIGGER_CONDITION = "condition";
     public static final String[] TRIGGER_COLUMNS = new String[]{TRIGGER_TYPE, TRIGGER_JOB, TRIGGER_DATE, TRIGGER_EVENT, TRIGGER_CONDITION};
+    private static final String TAG = "JOB_DAO";
 
     private final FloDbHelper mDb;
     private final ScriptsDao mScriptsDao;
@@ -60,10 +62,12 @@ public class JobsDao {
             values.put(JOBS_SCRIPT, scriptId);
             long jobId = db.insert(JOBS_TABLE, null, values);
             if (jobId == -1) {
+                Log.e(TAG, "Failed to insert job " + job);
                 return false;
             }
             for (JobTriggerCondition trigger : job.getTriggers()) {
                 if(!saveTrigger(jobId, trigger)) {
+                    Log.e(TAG, "Failed to insert trigger condition " + trigger);
                     return false;
                 }
             }
