@@ -40,7 +40,7 @@ public class JobAdditionActivity extends ActionBarActivity implements LoaderMana
             return new CursorLoaderSinContentProvider(this) {
                 @Override
                 public Cursor runQuery() {
-                    return new DiagramDao(getContext()).getDiagramNamesAsCursor();
+                    return new DiagramDao(getContext()).getDiagramNamesAsCursor(true);
                 }
             };
         }
@@ -93,10 +93,16 @@ public class JobAdditionActivity extends ActionBarActivity implements LoaderMana
     }
 
     private void saveJob() {
-        long selectedId = mDiagramNameSpinner.getItemIdAtPosition(mDiagramNameSpinner.getSelectedItemPosition());
+        int selectedId = mDiagramNameSpinner.getSelectedItemPosition();
+        Cursor cursor = mCursorAdapter.getCursor();
+        Long scriptId = cursor.getLong(cursor.getColumnIndex(DiagramDao.DIAGRAMS_SCRIPT));
+        if (scriptId == null) {
+            Log.e(TAG, "No script found for selected diagram");
+        }
         ScriptsDao scriptsDao = new ScriptsDao(this);
-        Script script = scriptsDao.getScriptById(selectedId);
+        Script script = scriptsDao.getScriptById(scriptId);
         Log.d(TAG, "Found script " + script);
+
 
     }
 

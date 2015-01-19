@@ -37,14 +37,13 @@ public final class ScriptsDao {
         this.mDb = FloDbHelper.getInstance(ctx);
     }
 
-    public boolean saveScript(Script script) {
+    public long saveScript(Script script) {
         ContentValues columnToValue = new ContentValues();
         columnToValue.put(SCRIPTS_NAME, script.getName());
         columnToValue.put(SCRIPTS_VERSION, script.getVersion());
         columnToValue.put(SCRIPTS_CREATED, new Date().getTime());
         columnToValue.put(SCRIPTS_CODE, script.getSourceCode());
-        long id = mDb.getWritableDatabase().insert(SCRIPTS_TABLE, null, columnToValue);
-        return id != -1;
+        return mDb.getWritableDatabase().insert(SCRIPTS_TABLE, null, columnToValue);
     }
 
     public void printTestsInDb() {

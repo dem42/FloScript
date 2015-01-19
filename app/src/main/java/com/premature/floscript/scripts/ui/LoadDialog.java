@@ -49,7 +49,7 @@ public class LoadDialog extends DialogFragment implements LoaderManager.LoaderCa
             return new CursorLoaderSinContentProvider(getActivity()) {
                 @Override
                 public Cursor runQuery() {
-                    return new DiagramDao(getContext()).getDiagramNamesAsCursor();
+                    return new DiagramDao(getContext()).getDiagramNamesAsCursor(false);
                 }
             };
         } else {

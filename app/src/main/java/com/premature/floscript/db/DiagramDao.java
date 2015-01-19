@@ -35,6 +35,7 @@ public final class DiagramDao {
     public static final String DIAGRAMS_VERSION = "version";
     public static final String DIAGRAMS_NAME = "name";
     public static final String DIAGRAMS_CREATED = "created";
+    public static final String DIAGRAMS_SCRIPT = "script_id";
     public static final String[] DIAGRAMS_COLUMNS = {DIAGRAMS_ID, DIAGRAMS_NAME, DIAGRAMS_VERSION,
             DIAGRAMS_CREATED,};
 
@@ -70,17 +71,27 @@ public final class DiagramDao {
         SQLiteDatabase db = mDb.getWritableDatabase();
         db.beginTransaction();
         try {
-            //mDbHelper.dropDatabase();
+            Long scriptId = null;
+            if (diagram.getCompiledDiagram() != null) {
+                long longScriptId = mScriptsDao.saveScript(diagram.getCompiledDiagram());
+                if(longScriptId == -1) {
+                    Log.e(TAG, "Failed to insert script " + diagram.getCompiledDiagram());
+                    return false;
+                }
+                else {
+                    scriptId = longScriptId;
+                }
+            }
             ContentValues columnToValue = new ContentValues();
             columnToValue.put(DIAGRAMS_NAME, diagram.getName());
             columnToValue.put(DIAGRAMS_VERSION, diagram.getVersion());
             columnToValue.put(DIAGRAMS_CREATED, new Date().getTime());
+            columnToValue.put(DIAGRAMS_SCRIPT, scriptId);
             long id = db.insert(DIAGRAMS_TABLE, null, columnToValue);
             if (id == -1) {
                 Log.e(TAG, "Failed to insert diagram " + diagram);
                 return false;
             }
-
             Map<ArrowTargetableDiagramElement<?>, Long> connectableIds = new HashMap<>();
             for (ArrowTargetableDiagramElement<?> connectable : diagram.getConnectables()) {
                 if (!saveConnectable(id, connectable, connectableIds)) {
@@ -94,13 +105,6 @@ public final class DiagramDao {
                     return false;
                 }
             }
-            if (diagram.getCompiledDiagram() != null) {
-                if(!mScriptsDao.saveScript(diagram.getCompiledDiagram())) {
-                    Log.e(TAG, "Failed to insert script " + diagram.getCompiledDiagram());
-                    return false;
-                }
-            }
-
             db.setTransactionSuccessful(); // commits the tran
         } finally {
             // this rolls back the tran unless setTranSuc was called
@@ -142,7 +146,7 @@ public final class DiagramDao {
         List<String> names = new ArrayList<>();
         try {
             // select distinct
-            query = getDiagramNamesAsCursor();
+            query = getDiagramNamesAsCursor(false);
             query.moveToFirst();
             while(!query.isAfterLast()) {
                 String diagramName = query.getString(query.getColumnIndex(DIAGRAMS_NAME));
@@ -157,8 +161,15 @@ public final class DiagramDao {
         return names;
     }
 
-    public Cursor getDiagramNamesAsCursor() {
-        return mDb.getReadableDatabase().query(true, DIAGRAMS_TABLE, new String[]{DIAGRAMS_ID, DIAGRAMS_NAME}, null, new String[]{},
+    /**
+     * This function fetches diagram names into a cursor.
+     * @param executable determines whether we only want to fetch executable diagrams (i.e
+     *                   ones which have a script)
+     * @return
+     */
+    public Cursor getDiagramNamesAsCursor(boolean executable) {
+        return mDb.getReadableDatabase().query(true, DIAGRAMS_TABLE, new String[]{DIAGRAMS_ID, DIAGRAMS_NAME, DIAGRAMS_SCRIPT},
+                (executable ? "script_id is not null" : null), new String[]{},
                 null, null, "created desc", null);
     }
 
