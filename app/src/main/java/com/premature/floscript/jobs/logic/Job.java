@@ -58,12 +58,16 @@ public class Job {
                 '}';
     }
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     /**
      * Builder class for creating scripts.
      * Usage:
      * <br />
      * <code>
-     *     Job j = new Job.Builder().withName(..).fromScript(..).triggerWhen(..).orWhen(..).build();
+     *     Job j = new Job.Builder().withName(..).fromScript(..).triggerWhen(..).orWhen(..).builder();
      * </code>
      */
     public static class Builder {
@@ -72,6 +76,8 @@ public class Job {
 
         private Date mCreated = new Date();
         private String mComment = "No comment";
+
+        private Builder() {}
 
         public Builder withName(String jobName) {
             mJobName = jobName;
@@ -95,6 +101,8 @@ public class Job {
         }
         public class TriggerBuilder {
             private List<JobTriggerCondition> mTriggers;
+
+            private TriggerBuilder() {}
 
             public TriggerBuilder(JobTrigger trigger) {
                 this.mTriggers = new ArrayList<>();

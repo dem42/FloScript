@@ -1,5 +1,6 @@
 package com.premature.floscript.jobs.ui;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -11,15 +12,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
-import android.widget.ListView;
+import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.premature.floscript.R;
 import com.premature.floscript.db.CursorLoaderSinContentProvider;
 import com.premature.floscript.db.DiagramDao;
+import com.premature.floscript.db.JobsDao;
 import com.premature.floscript.db.ScriptsDao;
+import com.premature.floscript.jobs.logic.Job;
+import com.premature.floscript.jobs.logic.OnTimeJobTrigger;
 import com.premature.floscript.scripts.logic.Script;
+
+import java.util.Calendar;
+import java.util.Date;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -33,22 +42,25 @@ public class JobAdditionActivity extends ActionBarActivity implements LoaderMana
 
     @InjectView(R.id.job_add_spinner)
     Spinner mDiagramNameSpinner;
+    @InjectView(R.id.job_add_desc_in)
+    EditText mJobDesc;
+    @InjectView(R.id.job_add_name_in)
+    EditText mJobName;
+    @InjectView(R.id.job_add_time_picker)
+    TimePicker mJobTime;
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Log.d(TAG, "On create loader");
         if (id == JOB_ADD) {
-            return new CursorLoaderSinContentProvider(this) {
-                @Override
-                public Cursor runQuery() {
-                    return new DiagramDao(getContext()).getDiagramNamesAsCursor(true);
-                }
-            };
+            return new ExecutableDiagramProvider(this);
         }
         return null;
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.d(TAG, "On load finished");
         if (mCursorAdapter != null) {
             mCursorAdapter.swapCursor(data);
         }
@@ -56,6 +68,7 @@ public class JobAdditionActivity extends ActionBarActivity implements LoaderMana
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        Log.d(TAG, "On loader reset");
         if (mCursorAdapter != null) {
             mCursorAdapter.swapCursor(null);
         }
@@ -79,6 +92,8 @@ public class JobAdditionActivity extends ActionBarActivity implements LoaderMana
         mDiagramNameSpinner.setAdapter(mCursorAdapter);
         mDiagramNameSpinner.setOnItemSelectedListener(this);
 
+        mJobTime.setIs24HourView(false);
+
         initOrRestartTheLoader();
     }
 
@@ -95,6 +110,7 @@ public class JobAdditionActivity extends ActionBarActivity implements LoaderMana
     private void saveJob() {
         int selectedId = mDiagramNameSpinner.getSelectedItemPosition();
         Cursor cursor = mCursorAdapter.getCursor();
+        cursor.moveToPosition(selectedId);
         Long scriptId = cursor.getLong(cursor.getColumnIndex(DiagramDao.DIAGRAMS_SCRIPT));
         if (scriptId == null) {
             Log.e(TAG, "No script found for selected diagram");
@@ -103,7 +119,26 @@ public class JobAdditionActivity extends ActionBarActivity implements LoaderMana
         Script script = scriptsDao.getScriptById(scriptId);
         Log.d(TAG, "Found script " + script);
 
+        String jobName = mJobName.getText().toString();
+        String comment = mJobDesc.getText().toString();
 
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.set(Calendar.HOUR_OF_DAY, mJobTime.getCurrentHour());
+        cal.set(Calendar.MINUTE, mJobTime.getCurrentMinute());
+
+        Job job = Job.builder().withName(jobName).fromScript(script).withComment(comment)
+                .triggerWhen(new OnTimeJobTrigger(cal.getTime())).build();
+
+        Log.d(TAG, "Job to be saved " + job);
+
+        JobsDao jobsDao = new JobsDao(this);
+        if(jobsDao.saveJob(job)) {
+            Toast.makeText(getApplicationContext(), "Job saved", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toast.makeText(getApplicationContext(), "Failed to save job", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -131,6 +166,17 @@ public class JobAdditionActivity extends ActionBarActivity implements LoaderMana
         }
         else {
             manager.restartLoader(JOB_ADD, null, this);
+        }
+    }
+
+    private static class ExecutableDiagramProvider extends CursorLoaderSinContentProvider {
+        public ExecutableDiagramProvider(Context ctx) {
+            super(ctx);
+        }
+
+        @Override
+        public Cursor runQuery() {
+            return new DiagramDao(getContext()).getDiagramNamesAsCursor(true);
         }
     }
 }

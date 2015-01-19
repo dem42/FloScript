@@ -16,6 +16,7 @@ import android.widget.SimpleCursorAdapter;
 
 import com.premature.floscript.R;
 import com.premature.floscript.db.CursorLoaderSinContentProvider;
+import com.premature.floscript.db.DbUtils;
 import com.premature.floscript.db.DiagramDao;
 
 /**
@@ -46,12 +47,7 @@ public class LoadDialog extends DialogFragment implements LoaderManager.LoaderCa
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Log.d(TAG, "recreating the cursor");
         if (id == LOADER) {
-            return new CursorLoaderSinContentProvider(getActivity()) {
-                @Override
-                public Cursor runQuery() {
-                    return new DiagramDao(getContext()).getDiagramNamesAsCursor(false);
-                }
-            };
+            return new DiagramLoader(this);
         } else {
             return null;
         }
@@ -86,7 +82,7 @@ public class LoadDialog extends DialogFragment implements LoaderManager.LoaderCa
                 null,
                 new String[] {DiagramDao.DIAGRAMS_NAME}, new int[]{R.id.diagram_name}, Adapter.NO_SELECTION);
 
-        initOrRestartTheLoader();
+        DbUtils.initOrRestartTheLoader(this, getActivity().getSupportLoaderManager(), LOADER);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Select script")
@@ -104,14 +100,14 @@ public class LoadDialog extends DialogFragment implements LoaderManager.LoaderCa
         return builder.create();
     }
 
-    private void initOrRestartTheLoader() {
-        LoaderManager manager = getActivity().getSupportLoaderManager();
-        Loader<Object> loader = manager.getLoader(LOADER);
-        if (loader == null) {
-            manager.initLoader(LOADER, null, this);
+    private static class DiagramLoader extends CursorLoaderSinContentProvider {
+        public DiagramLoader(LoadDialog loadDialog) {
+            super(loadDialog.getActivity());
         }
-        else {
-            manager.restartLoader(LOADER, null, this);
+
+        @Override
+        public Cursor runQuery() {
+            return new DiagramDao(getContext()).getDiagramNamesAsCursor(false);
         }
     }
 }

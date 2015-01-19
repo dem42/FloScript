@@ -1,11 +1,13 @@
 package com.premature.floscript.jobs.ui;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,16 +17,20 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.premature.floscript.R;
 
+import com.premature.floscript.db.DbUtils;
+import com.premature.floscript.db.JobsDao;
+import com.premature.floscript.db.ListFromDbLoader;
 import com.premature.floscript.db.ScriptsDao;
-import com.premature.floscript.jobs.dummy.DummyContent;
+import com.premature.floscript.jobs.logic.Job;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 /**
  * A fragment representing a list of Items.
@@ -35,8 +41,11 @@ import butterknife.OnClick;
  * Activities containing this fragment MUST implement the {@link JobsFragment.OnJobsFragmentInteractionListener}
  * interface.
  */
-public class JobsFragment extends Fragment implements AbsListView.OnItemClickListener {
+public class JobsFragment extends Fragment implements AbsListView.OnItemClickListener,
+        LoaderManager.LoaderCallbacks<List<JobContent>> {
 
+    private static final int JOB_LOADER = 1;
+    private static final String TAG = "JOB_FRAG";
     private OnJobsFragmentInteractionListener mListener;
     private ScriptsDao mScriptsDao;
 
@@ -49,10 +58,9 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private ListAdapter mAdapter;
+    private ArrayAdapter<JobContent> mAdapter;
 
-    // TODO: Rename and change types of parameters
-    public static JobsFragment newInstance(String param1, String param2) {
+    public static JobsFragment newInstance() {
         JobsFragment fragment = new JobsFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -71,8 +79,8 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         super.onCreate(savedInstanceState);
 
         // TODO: Change Adapter to display your content
-        mAdapter = new ArrayAdapter<DummyContent.DummyItem>(getActivity(),
-                android.R.layout.simple_list_item_1, android.R.id.text1, DummyContent.ITEMS);
+        mAdapter = new ArrayAdapter<>(getActivity(),
+                android.R.layout.simple_list_item_1, android.R.id.text1, new ArrayList<JobContent>());
 
         mScriptsDao = new ScriptsDao(getActivity());
 
@@ -87,7 +95,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         ButterKnife.inject(this, view);
         // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
-        ((AdapterView<ListAdapter>) mListView).setAdapter(mAdapter);
+        mListView.setAdapter(mAdapter);
 
         // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
@@ -99,6 +107,12 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.menu_jobs, menu);
         super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        DbUtils.initOrRestartTheLoader(this, getLoaderManager(), JOB_LOADER);
     }
 
     @Override
@@ -115,14 +129,6 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
 
     private void addJob() {
         startActivity(new Intent(getActivity().getApplicationContext(), JobAdditionActivity.class));
-
-//        FragmentTransaction transaction = fragmentManager.beginTransaction();
-//        // For a little polish, specify a transition animation
-//        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-//        // To make it fullscreen, use the 'content' root view as the container
-//        // for the fragment, which is always the root view for the activity
-//        transaction.add(android.R.id.content, jobAddDialog, "job add dialog")
-//                .addToBackStack(null).commit();
     }
 
     @Override
@@ -148,7 +154,9 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
-            mListener.onJobsFragmentInteraction(DummyContent.ITEMS.get(position).id);
+            JobContent jobContent = mAdapter.getItem(position);
+            Log.d(TAG, "clicked on jobContent " + jobContent);
+            mListener.onJobsFragmentInteraction(jobContent.getJob().toString());
         }
     }
 
@@ -165,10 +173,52 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         }
     }
 
+    @Override
+    public Loader<List<JobContent>> onCreateLoader(int id, Bundle args) {
+        if (id == JOB_LOADER) {
+            return new JobListFromDbLoader(this.getActivity());
+        }
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<JobContent>> loader, List<JobContent> data) {
+        if (data != null) {
+            this.mAdapter.clear();
+            this.mAdapter.addAll(data);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<JobContent>> loader) {
+        this.mAdapter.clear();
+    }
+
     /**
      * This interface must be implemented by any activity that contains the JobsFragment
      */
     public static interface OnJobsFragmentInteractionListener {
         void onJobsFragmentInteraction(String id);
     }
+
+    /**
+    * Created by martin on 19/01/15.
+    */
+    private static class JobListFromDbLoader extends ListFromDbLoader<JobContent> {
+        private final JobsDao mJobsDao;
+        public JobListFromDbLoader(Context ctx) {
+            super(ctx);
+            this.mJobsDao = new JobsDao(ctx);
+        }
+
+        @Override
+        public List<JobContent> runQuery() {
+            List<JobContent> jobContents = new ArrayList<>();
+            for (Job job : mJobsDao.getJobs()) {
+                jobContents.add(new JobContent(job));
+            }
+            return jobContents;
+        }
+    }
+
 }

@@ -103,7 +103,7 @@ public class JobsDao {
             query = mDb.getReadableDatabase().query(JOBS_TABLE, JOBS_COLUMNS, null, new String[]{}, null, null, null);
             if (query.moveToFirst()) {
                 while (!query.isAfterLast()) {
-                    Job.Builder jobBuilder = new Job.Builder();
+                    Job.Builder jobBuilder = Job.builder();
                     jobBuilder.withName(query.getString(query.getColumnIndex(JOBS_NAME)))
                             .withComment(query.getString(query.getColumnIndex(JOBS_COMMENTS)))
                             .createdAt(new Date(query.getLong(query.getColumnIndex(JOBS_CREATED))));
