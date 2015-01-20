@@ -24,6 +24,7 @@ import com.premature.floscript.db.DiagramDao;
 import com.premature.floscript.db.JobsDao;
 import com.premature.floscript.db.ScriptsDao;
 import com.premature.floscript.jobs.logic.Job;
+import com.premature.floscript.jobs.logic.TimeTrigger;
 import com.premature.floscript.scripts.logic.Script;
 
 import java.util.Calendar;
@@ -138,7 +139,7 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         cal.set(Calendar.HOUR_OF_DAY, mJobTime.getCurrentHour());
         cal.set(Calendar.MINUTE, mJobTime.getCurrentMinute());
 
-        Job.TimeTrigger timeTrigger = new Job.TimeTrigger(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
+        TimeTrigger timeTrigger = new TimeTrigger(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
         Job job = Job.builder().withName(jobName).fromScript(script).withComment(comment)
                 .triggerWhen(timeTrigger).build();
 

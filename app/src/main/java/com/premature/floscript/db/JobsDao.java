@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.premature.floscript.jobs.logic.Job;
+import com.premature.floscript.jobs.logic.TimeTrigger;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -63,7 +65,7 @@ public class JobsDao {
             values.put(JOBS_COMMENTS, job.getComment());
             values.put(JOBS_CREATED, job.getCreated().getTime());
             values.put(JOBS_SCRIPT, scriptId);
-            values.put(JOBS_TIME_TRIGGER, Job.TimeTrigger.toString(job.getTimeTrigger()));
+            values.put(JOBS_TIME_TRIGGER, TimeTrigger.toString(job.getTimeTrigger()));
             values.put(JOBS_EVENT_TRIGGER, job.getEventTrigger());
             values.put(JOBS_ENABLED, job.isEnabled());
             long jobId;
@@ -98,7 +100,7 @@ public class JobsDao {
                             .withComment(query.getString(query.getColumnIndex(JOBS_COMMENTS)))
                             .createdAt(new Date(query.getLong(query.getColumnIndex(JOBS_CREATED))))
                             .triggerWhen(query.getString(query.getColumnIndex(JOBS_EVENT_TRIGGER)))
-                            .triggerWhen(Job.TimeTrigger.parseString(query.getString(query.getColumnIndex(JOBS_TIME_TRIGGER))));
+                            .triggerWhen(TimeTrigger.parseString(query.getString(query.getColumnIndex(JOBS_TIME_TRIGGER))));
                     Long scriptId = query.getLong(query.getColumnIndex(JOBS_SCRIPT));
                     jobBuilder.fromScript(mScriptsDao.getScriptById(scriptId));
                     Job job = jobBuilder.build();
