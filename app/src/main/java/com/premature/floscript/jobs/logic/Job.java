@@ -2,6 +2,7 @@ package com.premature.floscript.jobs.logic;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import com.premature.floscript.scripts.logic.Script;
 
@@ -129,7 +130,20 @@ public class Job implements Parcelable {
         }
 
         public static TimeTrigger parseString(String rep) {
+            if (rep == null) {
+                return null;
+            }
             return new TimeTrigger(Integer.parseInt(rep.substring(0, 2)), Integer.parseInt(rep.substring(2, 4)));
+        }
+
+        public static String toString(TimeTrigger trigger) {
+            if (trigger == null) return null;
+            return trigger.toString();
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%02d%02d", hour, minute);
         }
 
         @Override

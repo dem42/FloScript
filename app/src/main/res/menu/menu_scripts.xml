@@ -11,4 +11,6 @@
         android:orderInCategory="2" app:showAsAction="never" />
     <item android:id="@+id/action_test" android:title="Test"
         android:orderInCategory="3" app:showAsAction="never" />
+    <item android:id="@+id/action_admin" android:title="Admin"
+        android:orderInCategory="3" app:showAsAction="never" />
 </menu>

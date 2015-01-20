@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.premature.floscript.R;
@@ -44,6 +45,8 @@ import butterknife.ButterKnife;
  */
 public class JobsFragment extends Fragment implements AbsListView.OnItemClickListener,
         LoaderManager.LoaderCallbacks<List<JobContent>> {
+
+    public static final String JOB_PARCEL = "JOB_PARCEL";
 
     private static final int JOB_LOADER = 1;
     private static final String TAG = "JOB_FRAG";
@@ -124,10 +127,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
 
     private void editJob(Job jobToEdit) {
         Bundle jobData = new Bundle();
-        jobData.putString(JobsDao.JOBS_SCRIPT, jobToEdit.getScript().getDiagramName());
-        jobData.putString(JobsDao.JOBS_NAME, jobToEdit.getJobName());
-        jobData.putString(JobsDao.JOBS_COMMENTS, jobToEdit.getComment());
-        jobData.putString(JobsDao.JOBS_COMMENTS, jobToEdit.getComment());
+        jobData.putParcelable(JOB_PARCEL, jobData);
         Intent intent = new Intent(getActivity().getApplicationContext(), JobAddEditActivity.class);
         intent.putExtras(jobData);
         startActivity(intent);
@@ -154,12 +154,37 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (null != mListener) {
+            final JobContent jobContent = mAdapter.getItem(position);
+            final Job job = jobContent.getJob();
+            PopupMenu popupMenu = new PopupMenu(this.getActivity(), view);
+            popupMenu.inflate(R.menu.menu_job_item_popup);
+            MenuItem item = popupMenu.getMenu().findItem(R.id.action_job_toggle_enabled);
+            item.setTitle(jobContent.getJob().isEnabled() ? "Disable" : "Enable");
+            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem item) {
+                    int id = item.getItemId();
+                    if (id == R.id.action_job_edit) {
+                        editJob(job);
+                        return true;
+                    }
+                    else if (id == R.id.action_job_toggle_enabled) {
+                        toggleEnabled(job);
+                        return true;
+                    }
+                    return false;
+                }
+            });
+            
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
-            JobContent jobContent = mAdapter.getItem(position);
             Log.d(TAG, "clicked on jobContent " + jobContent);
-            mListener.onJobsFragmentInteraction(jobContent.getJob().toString());
+            mListener.onJobsFragmentInteraction(job.toString());
         }
+    }
+
+    private void toggleEnabled(Job job) {
+        Log.d(TAG, "Job enable/disable toggled " + job.getJobName());
     }
 
     /**

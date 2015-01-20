@@ -54,7 +54,7 @@ create table jobs (
     script_id integer not null,
     created integer not null,
     enabled integer not null,
-    time_trigger integer,
+    time_trigger text,
     event_trigger integer,
     comments text,
     foreign key (script_id) references scripts(_id)

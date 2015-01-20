@@ -15,6 +15,8 @@ import static com.premature.floscript.db.DbUtils.SaveMode;
 
 /**
  * Created by martin on 17/01/15.
+ * <p/>
+ * Data access object for the {@link com.premature.floscript.jobs.logic.Job} class
  */
 public class JobsDao {
 
@@ -61,6 +63,8 @@ public class JobsDao {
             values.put(JOBS_COMMENTS, job.getComment());
             values.put(JOBS_CREATED, job.getCreated().getTime());
             values.put(JOBS_SCRIPT, scriptId);
+            values.put(JOBS_TIME_TRIGGER, Job.TimeTrigger.toString(job.getTimeTrigger()));
+            values.put(JOBS_EVENT_TRIGGER, job.getEventTrigger());
             values.put(JOBS_ENABLED, job.isEnabled());
             long jobId;
             if (mode == SaveMode.INSERT) {

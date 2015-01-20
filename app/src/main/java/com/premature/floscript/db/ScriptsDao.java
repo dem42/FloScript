@@ -43,6 +43,8 @@ public final class ScriptsDao {
         columnToValue.put(SCRIPTS_VERSION, script.getVersion());
         columnToValue.put(SCRIPTS_CREATED, new Date().getTime());
         columnToValue.put(SCRIPTS_CODE, script.getSourceCode());
+        columnToValue.put(SCRIPTS_DIAGRAM_NAME, script.getDiagramName());
+        columnToValue.put(SCRIPTS_DIAGRAM_VERSION, script.getDiagramVersion());
         return mDb.getWritableDatabase().insert(SCRIPTS_TABLE, null, columnToValue);
     }
 

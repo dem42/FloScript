@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 public class FloDbHelper extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "floscript_db";
-    public static final int VERSION = 7;
+    public static final int VERSION = 9;
     private static final String TAG = "DB_HELPER";
 
     // singleton db helper
@@ -60,6 +60,7 @@ public class FloDbHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion < newVersion) {
+            db.execSQL("drop table if exists " + JobsDao.JOBS_TABLE);
             db.execSQL("drop table if exists " + ScriptsDao.SCRIPTS_TABLE);
             db.execSQL("drop table if exists " + DiagramDao.ARROWS_TABLE);
             db.execSQL("drop table if exists " + DiagramDao.CONNECT_TABLE);
@@ -80,5 +81,13 @@ public class FloDbHelper extends SQLiteOpenHelper {
 
     public void dropDatabase() {
         mContext.deleteDatabase(DB_NAME);
+    }
+
+    public void wipe() {
+        mDbHelper.getWritableDatabase().delete(JobsDao.JOBS_TABLE, null, new String[]{});
+        mDbHelper.getWritableDatabase().delete(ScriptsDao.SCRIPTS_TABLE, null, new String[]{});
+        mDbHelper.getWritableDatabase().delete(DiagramDao.ARROWS_TABLE, null, new String[]{});
+        mDbHelper.getWritableDatabase().delete(DiagramDao.CONNECT_TABLE, null, new String[]{});
+        mDbHelper.getWritableDatabase().delete(DiagramDao.DIAGRAMS_TABLE, null, new String[]{});
     }
 }

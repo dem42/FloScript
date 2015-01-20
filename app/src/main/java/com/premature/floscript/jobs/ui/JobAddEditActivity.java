@@ -82,6 +82,12 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            Job jobParcel = savedInstanceState.getParcelable(JobsFragment.JOB_PARCEL);
+            if (jobParcel != null) {
+                Log.d(TAG, "job editing with parcel " + jobParcel);
+            }
+        }
         Log.d(TAG, "creating activity job addition");
 
         mCursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item,
@@ -132,8 +138,9 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         cal.set(Calendar.HOUR_OF_DAY, mJobTime.getCurrentHour());
         cal.set(Calendar.MINUTE, mJobTime.getCurrentMinute());
 
+        Job.TimeTrigger timeTrigger = new Job.TimeTrigger(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
         Job job = Job.builder().withName(jobName).fromScript(script).withComment(comment)
-                .triggerWhen(new Job.TimeTrigger(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE))).build();
+                .triggerWhen(timeTrigger).build();
 
         Log.d(TAG, "Job to be saved " + job);
 

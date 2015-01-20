@@ -141,9 +141,19 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
                 Log.d(TAG, "Testing code");
                 compileAndRunDiagram();
                 return true;
+            case R.id.action_admin:
+                Log.d(TAG, "admin code");
+                adminCode();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    //TODO: get rid of adming stuff
+    private void adminCode() {
+        FloDbHelper mDb = FloDbHelper.getInstance(getActivity());
+        mDb.wipe();
     }
 
     private void compileAndRunDiagram() {
@@ -190,6 +200,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     @Override
     public void saveClicked(String name) {
         final Diagram diagram = mDiagramEditorView.getDiagram();
+        diagram.setName(name);
         try {
             Script compiledDiagram = mCompiler.compile(diagram);
             diagram.setCompiledDiagram(compiledDiagram);
@@ -197,7 +208,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
             TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), "Failed to compile diagram. It will not be available" +
                     "as a job\n\nReason:" + e.getMessage());
         }
-        diagram.setName(name);
         new SaveTask(this).execute(diagram);
     }
 
