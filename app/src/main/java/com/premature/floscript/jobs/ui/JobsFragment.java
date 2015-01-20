@@ -3,9 +3,9 @@ package com.premature.floscript.jobs.ui;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -152,14 +153,14 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
 
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
         if (null != mListener) {
             final JobContent jobContent = mAdapter.getItem(position);
             final Job job = jobContent.getJob();
             PopupMenu popupMenu = new PopupMenu(this.getActivity(), view);
             popupMenu.inflate(R.menu.menu_job_item_popup);
             MenuItem item = popupMenu.getMenu().findItem(R.id.action_job_toggle_enabled);
-            item.setTitle(jobContent.getJob().isEnabled() ? "Disable" : "Enable");
+            item.setTitle(job.isEnabled() ? "Disable" : "Enable");
             popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 @Override
                 public boolean onMenuItemClick(MenuItem item) {
@@ -169,7 +170,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
                         return true;
                     }
                     else if (id == R.id.action_job_toggle_enabled) {
-                        toggleEnabled(job);
+                        toggleEnabled(job, view);
                         return true;
                     }
                     return false;
@@ -184,8 +185,10 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         }
     }
 
-    private void toggleEnabled(Job job) {
-        Log.d(TAG, "Job enable/disable toggled " + job.getJobName());
+    private void toggleEnabled(Job job, View viewOfJob) {
+        job.setEnabled(!job.isEnabled());
+        toggleEnabledIcon(viewOfJob, job.isEnabled());
+        new JobUpdateTask(getActivity()).execute(job);
     }
 
     /**
@@ -265,9 +268,29 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
 
             JobContent item = getItem(position);
             TextView comments = (TextView) view.findViewById(R.id.job_item_job_comments);
-            comments.setText(item.getJob().getComment());
-
+            Job job = item.getJob();
+            comments.setText(job.getComment());
+            toggleEnabledIcon(view, job.isEnabled());
             return view;
+        }
+
+    }
+    public static void toggleEnabledIcon(View view, boolean isEnabled) {
+        ImageView icon = (ImageView) view.findViewById(R.id.job_item_job_icon);
+        icon.setImageResource(isEnabled ? R.drawable.job_icon_enabled : R.drawable.job_icon_disabled);
+    }
+
+    /**
+     * A task to toggleEnabled a job
+     */
+    private static class JobUpdateTask extends AsyncTask<Job, Void, Boolean> {
+        private final JobsDao jobDao;
+        private JobUpdateTask(Context ctx) {
+            this.jobDao = new JobsDao(ctx);
+        }
+        @Override
+        protected Boolean doInBackground(Job... params) {
+            return jobDao.updateJob(params[0]);
         }
     }
 }
