@@ -20,4 +20,8 @@ public final class DbUtils {
             manager.restartLoader(loaderId, null, callbacks);
         }
     }
+
+    public enum SaveMode {
+        INSERT, UPDATE;
+    }
 }

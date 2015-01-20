@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.util.Log;
@@ -77,13 +78,8 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // TODO: Change Adapter to display your content
-        mAdapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_list_item_1, android.R.id.text1, new ArrayList<JobContent>());
-
+        mAdapter = new JobArrayAdapter(getActivity(), new ArrayList<JobContent>());
         mScriptsDao = new ScriptsDao(getActivity());
-
         setHasOptionsMenu(true);
     }
 
@@ -91,15 +87,10 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_job, container, false);
-
         ButterKnife.inject(this, view);
-        // Set the adapter
         mListView = (AbsListView) view.findViewById(android.R.id.list);
         mListView.setAdapter(mAdapter);
-
-        // Set OnItemClickListener so we can be notified on item clicks
         mListView.setOnItemClickListener(this);
-
         return view;
     }
 
@@ -128,7 +119,18 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     private void addJob() {
-        startActivity(new Intent(getActivity().getApplicationContext(), JobAdditionActivity.class));
+        startActivity(new Intent(getActivity().getApplicationContext(), JobAddEditActivity.class));
+    }
+
+    private void editJob(Job jobToEdit) {
+        Bundle jobData = new Bundle();
+        jobData.putString(JobsDao.JOBS_SCRIPT, jobToEdit.getScript().getDiagramName());
+        jobData.putString(JobsDao.JOBS_NAME, jobToEdit.getJobName());
+        jobData.putString(JobsDao.JOBS_COMMENTS, jobToEdit.getComment());
+        jobData.putString(JobsDao.JOBS_COMMENTS, jobToEdit.getComment());
+        Intent intent = new Intent(getActivity().getApplicationContext(), JobAddEditActivity.class);
+        intent.putExtras(jobData);
+        startActivity(intent);
     }
 
     @Override
@@ -221,4 +223,25 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         }
     }
 
+    /**
+     * Our custom view adapter that lets the {@link android.widget.ArrayAdapter} take
+     * care of manipulating the data and recycling views
+     */
+    private class JobArrayAdapter extends ArrayAdapter<JobContent> {
+        public JobArrayAdapter(Context context, ArrayList<JobContent> jobContents) {
+            super(context, R.layout.job_item, R.id.job_item_job_name, jobContents);
+        }
+
+        //TODO: consider using the ViewHolder pattern from commons-ware (in android_list_view.pdf)
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = super.getView(position, convertView, parent);
+
+            JobContent item = getItem(position);
+            TextView comments = (TextView) view.findViewById(R.id.job_item_job_comments);
+            comments.setText(item.getJob().getComment());
+
+            return view;
+        }
+    }
 }

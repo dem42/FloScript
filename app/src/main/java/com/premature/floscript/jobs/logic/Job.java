@@ -15,16 +15,25 @@ import java.util.List;
 public class Job {
     private final String mJobName;
     private final Script mScript;
-    private final List<JobTriggerCondition> mTriggers;
     private final Date mCreated;
     private final String mComment;
+    private final String eventTrigger;
+    private final TimeTrigger timeTrigger;
 
-    private Job(String mJobName, Script mScript, List<JobTriggerCondition> mTriggers, Date mCreated, String mComment) {
+    // this is the mutable part of the job
+    private boolean mEnabled = false;
+
+    private Job(String mJobName, Script mScript, Date mCreated, String mComment, String eventTriger, TimeTrigger timeTrigger) {
         this.mJobName = mJobName;
         this.mScript = mScript;
-        this.mTriggers = mTriggers;
         this.mCreated = mCreated;
         this.mComment = mComment;
+        this.eventTrigger = eventTriger;
+        this.timeTrigger = timeTrigger;
+    }
+
+    public enum TriggerType {
+        EVENT, TIME;
     }
 
     public String getJobName() {
@@ -35,8 +44,12 @@ public class Job {
         return mScript;
     }
 
-    public List<JobTriggerCondition> getTriggers() {
-        return mTriggers;
+    public TimeTrigger getTimeTrigger() {
+        return timeTrigger;
+    }
+
+    public String getEventTrigger() {
+        return eventTrigger;
     }
 
     public Date getCreated() {
@@ -47,17 +60,30 @@ public class Job {
         return mComment;
     }
 
-    @Override
-    public String toString() {
-        return "Job{" +
-                "mJobName='" + mJobName + '\'' +
-                ", mScript=" + mScript +
-                ", mTriggers=" + mTriggers +
-                ", mCreated=" + mCreated +
-                ", mComment='" + mComment + '\'' +
-                '}';
+    public boolean isEnabled() {
+        return mEnabled;
     }
 
+    public void setEnabled(boolean enabled) {
+        this.mEnabled = enabled;
+    }
+
+
+    public static final class TimeTrigger {
+        public final int hour;
+        public final int minute;
+
+        public TimeTrigger(int hour, int minute) {
+            this.hour = hour;
+            this.minute = minute;
+        }
+
+        public static TimeTrigger parseString(String rep) {
+            return new TimeTrigger(Integer.parseInt(rep.substring(0, 2)), Integer.parseInt(rep.substring(2, 4)));
+        }
+    }
+
+    // TODO: consider using a singleton builder object to improve speed
     public static Builder builder() {
         return new Builder();
     }
@@ -76,6 +102,9 @@ public class Job {
 
         private Date mCreated = new Date();
         private String mComment = "No comment";
+
+        private String eventTrigger;
+        private TimeTrigger timeTrigger;
 
         private Builder() {}
 
@@ -96,37 +125,25 @@ public class Job {
             mCreated = created;
             return this;
         }
-        public TriggerBuilder triggerWhen(JobTrigger trigger) {
-            return new TriggerBuilder(trigger);
+       public Builder triggerWhen(TimeTrigger time) {
+            timeTrigger = time;
+            return this;
+       }
+        public Builder triggerWhen(String event) {
+            eventTrigger = event;
+            return this;
         }
-        public class TriggerBuilder {
-            private List<JobTriggerCondition> mTriggers;
-
-            private TriggerBuilder() {}
-
-            public TriggerBuilder(JobTrigger trigger) {
-                this.mTriggers = new ArrayList<>();
-                andWhen(trigger);
+        public Job build() {
+            if (mJobName == null) {
+                throw new IllegalArgumentException("Job must have a name");
             }
-
-            public TriggerBuilder andWhen(JobTrigger trigger) {
-                mTriggers.add(new JobTriggerCondition(trigger, TriggerConnector.AND));
-                return this;
+            if (mScript == null) {
+                throw new IllegalArgumentException("Job must have a script attached");
             }
-
-            public TriggerBuilder orWhen(JobTrigger trigger) {
-                mTriggers.add(new JobTriggerCondition(trigger, TriggerConnector.OR));
-                return this;
+            if (eventTrigger == null && timeTrigger == null) {
+                throw new IllegalArgumentException("Job must have a trigger");
             }
-            public Job build() {
-                if (mJobName == null) {
-                    throw new IllegalArgumentException("Job must have a name");
-                }
-                if (mScript == null) {
-                    throw new IllegalArgumentException("Job must have a script attached");
-                }
-                return new Job(mJobName, mScript, Collections.unmodifiableList(mTriggers), mCreated, mComment);
-            }
+            return new Job(mJobName, mScript, mCreated, mComment, eventTrigger, timeTrigger);
         }
     }
 }

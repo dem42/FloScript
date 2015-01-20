@@ -53,17 +53,9 @@ create table jobs (
     name text not null,
     script_id integer not null,
     created integer not null,
+    enabled integer not null,
+    time_trigger integer,
+    event_trigger integer,
     comments text,
     foreign key (script_id) references scripts(_id)
-);
-
--- triggers
-create table job_triggers (
-    _id integer primary key autoincrement,
-    type integer not null,
-    job_id integer not null,
-    date_trigger integer,
-    event_trigger integer,
-    condition integer not null,
-    foreign key (job_id) references jobs(_id)
 );

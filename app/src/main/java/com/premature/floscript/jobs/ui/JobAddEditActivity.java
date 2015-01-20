@@ -24,7 +24,6 @@ import com.premature.floscript.db.DiagramDao;
 import com.premature.floscript.db.JobsDao;
 import com.premature.floscript.db.ScriptsDao;
 import com.premature.floscript.jobs.logic.Job;
-import com.premature.floscript.jobs.logic.OnTimeJobTrigger;
 import com.premature.floscript.scripts.logic.Script;
 
 import java.util.Calendar;
@@ -33,7 +32,12 @@ import java.util.Date;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
-public class JobAdditionActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>,
+/**
+ * This activity is responsible for allowing the user to create/edit a new job from
+ * an existing script. It then persists the new job which can then be enabled/disabled
+ * from the {@link com.premature.floscript.jobs.ui.JobsFragment}
+ */
+public class JobAddEditActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>,
         AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "JOB_ADD_ACTIVITY";
@@ -86,7 +90,7 @@ public class JobAdditionActivity extends ActionBarActivity implements LoaderMana
 
         mCursorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        setContentView(R.layout.job_addition);
+        setContentView(R.layout.job_add_edit);
         ButterKnife.inject(this);
 
         mDiagramNameSpinner.setAdapter(mCursorAdapter);
@@ -94,6 +98,7 @@ public class JobAdditionActivity extends ActionBarActivity implements LoaderMana
 
         mJobTime.setIs24HourView(false);
 
+        // our loader only needs to be refreshed here
         initOrRestartTheLoader();
     }
 
@@ -128,7 +133,7 @@ public class JobAdditionActivity extends ActionBarActivity implements LoaderMana
         cal.set(Calendar.MINUTE, mJobTime.getCurrentMinute());
 
         Job job = Job.builder().withName(jobName).fromScript(script).withComment(comment)
-                .triggerWhen(new OnTimeJobTrigger(cal.getTime())).build();
+                .triggerWhen(new Job.TimeTrigger(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE))).build();
 
         Log.d(TAG, "Job to be saved " + job);
 

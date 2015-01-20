@@ -17,7 +17,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".jobs.ui.JobAdditionActivity"
+        <activity android:name=".jobs.ui.JobAddEditActivity"
             android:label="FloScript">
         </activity>
 

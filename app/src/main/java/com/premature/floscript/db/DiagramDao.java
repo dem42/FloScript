@@ -174,6 +174,7 @@ public final class DiagramDao {
     }
 
     public Diagram getDiagram(String name) {
+        Log.d(TAG, "fetching diagram with name " + name);
         Cursor query = null;
         Diagram diagram = null;
         try {
