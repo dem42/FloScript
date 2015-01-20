@@ -3,6 +3,7 @@ package com.premature.floscript.scripts.logic;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 /**
  * Created by martin on 02/01/15.

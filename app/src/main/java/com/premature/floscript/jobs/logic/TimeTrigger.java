@@ -2,6 +2,7 @@ package com.premature.floscript.jobs.logic;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 /**
 * Created by martin on 19/01/15.

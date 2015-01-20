@@ -127,7 +127,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
 
     private void editJob(Job jobToEdit) {
         Bundle jobData = new Bundle();
-        jobData.putParcelable(JOB_PARCEL, jobData);
+        jobData.putParcelable(JOB_PARCEL, jobToEdit);
         Intent intent = new Intent(getActivity().getApplicationContext(), JobAddEditActivity.class);
         intent.putExtras(jobData);
         startActivity(intent);

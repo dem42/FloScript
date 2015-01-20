@@ -1,6 +1,7 @@
 package com.premature.floscript.jobs.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
@@ -83,8 +84,9 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            Job jobParcel = savedInstanceState.getParcelable(JobsFragment.JOB_PARCEL);
+        Intent startingIntent = getIntent();
+        if (startingIntent.getExtras() != null) {
+            Job jobParcel = startingIntent.getExtras().getParcelable(JobsFragment.JOB_PARCEL);
             if (jobParcel != null) {
                 Log.d(TAG, "job editing with parcel " + jobParcel);
             }
