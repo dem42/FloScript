@@ -141,16 +141,17 @@ public final class DiagramDao {
         return true;
     }
 
-    public List<String> getDiagramNames() {
+    public List<DbUtils.NameAndId> getDiagramNames(boolean executable) {
         Cursor query = null;
-        List<String> names = new ArrayList<>();
+        List<DbUtils.NameAndId> namesAndIds = new ArrayList<>();
         try {
             // select distinct
-            query = getDiagramNamesAsCursor(false);
+            query = getDiagramNamesAsCursor(executable);
             query.moveToFirst();
             while(!query.isAfterLast()) {
                 String diagramName = query.getString(query.getColumnIndex(DIAGRAMS_NAME));
-                names.add(diagramName);
+                Long scriptId = query.getLong(query.getColumnIndex(DIAGRAMS_SCRIPT));
+                namesAndIds.add(new DbUtils.NameAndId(diagramName, scriptId));
                 query.moveToNext();
             }
         } finally {
@@ -158,7 +159,7 @@ public final class DiagramDao {
                 query.close();
             }
         }
-        return names;
+        return namesAndIds;
     }
 
     /**

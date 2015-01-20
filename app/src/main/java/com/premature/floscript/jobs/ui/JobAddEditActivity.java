@@ -2,7 +2,6 @@ package com.premature.floscript.jobs.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -11,25 +10,29 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.premature.floscript.R;
-import com.premature.floscript.db.CursorLoaderSinContentProvider;
+import com.premature.floscript.db.DbUtils;
 import com.premature.floscript.db.DiagramDao;
 import com.premature.floscript.db.JobsDao;
+import com.premature.floscript.db.ListFromDbLoader;
 import com.premature.floscript.db.ScriptsDao;
 import com.premature.floscript.jobs.logic.Job;
 import com.premature.floscript.jobs.logic.TimeTrigger;
 import com.premature.floscript.scripts.logic.Script;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -39,12 +42,17 @@ import butterknife.InjectView;
  * an existing script. It then persists the new job which can then be enabled/disabled
  * from the {@link com.premature.floscript.jobs.ui.JobsFragment}
  */
-public class JobAddEditActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>,
+public class JobAddEditActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<List<DbUtils.NameAndId>>,
         AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "JOB_ADD_ACTIVITY";
     private static final int JOB_ADD = 2;
-    private SimpleCursorAdapter mCursorAdapter;
+    private ArrayAdapter<DbUtils.NameAndId> mArrayAdapter;
+    private Map<String, Integer> mDiagramNameToPos;
+    private enum JobActivityMode {
+        ADD, EDIT;
+    }
+    private JobActivityMode mMode;
 
     @InjectView(R.id.job_add_spinner)
     Spinner mDiagramNameSpinner;
@@ -56,7 +64,7 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
     TimePicker mJobTime;
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    public Loader<List<DbUtils.NameAndId>> onCreateLoader(int id, Bundle args) {
         Log.d(TAG, "On create loader");
         if (id == JOB_ADD) {
             return new ExecutableDiagramProvider(this);
@@ -65,18 +73,25 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    public void onLoadFinished(Loader<List<DbUtils.NameAndId>> loader, List<DbUtils.NameAndId> data) {
         Log.d(TAG, "On load finished");
-        if (mCursorAdapter != null) {
-            mCursorAdapter.swapCursor(data);
+        if (mArrayAdapter != null) {
+            mArrayAdapter.clear();
+            mArrayAdapter.addAll(data);
+            mDiagramNameToPos.clear();
+            int pos = 0;
+            for (DbUtils.NameAndId nameAndId : data) {
+                mDiagramNameToPos.put(nameAndId.name, pos++);
+            }
         }
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
+    public void onLoaderReset(Loader<List<DbUtils.NameAndId>> loader) {
         Log.d(TAG, "On loader reset");
-        if (mCursorAdapter != null) {
-            mCursorAdapter.swapCursor(null);
+        if (mArrayAdapter != null) {
+            mArrayAdapter.clear();
+            mDiagramNameToPos.clear();
         }
 
     }
@@ -87,25 +102,25 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         
         Log.d(TAG, "creating activity job addition");
 
-        mCursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item,
-                null,
-                new String[] {DiagramDao.DIAGRAMS_NAME}, new int[]{android.R.id.text1}, Adapter.NO_SELECTION);
-
-        mCursorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
+                android.R.id.text1, new ArrayList<DbUtils.NameAndId>());
+        mArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mDiagramNameToPos = new HashMap<>();
 
         setContentView(R.layout.job_add_edit);
         ButterKnife.inject(this);
 
-        mDiagramNameSpinner.setAdapter(mCursorAdapter);
+        mDiagramNameSpinner.setAdapter(mArrayAdapter);
         mDiagramNameSpinner.setOnItemSelectedListener(this);
+        mJobTime.setIs24HourView(true);
 
-        mJobTime.setIs24HourView(false);
-
+        mMode = JobActivityMode.ADD; // the default is ADD
         Intent startingIntent = getIntent();
         if (startingIntent.getExtras() != null) {
             Job jobParcel = startingIntent.getExtras().getParcelable(JobsFragment.JOB_PARCEL);
             if (jobParcel != null) {
                 Log.d(TAG, "job editing with parcel " + jobParcel);
+                mMode = JobActivityMode.EDIT; // however if we received a parcel set to EDIT
                 initializeFromJob(jobParcel);
             }
         }
@@ -117,6 +132,18 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
     private void initializeFromJob(Job jobParcel) {
         mJobName.setText(jobParcel.getJobName());
         mJobDesc.setText(jobParcel.getComment());
+
+        Integer position = mDiagramNameToPos.get(jobParcel.getScript().getDiagramName());
+        if (position != null) {
+            mDiagramNameSpinner.setSelection(position);
+        }
+        else {
+            Log.e(TAG, "Couldn't locate a position in spinner for job " + jobParcel);
+        }
+        if (jobParcel.getTimeTrigger() != null) {
+            mJobTime.setCurrentHour(jobParcel.getTimeTrigger().hour);
+            mJobTime.setCurrentMinute(jobParcel.getTimeTrigger().minute);
+        }
     }
 
     @Override
@@ -131,9 +158,8 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
 
     private void saveJob() {
         int selectedId = mDiagramNameSpinner.getSelectedItemPosition();
-        Cursor cursor = mCursorAdapter.getCursor();
-        cursor.moveToPosition(selectedId);
-        Long scriptId = cursor.getLong(cursor.getColumnIndex(DiagramDao.DIAGRAMS_SCRIPT));
+        DbUtils.NameAndId nameAndId = mArrayAdapter.getItem(selectedId);
+        Long scriptId = nameAndId.id;
         if (scriptId == null) {
             Log.e(TAG, "No script found for selected diagram");
         }
@@ -156,7 +182,8 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         Log.d(TAG, "Job to be saved " + job);
 
         JobsDao jobsDao = new JobsDao(this);
-        if(jobsDao.saveJob(job)) {
+        boolean dbCallResult = this.mMode == JobActivityMode.ADD ? jobsDao.saveJob(job) : jobsDao.updateJob(job);
+        if(dbCallResult) {
             Toast.makeText(getApplicationContext(), "Job saved", Toast.LENGTH_SHORT).show();
         }
         else {
@@ -192,14 +219,15 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         }
     }
 
-    private static class ExecutableDiagramProvider extends CursorLoaderSinContentProvider {
+    private static class ExecutableDiagramProvider extends ListFromDbLoader<DbUtils.NameAndId> {
         public ExecutableDiagramProvider(Context ctx) {
             super(ctx);
         }
 
         @Override
-        public Cursor runQuery() {
-            return new DiagramDao(getContext()).getDiagramNamesAsCursor(true);
+        public List<DbUtils.NameAndId> runQuery() {
+            return new DiagramDao(getContext()).getDiagramNames(true);
         }
     }
+
 }

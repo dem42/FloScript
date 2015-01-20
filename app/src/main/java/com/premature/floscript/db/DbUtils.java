@@ -24,4 +24,19 @@ public final class DbUtils {
     public enum SaveMode {
         INSERT, UPDATE;
     }
+
+    public static class NameAndId {
+        public final String name;
+        public final Long id;
+
+        public NameAndId(String name, Long id) {
+            this.name = name;
+            this.id = id;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
 }
