@@ -53,6 +53,7 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         ADD, EDIT;
     }
     private JobActivityMode mMode;
+    private boolean mJobEnabled = true;
 
     @InjectView(R.id.job_add_spinner)
     Spinner mDiagramNameSpinner;
@@ -144,6 +145,7 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
             mJobTime.setCurrentHour(jobParcel.getTimeTrigger().hour);
             mJobTime.setCurrentMinute(jobParcel.getTimeTrigger().minute);
         }
+        mJobEnabled = jobParcel.isEnabled();
     }
 
     @Override
@@ -178,7 +180,7 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         TimeTrigger timeTrigger = new TimeTrigger(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
         Job job = Job.builder().withName(jobName).fromScript(script).withComment(comment)
                 .triggerWhen(timeTrigger).build();
-
+        job.setEnabled(mJobEnabled);
         Log.d(TAG, "Job to be saved " + job);
 
         JobsDao jobsDao = new JobsDao(this);
