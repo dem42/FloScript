@@ -92,7 +92,7 @@ public class Script implements Parcelable {
         dest.writeValue(mDiagramVersion);
     }
 
-    static final Parcelable.Creator<Script> CREATOR = new Parcelable.Creator<Script>() {
+    public static final Parcelable.Creator<Script> CREATOR = new Parcelable.Creator<Script>() {
         @Override
         public Script createFromParcel(Parcel source) {
             return new Script(source);

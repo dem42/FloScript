@@ -84,13 +84,7 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent startingIntent = getIntent();
-        if (startingIntent.getExtras() != null) {
-            Job jobParcel = startingIntent.getExtras().getParcelable(JobsFragment.JOB_PARCEL);
-            if (jobParcel != null) {
-                Log.d(TAG, "job editing with parcel " + jobParcel);
-            }
-        }
+        
         Log.d(TAG, "creating activity job addition");
 
         mCursorAdapter = new SimpleCursorAdapter(this, android.R.layout.simple_spinner_item,
@@ -107,8 +101,22 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
 
         mJobTime.setIs24HourView(false);
 
+        Intent startingIntent = getIntent();
+        if (startingIntent.getExtras() != null) {
+            Job jobParcel = startingIntent.getExtras().getParcelable(JobsFragment.JOB_PARCEL);
+            if (jobParcel != null) {
+                Log.d(TAG, "job editing with parcel " + jobParcel);
+                initializeFromJob(jobParcel);
+            }
+        }
+
         // our loader only needs to be refreshed here
         initOrRestartTheLoader();
+    }
+
+    private void initializeFromJob(Job jobParcel) {
+        mJobName.setText(jobParcel.getJobName());
+        mJobDesc.setText(jobParcel.getComment());
     }
 
     @Override

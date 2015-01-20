@@ -47,7 +47,7 @@ public final class TimeTrigger implements Parcelable {
         dest.writeInt(hour);
         dest.writeInt(minute);
     }
-    static final Creator<TimeTrigger> CREATOR = new Creator<TimeTrigger>() {
+    public static final Creator<TimeTrigger> CREATOR = new Creator<TimeTrigger>() {
         @Override
         public TimeTrigger createFromParcel(Parcel source) {
             return new TimeTrigger(source);

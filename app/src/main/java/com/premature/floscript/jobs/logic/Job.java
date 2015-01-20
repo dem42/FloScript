@@ -55,7 +55,7 @@ public class Job implements Parcelable {
         dest.writeString(mEventTrigger);
         dest.writeParcelable(mTimeTrigger, flags);
     }
-    static final Parcelable.Creator<Job> CREATOR = new Parcelable.Creator<Job>() {
+    public static final Parcelable.Creator<Job> CREATOR = new Parcelable.Creator<Job>() {
         @Override
         public Job createFromParcel(Parcel source) {
             return new Job(source);
