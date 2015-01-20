@@ -1,24 +1,24 @@
 package com.premature.floscript.jobs.logic;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.premature.floscript.scripts.logic.Script;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by martin on 17/01/15.
  * <p/>
  * A script scheduled for a particular time or for a particular event
  */
-public class Job {
+public class Job implements Parcelable {
     private final String mJobName;
     private final Script mScript;
     private final Date mCreated;
     private final String mComment;
-    private final String eventTrigger;
-    private final TimeTrigger timeTrigger;
+    private final String mEventTrigger;
+    private final TimeTrigger mTimeTrigger;
 
     // this is the mutable part of the job
     private boolean mEnabled = false;
@@ -28,9 +28,42 @@ public class Job {
         this.mScript = mScript;
         this.mCreated = mCreated;
         this.mComment = mComment;
-        this.eventTrigger = eventTriger;
-        this.timeTrigger = timeTrigger;
+        this.mEventTrigger = eventTriger;
+        this.mTimeTrigger = timeTrigger;
     }
+
+    private Job(Parcel in) {
+        this.mJobName = in.readString();
+        this.mScript = in.readParcelable(Script.class.getClassLoader());
+        this.mCreated = (Date) in.readValue(Date.class.getClassLoader());
+        this.mComment = in.readString();
+        this.mEventTrigger = in.readString();
+        this.mTimeTrigger = in.readParcelable(TimeTrigger.class.getClassLoader());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mJobName);
+        dest.writeParcelable(mScript, flags);
+        dest.writeValue(mCreated);
+        dest.writeString(mComment);
+        dest.writeString(mEventTrigger);
+        dest.writeParcelable(mTimeTrigger, flags);
+    }
+    static final Parcelable.Creator<Job> CREATOR = new Parcelable.Creator<Job>() {
+        @Override
+        public Job createFromParcel(Parcel source) {
+            return new Job(source);
+        }
+        @Override
+        public Job[] newArray(int size) {
+            return new Job[size];
+        }
+    };
 
     public enum TriggerType {
         EVENT, TIME;
@@ -45,11 +78,11 @@ public class Job {
     }
 
     public TimeTrigger getTimeTrigger() {
-        return timeTrigger;
+        return mTimeTrigger;
     }
 
     public String getEventTrigger() {
-        return eventTrigger;
+        return mEventTrigger;
     }
 
     public Date getCreated() {
@@ -68,8 +101,20 @@ public class Job {
         this.mEnabled = enabled;
     }
 
+    @Override
+    public String toString() {
+        return "Job{" +
+                "mJobName='" + mJobName + '\'' +
+                ", mScript=" + mScript +
+                ", mCreated=" + mCreated +
+                ", mComment='" + mComment + '\'' +
+                ", mEventTrigger='" + mEventTrigger + '\'' +
+                ", mTimeTrigger=" + mTimeTrigger +
+                ", mEnabled=" + mEnabled +
+                '}';
+    }
 
-    public static final class TimeTrigger {
+    public static final class TimeTrigger implements Parcelable {
         public final int hour;
         public final int minute;
 
@@ -78,9 +123,34 @@ public class Job {
             this.minute = minute;
         }
 
+        private TimeTrigger(Parcel in) {
+            this.hour = in.readInt();
+            this.minute = in.readInt();
+        }
+
         public static TimeTrigger parseString(String rep) {
             return new TimeTrigger(Integer.parseInt(rep.substring(0, 2)), Integer.parseInt(rep.substring(2, 4)));
         }
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeInt(hour);
+            dest.writeInt(minute);
+        }
+        static final Parcelable.Creator<TimeTrigger> CREATOR = new Parcelable.Creator<TimeTrigger>() {
+            @Override
+            public TimeTrigger createFromParcel(Parcel source) {
+                return new TimeTrigger(source);
+            }
+            @Override
+            public TimeTrigger[] newArray(int size) {
+                return new TimeTrigger[size];
+            }
+        };
     }
 
     // TODO: consider using a singleton builder object to improve speed

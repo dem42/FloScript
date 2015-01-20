@@ -1,5 +1,7 @@
 package com.premature.floscript.scripts.logic;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
 /**
@@ -7,10 +9,10 @@ import android.support.annotation.Nullable;
  * <p/>
  * This class encapsulates a flowscript
  */
-public class Script {
-    private final String sourceCode;
-    private final String name;
-    private int version;
+public class Script implements Parcelable {
+    private final String mSourceCode;
+    private final String mName;
+    private int mVersion;
 
     // optional fields describing the diagram that this
     // script was created from
@@ -24,10 +26,18 @@ public class Script {
     }
 
     public Script(String sourceCode, String name, String diagramName, Integer diagramVersion) {
-        this.sourceCode = sourceCode;
-        this.name = name;
+        this.mSourceCode = sourceCode;
+        this.mName = name;
         this.mDiagramName = diagramName;
         this.mDiagramVersion = diagramVersion;
+    }
+
+    private Script(Parcel in) {
+        this.mSourceCode = in.readString();
+        this.mName = in.readString();
+        this.mVersion = in.readInt();
+        this.mDiagramName = in.readString();
+        this.mDiagramVersion = (Integer) in.readValue(null);
     }
 
     @Nullable
@@ -41,29 +51,54 @@ public class Script {
     }
 
     public String getSourceCode() {
-        return sourceCode;
+        return mSourceCode;
     }
 
     public String getName() {
-        return name;
+        return mName;
     }
 
     public int getVersion() {
-        return version;
+        return mVersion;
     }
 
     public void setVersion(int version) {
-        this.version = version;
+        this.mVersion = version;
     }
 
     @Override
     public String toString() {
         return "Script{" +
-                "sourceCode='" + sourceCode + '\'' +
-                ", name='" + name + '\'' +
-                ", version=" + version +
+                "mSourceCode='" + mSourceCode + '\'' +
+                ", mName='" + mName + '\'' +
+                ", mVersion=" + mVersion +
                 ", mDiagramName='" + mDiagramName + '\'' +
                 ", mDiagramVersion=" + mDiagramVersion +
                 '}';
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mSourceCode);
+        dest.writeString(mName);
+        dest.writeInt(mVersion);
+        dest.writeString(mDiagramName);
+        dest.writeValue(mDiagramVersion);
+    }
+
+    static final Parcelable.Creator<Script> CREATOR = new Parcelable.Creator<Script>() {
+        @Override
+        public Script createFromParcel(Parcel source) {
+            return new Script(source);
+        }
+        @Override
+        public Script[] newArray(int size) {
+            return new Script[size];
+        }
+    };
 }
