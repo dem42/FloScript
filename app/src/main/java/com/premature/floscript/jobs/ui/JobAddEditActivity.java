@@ -24,6 +24,7 @@ import com.premature.floscript.db.JobsDao;
 import com.premature.floscript.db.ListFromDbLoader;
 import com.premature.floscript.db.ScriptsDao;
 import com.premature.floscript.jobs.logic.Job;
+import com.premature.floscript.jobs.logic.JobScheduler;
 import com.premature.floscript.jobs.logic.TimeTrigger;
 import com.premature.floscript.scripts.logic.Script;
 
@@ -186,6 +187,7 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         JobsDao jobsDao = new JobsDao(this);
         boolean dbCallResult = this.mMode == JobActivityMode.ADD ? jobsDao.saveJob(job) : jobsDao.updateJob(job);
         if(dbCallResult) {
+            new JobScheduler(this).scheduleJob(job);
             Toast.makeText(getApplicationContext(), "Job saved", Toast.LENGTH_SHORT).show();
         }
         else {
@@ -198,6 +200,7 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         int id = item.getItemId();
         if (id == R.id.action_job_add_save) {
             saveJob();
+
             finish(); // finish this activity and return to calling activity
             return true;
         }

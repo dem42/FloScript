@@ -3,6 +3,7 @@ package com.premature.floscript.jobs;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.util.Log;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -12,6 +13,10 @@ import android.content.Context;
  * helper methods.
  */
 public class JobExecutionService extends IntentService {
+    private static final String TAG = "JOB_EXEC";
+
+    public static final String ACTION_JOB = "com.premature.floscript.action.JOB";
+    public static final String JOB_NAME = "JOB_NAME";
     // TODO: Rename actions, choose action names that describe tasks that this
     // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
     private static final String ACTION_FOO = "com.premature.floscript.jobs.action.FOO";
@@ -57,6 +62,7 @@ public class JobExecutionService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        Log.d(TAG, "handling intent");
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_FOO.equals(action)) {
@@ -67,6 +73,9 @@ public class JobExecutionService extends IntentService {
                 final String param1 = intent.getStringExtra(EXTRA_PARAM1);
                 final String param2 = intent.getStringExtra(EXTRA_PARAM2);
                 handleActionBaz(param1, param2);
+            } else if (ACTION_JOB.equals(action)) {
+                final String jobName = intent.getStringExtra("JOB_NAME");
+                Log.i("JOB_EXEC", "Doing job " + jobName);
             }
         }
     }
