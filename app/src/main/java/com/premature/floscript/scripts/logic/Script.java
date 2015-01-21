@@ -3,7 +3,6 @@ package com.premature.floscript.scripts.logic;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 /**
  * Created by martin on 02/01/15.
@@ -13,7 +12,8 @@ import android.util.Log;
 public class Script implements Parcelable {
     private final String mSourceCode;
     private final String mName;
-    private int mVersion;
+    private Long mId;
+    private final boolean mIsFunction;
 
     // optional fields describing the diagram that this
     // script was created from
@@ -22,21 +22,23 @@ public class Script implements Parcelable {
     @Nullable
     private Integer mDiagramVersion;
 
-    public Script(String sourceCode, String name) {
-        this(sourceCode, name, null, null);
+    public Script(String sourceCode, String name, boolean isFunction) {
+        this(sourceCode, name, isFunction, null, null);
     }
 
-    public Script(String sourceCode, String name, String diagramName, Integer diagramVersion) {
+    public Script(String sourceCode, String name, boolean isFunction, String diagramName, Integer diagramVersion) {
         this.mSourceCode = sourceCode;
         this.mName = name;
         this.mDiagramName = diagramName;
         this.mDiagramVersion = diagramVersion;
+        this.mIsFunction = isFunction;
     }
 
     private Script(Parcel in) {
         this.mSourceCode = in.readString();
         this.mName = in.readString();
-        this.mVersion = in.readInt();
+        this.mId = in.readLong();
+        this.mIsFunction = in.readByte() != 0;
         this.mDiagramName = in.readString();
         this.mDiagramVersion = (Integer) in.readValue(null);
     }
@@ -59,12 +61,16 @@ public class Script implements Parcelable {
         return mName;
     }
 
-    public int getVersion() {
-        return mVersion;
+    public Long getId() {
+        return mId;
     }
 
-    public void setVersion(int version) {
-        this.mVersion = version;
+    public boolean isFunction() {
+        return mIsFunction;
+    }
+
+    public void setId(Long id) {
+        this.mId = id;
     }
 
     @Override
@@ -72,7 +78,8 @@ public class Script implements Parcelable {
         return "Script{" +
                 "mSourceCode='" + mSourceCode + '\'' +
                 ", mName='" + mName + '\'' +
-                ", mVersion=" + mVersion +
+                ", mId=" + mId +
+                ", mIsFunction =" + mIsFunction +
                 ", mDiagramName='" + mDiagramName + '\'' +
                 ", mDiagramVersion=" + mDiagramVersion +
                 '}';
@@ -87,7 +94,8 @@ public class Script implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mSourceCode);
         dest.writeString(mName);
-        dest.writeInt(mVersion);
+        dest.writeLong(mId);
+        dest.writeByte((byte) (mIsFunction ? 1 : 0));
         dest.writeString(mDiagramName);
         dest.writeValue(mDiagramVersion);
     }

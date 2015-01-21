@@ -28,7 +28,7 @@ public final class DiagramToScriptCompiler {
         mCodeShell = ResourceAndFileUtils.readFile(ctx, R.raw.script_shell, true);
     }
     public Script compile(Diagram diagram) throws ScriptCompilationException {
-        StringBuilder code = new StringBuilder();
+        StringBuilder code = new StringBuilder("function runScript (env) {\n");
 
         Map<ArrowTargetableDiagramElement<?>, String> generatedFunNames = generateFunNames(diagram.getConnectables());
 
@@ -45,8 +45,8 @@ public final class DiagramToScriptCompiler {
 
         depthFirstCompile(entryElement, connectedElements, code, generatedFunNames);
 
-        code.append(mCodeShell);
-        return new Script(code.toString(), diagram.getName() + ".script", diagram.getName(), diagram.getVersion());
+        code.append(mCodeShell).append("return function_stack.length == 0;\n}\n");
+        return new Script(code.toString(), diagram.getName(), true, diagram.getName(), diagram.getVersion());
     }
 
     private Map<ArrowTargetableDiagramElement<?>, String> generateFunNames(List<ArrowTargetableDiagramElement<?>> connectables) {

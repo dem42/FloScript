@@ -11,12 +11,12 @@ public final class Scripts {
 
     private Scripts() {}
 
-    public static final Script ENTRY_POINT_SCRIPT = new Script("", "entryFunction");
+    public static final Script ENTRY_POINT_SCRIPT = new Script("", "entryFunction", false);
     public static Script getHelloDiamond(String name) {
-        return new Script("java.lang.System.out.println(\"HELLO DIAMOND\")", name);
+        return new Script("java.lang.System.out.println(\"HELLO DIAMOND\")", name, false);
     }
     public static Script getHelloLogic(String name) {
-        return new Script("java.lang.System.out.println(\"HELLO LOGIC\")", name);
+        return new Script("com.premature.floscript.scripts.logic.FloJsApi.logMessage(\"HELLO LOGIC\")", name, false);
     }
 
     public static String createFunctionWrapper(Script codeToWrap, String functionName, @Nullable String yesOrDefaultScript, @Nullable String noScript) {

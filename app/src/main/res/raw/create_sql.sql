@@ -7,6 +7,7 @@ create table scripts (
     description text,
     diagram_name text,
     diagram_version int,
+    is_function integer not null,
     code text
 );
 

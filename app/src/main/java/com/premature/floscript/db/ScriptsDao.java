@@ -28,7 +28,7 @@ public final class ScriptsDao {
     public static final String SCRIPTS_DIAGRAM_NAME = "diagram_name";
     public static final String SCRIPTS_DIAGRAM_VERSION = "diagram_version";
     public static final String SCRIPTS_TABLE = "scripts";
-    private static final String[] SCRIPTS_COLUMNS = {SCRIPTS_NAME,
+    private static final String[] SCRIPTS_COLUMNS = {SCRIPTS_ID, SCRIPTS_NAME,
             SCRIPTS_VERSION, SCRIPTS_DESCRIPTION, SCRIPTS_CREATED, SCRIPTS_CODE,
             SCRIPTS_DIAGRAM_NAME, SCRIPTS_DIAGRAM_VERSION};
     private final FloDbHelper mDb;
@@ -38,14 +38,18 @@ public final class ScriptsDao {
     }
 
     public long saveScript(Script script) {
+        if (script.getId() != null) {
+            throw new IllegalArgumentException("The script " + script.getName() + " has already been saved");
+        }
         ContentValues columnToValue = new ContentValues();
         columnToValue.put(SCRIPTS_NAME, script.getName());
-        columnToValue.put(SCRIPTS_VERSION, script.getVersion());
         columnToValue.put(SCRIPTS_CREATED, new Date().getTime());
         columnToValue.put(SCRIPTS_CODE, script.getSourceCode());
         columnToValue.put(SCRIPTS_DIAGRAM_NAME, script.getDiagramName());
         columnToValue.put(SCRIPTS_DIAGRAM_VERSION, script.getDiagramVersion());
-        return mDb.getWritableDatabase().insert(SCRIPTS_TABLE, null, columnToValue);
+        long id = mDb.getWritableDatabase().insert(SCRIPTS_TABLE, null, columnToValue);
+        script.setId( (id != -1) ? id : null);
+        return id;
     }
 
     public void printTestsInDb() {
@@ -88,13 +92,11 @@ public final class ScriptsDao {
             if(query.moveToFirst()) {
                 String code = query.getString(query.getColumnIndex(SCRIPTS_CODE));
                 String name = query.getString(query.getColumnIndex(SCRIPTS_NAME));
-                Integer version = query.getInt(query.getColumnIndex(SCRIPTS_VERSION));
+                Long id = query.getLong(query.getColumnIndex(SCRIPTS_ID));
                 String diagramName = query.getString(query.getColumnIndex(SCRIPTS_DIAGRAM_NAME));
                 Integer diagramVersion = query.getInt(query.getColumnIndex(SCRIPTS_DIAGRAM_VERSION));
-                Script script = new Script(code, name, diagramName, diagramVersion);
-                if (version != null) {
-                    script.setVersion(version);
-                }
+                Script script = new Script(code, name, true, diagramName, diagramVersion);
+                script.setId(id);
                 return script;
             }
             return null;
@@ -114,13 +116,11 @@ public final class ScriptsDao {
                 while(!query.isAfterLast()) {
                     String code = query.getString(query.getColumnIndex(SCRIPTS_CODE));
                     String name = query.getString(query.getColumnIndex(SCRIPTS_NAME));
-                    Integer version = query.getInt(query.getColumnIndex(SCRIPTS_VERSION));
+                    Long id = query.getLong(query.getColumnIndex(SCRIPTS_ID));
                     String diagramName = query.getString(query.getColumnIndex(SCRIPTS_DIAGRAM_NAME));
                     Integer diagramVersion = query.getInt(query.getColumnIndex(SCRIPTS_DIAGRAM_VERSION));
-                    Script script = new Script(code, name, diagramName, diagramVersion);
-                    if (version != null) {
-                        script.setVersion(version);
-                    }
+                    Script script = new Script(code, name, true, diagramName, diagramVersion);
+                    script.setId(id);
                     scripts.add(script);
                 }
             }

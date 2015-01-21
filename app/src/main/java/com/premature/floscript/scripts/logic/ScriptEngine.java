@@ -32,7 +32,12 @@ public class ScriptEngine {
             Scriptable scope = cx.initStandardObjects();
 
             // Now evaluate the string we've collected.
-            Object result = cx.evaluateString(scope, script.getSourceCode(), "<test-script>", 1, null);
+            String code = script.getSourceCode();
+            if (script.isFunction()) {
+                code += "(env);";
+            }
+
+            Object result = cx.evaluateString(scope, code, "<test-script>", 1, null);
 
             // Convert the result to a string and print it.
             return org.mozilla.javascript.Context.toString(result);
@@ -46,18 +51,21 @@ public class ScriptEngine {
     }
 
     public static void main(String... args) {
-        Script s1 = new Script("java.lang.System.out.println(\"HELLO1\")", "test1");
-        Script s2 = new Script("java.lang.System.out.println(\"HELLO2\")", "test2");
-        Script s3 = new Script("java.lang.System.out.println(\"HELLO3\")", "test3");
+        Script s1 = new Script("java.lang.System.out.println(\"HELLO1\")", "test1", false);
+        Script s2 = new Script("java.lang.System.out.println(\"HELLO2\")", "test2", false);
+        Script s3 = new Script("java.lang.System.out.println(\"HELLO3\")", "test3", false);
         runScript(s1);
 
         System.out.println(Scripts.createFunctionWrapper(s1, "test1", null, null));
         System.out.println(Scripts.createFunctionWrapper(s1, "test1", "test3", null));
         System.out.println(Scripts.createFunctionWrapper(s1, "test1", "yesfun", "nofun"));
 
-        Script s4 = new Script("var z = true; z === true;", "test4");
+        Script s4 = new Script("var z = true; z === true;", "test4", false);
         System.out.println(runScript(s4));
-        Script s5 = new Script("var z = true; z === false;", "test5");
+        Script s5 = new Script("var z = true; z === false;", "test5", false);
         System.out.println(runScript(s5));
+
+        Script s6 = new Script("function hmm() { var i = 1; i++; java.lang.System.out.println(i);}", "test6", true);
+        System.out.println(runScript(s6));
     }
 }

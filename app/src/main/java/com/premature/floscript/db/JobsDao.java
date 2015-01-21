@@ -55,9 +55,9 @@ public class JobsDao {
 
     private boolean saveOrUpdateJob(Job job, SaveMode mode) {
         SQLiteDatabase db = mDb.getWritableDatabase();
-        Long scriptId = mScriptsDao.getScriptId(job.getScript());
+        Long scriptId = job.getScript().getId();
         if (scriptId == null) {
-            throw new IllegalArgumentException("Failed to find a script associated with name " + job.getScript().getName());
+            throw new IllegalArgumentException("Script associated with name " + job.getScript().getName() + " has not been saved yet.");
         }
         db.beginTransaction();
         try {

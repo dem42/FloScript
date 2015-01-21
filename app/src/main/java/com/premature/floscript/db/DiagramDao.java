@@ -47,8 +47,9 @@ public final class DiagramDao {
     public static final String CONNECT_YPOS = "y_pos";
     public static final String CONNECT_PINNED = "pinned";
     public static final String CONNECT_DIAGRAM = "diagram_id";
+    public static final String CONNECT_SCRIPT = "script_id";
     public static final String[] CONNECT_COLUMNS = {CONNECT_ID, CONNECT_TYPE,
-            CONNECT_XPOS, CONNECT_YPOS, CONNECT_PINNED, CONNECT_DIAGRAM};
+            CONNECT_XPOS, CONNECT_YPOS, CONNECT_PINNED, CONNECT_DIAGRAM, CONNECT_SCRIPT};
 
     // arrows table
     public static final String ARROWS_TABLE = "arrows";
@@ -133,6 +134,9 @@ public final class DiagramDao {
         columnToValue.put(CONNECT_YPOS, connectable.getYPos());
         columnToValue.put(CONNECT_PINNED, connectable.isPinned());
         columnToValue.put(CONNECT_TYPE, connectable.getTypeDesc());
+        if (connectable.getScript() != null) {
+            columnToValue.put(CONNECT_SCRIPT, connectable.getScript().getId());
+        }
         long id = mDb.getWritableDatabase().insert(CONNECT_TABLE, null, columnToValue);
         if (id == -1) {
             return false;

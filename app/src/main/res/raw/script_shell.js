@@ -1,7 +1,8 @@
-var env = {};
+var env = env || {};
 var max_iter = 100;
 var iter = 0;
 var function_stack = [];
+var old_exec = env.execute;
 env.execute = function(next_fun) {
     function_stack.push(next_fun);
 }
@@ -15,5 +16,4 @@ while (function_stack.length != 0) {
         break;
     }
 }
-
-function_stack.length == 0;
+env.execute = old_exec;
