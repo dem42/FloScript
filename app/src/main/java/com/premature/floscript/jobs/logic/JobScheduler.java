@@ -13,6 +13,7 @@ import com.premature.floscript.jobs.JobExecutionService;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by martin on 20/01/15.
@@ -31,6 +32,11 @@ public final class JobScheduler {
         this.mAlarmManager = (AlarmManager) this.context.getSystemService(Context.ALARM_SERVICE);
     }
 
+    /**
+     * Schedule the parameter {@link Job job} for execution based on the values of the triggers
+     * held by this job
+     * @param job
+     */
     public void scheduleJob(Job job) {
         Log.d(TAG, "in schedule job");
         if (job.getTimeTrigger() != null) {
@@ -45,14 +51,13 @@ public final class JobScheduler {
                 cal.set(Calendar.MINUTE, trigger.minute);
                 cal.set(Calendar.SECOND, 0);
                 cal.set(Calendar.MILLISECOND, 0);
-                long milisStartWindow = cal.getTimeInMillis();
-                cal.add(Calendar.SECOND, 30);
-                long milisEndWindow = cal.getTimeInMillis();
+                long millisStartWindow = cal.getTimeInMillis();
+                long millisWindowDuration = TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
                 if (Build.VERSION.SDK_INT >= 19) {
-                    scheduleExactTimeBetween(milisStartWindow, milisEndWindow, wrapAsIntent(job));
+                    scheduleExactTimeBetween(millisStartWindow, millisWindowDuration, wrapAsIntent(job));
                 }
                 else {
-                    scheduleExactTimeAt(milisStartWindow, wrapAsIntent(job));
+                    scheduleExactTimeAt(millisStartWindow, wrapAsIntent(job));
                 }
 
             }
@@ -62,21 +67,35 @@ public final class JobScheduler {
         }
     }
 
-    private void scheduleExactTimeAt(long milisStartWindow, PendingIntent pendingIntent) {
-        mAlarmManager.set(AlarmManager.RTC_WAKEUP, milisStartWindow, pendingIntent);
+    /**
+     * Cancel the scheduled job
+     * @param job
+     */
+    public void descheduleJob(Job job) {
+        wrapAsIntent(job).cancel();
+    }
+
+    private void scheduleExactTimeAt(long millisStartWindow, PendingIntent pendingIntent) {
+        mAlarmManager.set(AlarmManager.RTC_WAKEUP, millisStartWindow, pendingIntent);
     }
 
     @TargetApi(19)
-    private void scheduleExactTimeBetween(long milisStartWindow, long milisEndWindow, PendingIntent pendingIntent) {
+    private void scheduleExactTimeBetween(long millisStartWindow, long millisWindowDuration, PendingIntent pendingIntent) {
         Log.d(TAG, "scheduling set window alarm");
-        mAlarmManager.setWindow(AlarmManager.RTC_WAKEUP, milisStartWindow, milisEndWindow, pendingIntent);
+        mAlarmManager.setWindow(AlarmManager.RTC_WAKEUP, millisStartWindow, millisWindowDuration, pendingIntent);
     }
 
     private PendingIntent wrapAsIntent(Job job) {
-        Intent jobExecutionIntent = new Intent(JobExecutionService.ACTION_JOB);
-        jobExecutionIntent.setData(Uri.fromParts("content", "com.premature.floscript.jobs/name/" + job.getJobName(), null));
+        // since we are staring a service we use an explicit intent
+        // otherwise we cannot be sure who will respond and the user won't see it
+        Intent jobExecutionIntent = new Intent(context, JobExecutionService.class);
+        jobExecutionIntent.setAction(JobExecutionService.ACTION_JOB);
+        // using our custom scheme so that we can have multiple pending intents for the same job
+        // if we didnt differentiate them using the data then we would only be allowed to have one pending
+        // intent for all our jobs because the intent#filterEquals would return true for all of them
+        jobExecutionIntent.setDataAndType(Uri.fromParts("jobscheme", Uri.encode("com.premature.floscript.job/name/" + job.getJobName()), null),
+                "text/plain");
         jobExecutionIntent.putExtra(JobExecutionService.JOB_NAME, job.getJobName());
         return PendingIntent.getService(context, 0, jobExecutionIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        //return new PendingIntent();
     }
 }

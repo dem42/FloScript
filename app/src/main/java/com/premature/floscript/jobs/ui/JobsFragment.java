@@ -29,6 +29,7 @@ import com.premature.floscript.db.JobsDao;
 import com.premature.floscript.db.ListFromDbLoader;
 import com.premature.floscript.db.ScriptsDao;
 import com.premature.floscript.jobs.logic.Job;
+import com.premature.floscript.jobs.logic.JobScheduler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,6 +65,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
      * Views.
      */
     private ArrayAdapter<JobContent> mAdapter;
+    private JobScheduler mJobScheduler;
 
     public static JobsFragment newInstance() {
         JobsFragment fragment = new JobsFragment();
@@ -81,9 +83,13 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // called after onAttach in the lifecycle so it's safe to use getActivity here
+        // we create things here that we want to stick around when paused/stopped
         super.onCreate(savedInstanceState);
         mAdapter = new JobArrayAdapter(getActivity(), new ArrayList<JobContent>());
         mScriptsDao = new ScriptsDao(getActivity());
+        mJobScheduler = new JobScheduler(getActivity());
+
         setHasOptionsMenu(true);
     }
 
@@ -188,7 +194,12 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     private void toggleEnabled(Job job, View viewOfJob) {
         job.setEnabled(!job.isEnabled());
         toggleEnabledIcon(viewOfJob, job.isEnabled());
-        new JobUpdateTask(getActivity()).execute(job);
+        new JobUpdateTask(getActivity(), mJobScheduler).execute(job);
+    }
+
+    public static void toggleEnabledIcon(View view, boolean isEnabled) {
+        ImageView icon = (ImageView) view.findViewById(R.id.job_item_job_icon);
+        icon.setImageResource(isEnabled ? R.drawable.job_icon_enabled : R.drawable.job_icon_disabled);
     }
 
     /**
@@ -204,6 +215,17 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         }
     }
 
+    /**
+     * This interface must be implemented by any activity that contains the JobsFragment
+     */
+    public static interface OnJobsFragmentInteractionListener {
+        void onJobsFragmentInteraction(String id);
+    }
+
+
+    /* *************** */
+    /* LOADER METHODS */
+    /* ************* */
     @Override
     public Loader<List<JobContent>> onCreateLoader(int id, Bundle args) {
         if (id == JOB_LOADER) {
@@ -226,15 +248,8 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     /**
-     * This interface must be implemented by any activity that contains the JobsFragment
+     * This loader provider a list of jobs wrapped in {@link JobContent job content} objects
      */
-    public static interface OnJobsFragmentInteractionListener {
-        void onJobsFragmentInteraction(String id);
-    }
-
-    /**
-    * Created by martin on 19/01/15.
-    */
     private static class JobListFromDbLoader extends ListFromDbLoader<JobContent> {
         private final JobsDao mJobsDao;
         public JobListFromDbLoader(Context ctx) {
@@ -273,24 +288,32 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
             toggleEnabledIcon(view, job.isEnabled());
             return view;
         }
-
-    }
-    public static void toggleEnabledIcon(View view, boolean isEnabled) {
-        ImageView icon = (ImageView) view.findViewById(R.id.job_item_job_icon);
-        icon.setImageResource(isEnabled ? R.drawable.job_icon_enabled : R.drawable.job_icon_disabled);
     }
 
     /**
-     * A task to toggleEnabled a job
+     * A task to update the enabled state of a job and possibly trigger it if it has just
+     * been enabled
      */
     private static class JobUpdateTask extends AsyncTask<Job, Void, Boolean> {
         private final JobsDao jobDao;
-        private JobUpdateTask(Context ctx) {
+        private final JobScheduler mJobScheduler;
+        private JobUpdateTask(Context ctx, JobScheduler jobScheduler) {
             this.jobDao = new JobsDao(ctx);
+            this.mJobScheduler = jobScheduler;
         }
         @Override
         protected Boolean doInBackground(Job... params) {
-            return jobDao.updateJob(params[0]);
+            Job job = params[0];
+            boolean result = jobDao.updateJob(job);
+            if (result) {
+                if (job.isEnabled()) {
+                    mJobScheduler.scheduleJob(job);
+                }
+                else {
+                    mJobScheduler.descheduleJob(job);
+                }
+            }
+            return result;
         }
     }
 }

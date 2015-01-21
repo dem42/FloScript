@@ -5,54 +5,36 @@ import android.content.Intent;
 import android.content.Context;
 import android.util.Log;
 
+import com.premature.floscript.db.JobsDao;
+import com.premature.floscript.jobs.logic.Job;
+import com.premature.floscript.scripts.logic.Script;
+import com.premature.floscript.scripts.logic.ScriptEngine;
+
 /**
- * An {@link IntentService} subclass for handling asynchronous task requests in
+ * This class is a {@link IntentService} subclass for handling asynchronous job execution requests in
  * a service on a separate handler thread.
  * <p/>
- * TODO: Customize class - update intent actions, extra parameters and static
- * helper methods.
+ * helper methods include {@link #startActionJob(android.content.Context, com.premature.floscript.jobs.logic.Job)}
+ * for queuing a job execution.
  */
 public class JobExecutionService extends IntentService {
     private static final String TAG = "JOB_EXEC";
 
-    public static final String ACTION_JOB = "com.premature.floscript.action.JOB";
-    public static final String JOB_NAME = "JOB_NAME";
-    // TODO: Rename actions, choose action names that describe tasks that this
-    // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
-    private static final String ACTION_FOO = "com.premature.floscript.jobs.action.FOO";
-    private static final String ACTION_BAZ = "com.premature.floscript.jobs.action.BAZ";
-
-    // TODO: Rename parameters
-    private static final String EXTRA_PARAM1 = "com.premature.floscript.jobs.extra.PARAM1";
-    private static final String EXTRA_PARAM2 = "com.premature.floscript.jobs.extra.PARAM2";
+    public static final String ACTION_JOB = "com.premature.floscript.jobs.action.JOB";
+    public static final String JOB_NAME = "com.premature.floscript.jobs.extra.JOB_NAME";
+    private JobsDao mJobDao;
+    private ScriptEngine mScriptEngine;
 
     /**
-     * Starts this service to perform action Foo with the given parameters. If
+     * Starts this service to perform action Job with the given parameters. If
      * the service is already performing a task this action will be queued.
      *
      * @see IntentService
      */
-    // TODO: Customize helper method
-    public static void startActionFoo(Context context, String param1, String param2) {
+    public static void startActionJob(Context context, Job job) {
         Intent intent = new Intent(context, JobExecutionService.class);
-        intent.setAction(ACTION_FOO);
-        intent.putExtra(EXTRA_PARAM1, param1);
-        intent.putExtra(EXTRA_PARAM2, param2);
-        context.startService(intent);
-    }
-
-    /**
-     * Starts this service to perform action Baz with the given parameters. If
-     * the service is already performing a task this action will be queued.
-     *
-     * @see IntentService
-     */
-    // TODO: Customize helper method
-    public static void startActionBaz(Context context, String param1, String param2) {
-        Intent intent = new Intent(context, JobExecutionService.class);
-        intent.setAction(ACTION_BAZ);
-        intent.putExtra(EXTRA_PARAM1, param1);
-        intent.putExtra(EXTRA_PARAM2, param2);
+        intent.setAction(ACTION_JOB);
+        intent.putExtra(JOB_NAME, job.getJobName());
         context.startService(intent);
     }
 
@@ -61,40 +43,35 @@ public class JobExecutionService extends IntentService {
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+        // unlike with activities we aren't required to call the super callbacks
+        this.mJobDao = new JobsDao(getApplicationContext());
+        this.mScriptEngine = new ScriptEngine();
+    }
+
+    @Override
     protected void onHandleIntent(Intent intent) {
         Log.d(TAG, "handling intent");
         if (intent != null) {
             final String action = intent.getAction();
-            if (ACTION_FOO.equals(action)) {
-                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-                handleActionFoo(param1, param2);
-            } else if (ACTION_BAZ.equals(action)) {
-                final String param1 = intent.getStringExtra(EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(EXTRA_PARAM2);
-                handleActionBaz(param1, param2);
-            } else if (ACTION_JOB.equals(action)) {
-                final String jobName = intent.getStringExtra("JOB_NAME");
-                Log.i("JOB_EXEC", "Doing job " + jobName);
+            if (ACTION_JOB.equals(action)) {
+                final String jobName = intent.getStringExtra(JOB_NAME);
+                handleJobExecution(jobName);
+                Log.d(TAG, "Doing job " + jobName);
             }
         }
     }
 
     /**
-     * Handle action Foo in the provided background thread with the provided
-     * parameters.
+     * TODO: make sure this holds onto the cpu wakup lock, or else the device might sleep before we get here
+     * TODO: we are also on a background thread here is if we need some scripts to run in the foreground
+     * we will require an activity to receive the action
      */
-    private void handleActionFoo(String param1, String param2) {
-        // TODO: Handle action Foo
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    /**
-     * Handle action Baz in the provided background thread with the provided
-     * parameters.
-     */
-    private void handleActionBaz(String param1, String param2) {
-        // TODO: Handle action Baz
-        throw new UnsupportedOperationException("Not yet implemented");
+    private void handleJobExecution(String jobName) {
+        Script script = mJobDao.getScriptForJob(jobName);
+        Log.d(TAG, "For job " + jobName + " we are going to run script " + script);
+        String result = mScriptEngine.runScript(script);
+        Log.d(TAG, "For job " + jobName + " the script result was = " + result);
     }
 }

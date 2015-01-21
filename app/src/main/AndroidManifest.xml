@@ -24,9 +24,6 @@
         <service
             android:name=".jobs.JobExecutionService"
             android:exported="false" >
-            <intent-filter>
-                <action android:name="com.premature.floscript.action.JOB" />
-            </intent-filter>
         </service>
     </application>
 

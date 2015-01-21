@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.premature.floscript.jobs.logic.Job;
 import com.premature.floscript.jobs.logic.TimeTrigger;
+import com.premature.floscript.scripts.logic.Script;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -117,5 +118,24 @@ public class JobsDao {
             }
         }
         return jobs;
+    }
+
+    public Script getScriptForJob(String jobName) {
+        Cursor query = null;
+        try {
+            // select distinct
+            query = mDb.getReadableDatabase().query(JOBS_TABLE, new String[]{JOBS_SCRIPT}, "name=?", new String[]{jobName}, null, null, null);
+            if (query.moveToFirst()) {
+                Long scriptId = query.getLong(query.getColumnIndex(JOBS_SCRIPT));
+                return mScriptsDao.getScriptById(scriptId);
+            }
+            else {
+                return null;
+            }
+        } finally {
+            if (query != null) {
+                query.close();
+            }
+        }
     }
 }

@@ -2,6 +2,7 @@ package com.premature.floscript.jobs.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -50,6 +51,8 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
     private static final int JOB_ADD = 2;
     private ArrayAdapter<DbUtils.NameAndId> mArrayAdapter;
     private Map<String, Integer> mDiagramNameToPos;
+    private JobScheduler mJobScheduler;
+
     private enum JobActivityMode {
         ADD, EDIT;
     }
@@ -65,45 +68,16 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
     @InjectView(R.id.job_add_time_picker)
     TimePicker mJobTime;
 
-    @Override
-    public Loader<List<DbUtils.NameAndId>> onCreateLoader(int id, Bundle args) {
-        Log.d(TAG, "On create loader");
-        if (id == JOB_ADD) {
-            return new ExecutableDiagramProvider(this);
-        }
-        return null;
-    }
 
-    @Override
-    public void onLoadFinished(Loader<List<DbUtils.NameAndId>> loader, List<DbUtils.NameAndId> data) {
-        Log.d(TAG, "On load finished");
-        if (mArrayAdapter != null) {
-            mArrayAdapter.clear();
-            mArrayAdapter.addAll(data);
-            mDiagramNameToPos.clear();
-            int pos = 0;
-            for (DbUtils.NameAndId nameAndId : data) {
-                mDiagramNameToPos.put(nameAndId.name, pos++);
-            }
-        }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<List<DbUtils.NameAndId>> loader) {
-        Log.d(TAG, "On loader reset");
-        if (mArrayAdapter != null) {
-            mArrayAdapter.clear();
-            mDiagramNameToPos.clear();
-        }
-
-    }
-
+    /* ******************** */
+    /* LIFECYCLE CALLBACKS */
+    /* ****************** */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
         Log.d(TAG, "creating activity job addition");
 
+        mJobScheduler = new JobScheduler(this);
         mArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
                 android.R.id.text1, new ArrayList<DbUtils.NameAndId>());
         mArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -184,15 +158,7 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         job.setEnabled(mJobEnabled);
         Log.d(TAG, "Job to be saved " + job);
 
-        JobsDao jobsDao = new JobsDao(this);
-        boolean dbCallResult = this.mMode == JobActivityMode.ADD ? jobsDao.saveJob(job) : jobsDao.updateJob(job);
-        if(dbCallResult) {
-            new JobScheduler(this).scheduleJob(job);
-            Toast.makeText(getApplicationContext(), "Job saved", Toast.LENGTH_SHORT).show();
-        }
-        else {
-            Toast.makeText(getApplicationContext(), "Failed to save job", Toast.LENGTH_SHORT).show();
-        }
+        new SaveUpdateJobTask(this, mMode).execute(job);
     }
 
     @Override
@@ -224,6 +190,46 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         }
     }
 
+    /* *************** */
+    /* LOADER METHODS */
+    /* ************* */
+    @Override
+    public Loader<List<DbUtils.NameAndId>> onCreateLoader(int id, Bundle args) {
+        Log.d(TAG, "On create loader");
+        if (id == JOB_ADD) {
+            return new ExecutableDiagramProvider(this);
+        }
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<DbUtils.NameAndId>> loader, List<DbUtils.NameAndId> data) {
+        Log.d(TAG, "On load finished");
+        if (mArrayAdapter != null) {
+            mArrayAdapter.clear();
+            mArrayAdapter.addAll(data);
+            mDiagramNameToPos.clear();
+            int pos = 0;
+            for (DbUtils.NameAndId nameAndId : data) {
+                mDiagramNameToPos.put(nameAndId.name, pos++);
+            }
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<DbUtils.NameAndId>> loader) {
+        Log.d(TAG, "On loader reset");
+        if (mArrayAdapter != null) {
+            mArrayAdapter.clear();
+            mDiagramNameToPos.clear();
+        }
+
+    }
+
+    /**
+     * This class is responsible for providing a list of executable diagrams
+     * along with script ids
+     */
     private static class ExecutableDiagramProvider extends ListFromDbLoader<DbUtils.NameAndId> {
         public ExecutableDiagramProvider(Context ctx) {
             super(ctx);
@@ -232,6 +238,41 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         @Override
         public List<DbUtils.NameAndId> runQuery() {
             return new DiagramDao(getContext()).getDiagramNames(true);
+        }
+    }
+
+    public static final class SaveUpdateJobTask extends AsyncTask<Job, Void, Boolean> {
+
+        private final JobsDao mJobsDao;
+        private final JobScheduler mScheduler;
+        private final JobActivityMode mMode;
+        private final Context applicationContext;
+
+        public SaveUpdateJobTask(Context ctx, JobActivityMode mode) {
+            applicationContext = ctx.getApplicationContext();
+            mJobsDao = new JobsDao(applicationContext);
+            mScheduler = new JobScheduler(applicationContext);
+            mMode = mode;
+        }
+
+        @Override
+        protected Boolean doInBackground(Job... params) {
+            Job job = params[0];
+            boolean dbCallResult = mMode == JobActivityMode.ADD ? mJobsDao.saveJob(job) : mJobsDao.updateJob(job);
+            if (job.isEnabled()) {
+                mScheduler.scheduleJob(job);
+            }
+            return dbCallResult;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean dbCallResult) {
+            if(dbCallResult) {
+                Toast.makeText(applicationContext, "Job saved", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(applicationContext, "Failed to save job", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
