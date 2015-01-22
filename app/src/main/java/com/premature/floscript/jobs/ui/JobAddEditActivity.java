@@ -51,7 +51,7 @@ public class JobAddEditActivity extends FragmentActivity implements LoaderManage
     private static final int JOB_ADD = 2;
     private ArrayAdapter<DbUtils.NameAndId> mArrayAdapter;
     private Map<String, Integer> mDiagramNameToPos;
-    private JobScheduler mJobScheduler;
+    private ArrayAdapter<String> mEventTrigAdapter;
 
     private enum JobActivityMode {
         ADD, EDIT;
@@ -67,6 +67,8 @@ public class JobAddEditActivity extends FragmentActivity implements LoaderManage
     EditText mJobName;
     @InjectView(R.id.job_add_time_picker)
     TimePicker mJobTime;
+    @InjectView(R.id.job_add_event_spin)
+    Spinner mEventTriggerSpin;
 
 
     /* ******************** */
@@ -77,7 +79,6 @@ public class JobAddEditActivity extends FragmentActivity implements LoaderManage
         super.onCreate(savedInstanceState);
         Log.d(TAG, "creating activity job addition");
 
-        mJobScheduler = new JobScheduler(this);
         mArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
                 android.R.id.text1, new ArrayList<DbUtils.NameAndId>());
         mArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -89,6 +90,11 @@ public class JobAddEditActivity extends FragmentActivity implements LoaderManage
         mDiagramNameSpinner.setAdapter(mArrayAdapter);
         mDiagramNameSpinner.setOnItemSelectedListener(this);
         mJobTime.setIs24HourView(true);
+
+        mEventTrigAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, android.R.id.text1,
+                new ArrayList<>(withEmptyItem(JobScheduler.getAvailableEventTriggers())));
+        mEventTrigAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mEventTriggerSpin.setAdapter(mEventTrigAdapter);
 
         mMode = JobActivityMode.ADD; // the default is ADD
         Intent startingIntent = getIntent();
@@ -103,6 +109,11 @@ public class JobAddEditActivity extends FragmentActivity implements LoaderManage
 
         // our loader only needs to be refreshed here
         initOrRestartTheLoader();
+    }
+
+    private List<String> withEmptyItem(List<String> availableEventTriggers) {
+        availableEventTriggers.add(null);
+        return availableEventTriggers;
     }
 
     private void initializeFromJob(Job jobParcel) {
@@ -153,8 +164,11 @@ public class JobAddEditActivity extends FragmentActivity implements LoaderManage
         cal.set(Calendar.MINUTE, mJobTime.getCurrentMinute());
 
         TimeTrigger timeTrigger = new TimeTrigger(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
+
+        String eventTrigger = mEventTrigAdapter.getItem(mEventTriggerSpin.getSelectedItemPosition());
+
         Job job = Job.builder().withName(jobName).fromScript(script).withComment(comment)
-                .triggerWhen(timeTrigger).build();
+                .triggerWhen(timeTrigger).triggerWhen(eventTrigger).build();
         job.setEnabled(mJobEnabled);
         Log.d(TAG, "Job to be saved " + job);
 

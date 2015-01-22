@@ -29,6 +29,17 @@
             android:name=".jobs.JobExecutionService"
             android:exported="false" >
         </service>
+
+        <!-- the bcast receiver starts disabled and gets enabled
+         when there are jobs that require it -->
+        <receiver
+            android:name=".jobs.EventTriggerReceiver"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

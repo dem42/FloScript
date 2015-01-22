@@ -1,12 +1,11 @@
 package com.premature.floscript.jobs;
 
 import android.app.IntentService;
-import android.content.Intent;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import com.premature.floscript.db.JobsDao;
-import com.premature.floscript.jobs.logic.Job;
 import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.logic.ScriptEngine;
 
@@ -14,14 +13,16 @@ import com.premature.floscript.scripts.logic.ScriptEngine;
  * This class is a {@link IntentService} subclass for handling asynchronous job execution requests in
  * a service on a separate handler thread.
  * <p/>
- * helper methods include {@link #startActionJob(android.content.Context, com.premature.floscript.jobs.logic.Job)}
+ * helper methods include {@link #startActionJob(android.content.Context, String)}
  * for queuing a job execution.
  */
 public class JobExecutionService extends IntentService {
     private static final String TAG = "JOB_EXEC";
 
-    public static final String ACTION_JOB = "com.premature.floscript.jobs.action.JOB";
+    public static final String ACTION_TIME = "com.premature.floscript.jobs.action.JOB_TIME";
+    public static final String ACTION_EVENT = "com.premature.floscript.jobs.action.JOB_EVENT";
     public static final String JOB_NAME = "com.premature.floscript.jobs.extra.JOB_NAME";
+    public static final String EVENT_NAME = "com.premature.floscript.jobs.extra.EVENT_NAME";
     private JobsDao mJobDao;
     private ScriptEngine mScriptEngine;
 
@@ -31,10 +32,10 @@ public class JobExecutionService extends IntentService {
      *
      * @see IntentService
      */
-    public static void startActionJob(Context context, Job job) {
+    public static void startActionJob(Context context, String eventActionName) {
         Intent intent = new Intent(context, JobExecutionService.class);
-        intent.setAction(ACTION_JOB);
-        intent.putExtra(JOB_NAME, job.getJobName());
+        intent.setAction(ACTION_TIME);
+        intent.putExtra(EVENT_NAME, eventActionName);
         context.startService(intent);
     }
 
@@ -55,10 +56,13 @@ public class JobExecutionService extends IntentService {
         Log.d(TAG, "handling intent");
         if (intent != null) {
             final String action = intent.getAction();
-            if (ACTION_JOB.equals(action)) {
+            if (ACTION_TIME.equals(action)) {
                 final String jobName = intent.getStringExtra(JOB_NAME);
                 handleJobExecution(jobName);
-                Log.d(TAG, "Doing job " + jobName);
+                Log.d(TAG, "Doing time triggered job " + jobName);
+            } else if (ACTION_EVENT.equals(action)) {
+                final String event = intent.getStringExtra(EVENT_NAME);
+                Log.d(TAG, "Doing event triggered jobs " + event);
             }
         }
     }
