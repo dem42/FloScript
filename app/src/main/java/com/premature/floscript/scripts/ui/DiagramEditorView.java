@@ -1,7 +1,6 @@
 package com.premature.floscript.scripts.ui;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -14,6 +13,8 @@ import android.view.View;
 
 import com.premature.floscript.R;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
+import com.premature.floscript.util.FloBus;
+import com.squareup.otto.Subscribe;
 
 import java.util.Arrays;
 import java.util.List;
@@ -101,6 +102,8 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         mPopupMenu = new DiagramPopupMenu(mMenuButtons, this);
 
         mDetector = new GestureDetector(getContext(), new DiagramGestureListener(this));
+
+        FloBus.getInstance().register(this);
     }
 
     private void loadAttributes(AttributeSet attrs, int defStyle) {
@@ -127,8 +130,13 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
     @Override
     public void onDiagramMenuItemClick(String buttonClicked) {
-        Intent scriptColIntent = new Intent(getContext().getApplicationContext(), ScriptCollectionActivity.class);
+        FloBus.getInstance().post(new ScriptCollectionActivity.ScriptCollectionRequestEvent(getDiagram().getName()));
         Log.d(TAG, "Clicked on button" + buttonClicked);
+    }
+
+    @Subscribe
+    public void onScriptAvailable(ScriptCollectionActivity.ScriptAvailableEvent scriptAvailableEvent) {
+        Log.d(TAG, "User chose the script with id " + scriptAvailableEvent.scriptId);
     }
 
     @Override

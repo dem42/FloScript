@@ -21,6 +21,10 @@
             android:label="FloScript">
         </activity>
 
+        <activity
+            android:name=".scripts.ui.ScriptCollectionActivity"
+            android:label="FloScript"></activity>
+
         <service
             android:name=".jobs.JobExecutionService"
             android:exported="false" >

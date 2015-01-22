@@ -1,17 +1,21 @@
 package com.premature.floscript.scripts.ui;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.premature.floscript.MainActivity;
 import com.premature.floscript.R;
 import com.premature.floscript.db.ListFromDbLoader;
 import com.premature.floscript.db.ScriptsDao;
@@ -25,9 +29,15 @@ import butterknife.InjectView;
 
 /**
  * Created by martin on 21/01/15.
+ * <p/>
+ * This activity presents a selection of scripts for the user to choose from.
  */
-public class ScriptCollectionActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<List<Script>> {
+public class ScriptCollectionActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<List<Script>>,
+        AdapterView.OnItemClickListener {
 
+    public static final String DIAGRAM_NAME_PARAM = "DIAGRAM_NAME_PARAM";
+    public static final String SCRIPT_ID_PARAM = "SCRIPT_ID_PARAM";
+    private static final String TAG = "SCRIPT_COLL";
     @InjectView(android.R.id.list)
     GridView mScriptCollection;
 
@@ -44,8 +54,9 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
         ButterKnife.inject(this);
 
         mScriptCollectionAdapter = new ScriptArrayAdapter(this, new ArrayList<Script>());
+        mScriptCollection.setAdapter(mScriptCollectionAdapter);
+        mScriptCollection.setOnItemClickListener(this);
     }
-
 
     /* *************** */
     /* LOADER METHODS */
@@ -64,6 +75,17 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
     @Override
     public void onLoaderReset(Loader<List<Script>> loader) {
         mScriptCollectionAdapter.clear();
+    }
+
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Script script = mScriptCollectionAdapter.getItem(position);
+        Log.d(TAG, "Picked script " + script.getName());
+        Intent data = new Intent(getApplicationContext(), MainActivity.class);
+        data.putExtra(SCRIPT_ID_PARAM, script.getId());
+        setResult(0, data);
+        finish();
     }
 
     /**
@@ -108,6 +130,22 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
             scriptImg.setImageResource(R.drawable.job_icon_enabled);
 
             return view;
+        }
+    }
+
+    public static class ScriptCollectionRequestEvent {
+        public final String diagramName;
+
+        public ScriptCollectionRequestEvent(String diagramName) {
+            this.diagramName = diagramName;
+        }
+    }
+
+    public static class ScriptAvailableEvent {
+        public final Long scriptId;
+
+        public ScriptAvailableEvent(Long scriptId) {
+            this.scriptId = scriptId;
         }
     }
 }

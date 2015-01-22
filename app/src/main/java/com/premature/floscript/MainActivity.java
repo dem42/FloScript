@@ -1,6 +1,7 @@
 package com.premature.floscript;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,9 +12,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.premature.floscript.jobs.ui.JobsFragment;
+import com.premature.floscript.scripts.ui.ScriptCollectionActivity;
 import com.premature.floscript.scripts.ui.ScriptingFragment;
+import com.premature.floscript.util.FloBus;
+import com.squareup.otto.Subscribe;
 
-import static android.support.v7.app.ActionBar.*;
+import static android.support.v7.app.ActionBar.Tab;
+import static com.premature.floscript.scripts.ui.ScriptCollectionActivity.ScriptAvailableEvent;
+import static com.premature.floscript.scripts.ui.ScriptCollectionActivity.ScriptCollectionRequestEvent;
 
 
 /**
@@ -38,6 +44,8 @@ public class MainActivity extends ActionBarActivity implements JobsFragment.OnJo
         actionBar.addTab(actionBar.newTab()
                 .setText(R.string.jobs_fragment)
                 .setTabListener(new TabListener<>(this, JobsFragment.class)));
+
+        FloBus.getInstance().register(this);
     }
 
 
@@ -71,6 +79,22 @@ public class MainActivity extends ActionBarActivity implements JobsFragment.OnJo
     @Override
     public void onScriptingFragmentInteraction(Uri uri) {
 
+    }
+
+    @Subscribe
+    public void scriptCollectionRequested(ScriptCollectionRequestEvent scriptColRequestEvent) {
+        Intent scriptColIntent = new Intent(this.getApplicationContext(), ScriptCollectionActivity.class);
+        scriptColIntent.putExtra(ScriptCollectionActivity.DIAGRAM_NAME_PARAM, scriptColRequestEvent.diagramName);
+        startActivityForResult(scriptColIntent, 0);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (data != null) {
+            long scriptId = data.getLongExtra(ScriptCollectionActivity.SCRIPT_ID_PARAM, -1);
+            FloBus.getInstance().post(new ScriptAvailableEvent(scriptId != -1 ? scriptId : null));
+        }
     }
 
     /**
