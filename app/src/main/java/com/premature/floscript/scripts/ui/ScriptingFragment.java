@@ -33,7 +33,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 import static android.view.View.LAYER_TYPE_SOFTWARE;
-import static com.premature.floscript.scripts.ui.DiagramEditorView.DiagramValidator.DiagramValidationEvent;
+import static com.premature.floscript.scripts.ui.DiagramValidator.DiagramValidationEvent;
 
 /**
  * A simple {@link Fragment} subclass.

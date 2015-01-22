@@ -7,21 +7,17 @@ import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.premature.floscript.R;
-import com.premature.floscript.scripts.logic.CompilationErrorCode;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
 import com.premature.floscript.util.FloBus;
 import com.squareup.otto.Subscribe;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * This view is responsible for drawing a mDiagram of a floscript instance encapsulated
@@ -52,6 +48,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private enum EditingState {
         ELEMENT_EDITING, ARROW_PLACING, ARROW_PLACED, ARROW_DRAGGING;
     }
+
     private ElementMover mElementMover;
 
     public Diagram getDiagram() {
@@ -155,22 +152,24 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         LogicBlockUiElement newLogicBlock = new LogicBlockUiElement(mDiagram);
         mFloatingConnectable = newLogicBlock;
     }
+
     @Override
     public void onDiamondElementClicked() {
         DiamondUiElement newDiamond = new DiamondUiElement(mDiagram);
         mFloatingConnectable = newDiamond;
     }
+
     @Override
     public void onArrowClicked() {
         if (mEditingState != EditingState.ARROW_PLACING) {
             mEditingState = EditingState.ARROW_PLACING;
             mFloatingArrow = new ArrowUiElement(mDiagram);
-        }
-        else {
+        } else {
             mEditingState = EditingState.ELEMENT_EDITING;
             mFloatingArrow = null;
         }
     }
+
     @Override
     public void pinningStateToggled() {
     }
@@ -266,87 +265,6 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         return null;
     }
 
-    public static final class DiagramValidator {
-
-        private final DiagramEditorView mEditorView;
-
-        public DiagramValidator(DiagramEditorView editorView) {
-            this.mEditorView = editorView;
-        }
-
-        public boolean validateArrowAddition(ArrowTargetableDiagramElement<?> startPoint, @Nullable ArrowTargetableDiagramElement<?> endPoint) {
-            if (endPoint == null) {
-                return checkAndNotify(startPoint.hasAllArrowsConnected(), CompilationErrorCode.MAX_CHILDREN_REACHED);
-            } else {
-                if (checkAndNotify(!(endPoint instanceof StartUiElement), CompilationErrorCode.CANNOT_CONNECT_TO_ENTRY)) {
-                    return checkAndNotify(hasAlwaysTrueLoop(startPoint, endPoint), CompilationErrorCode.HAS_ALWAYS_TRUE_LOOP);
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        private boolean checkAndNotify(boolean result, CompilationErrorCode code) {
-            if (!result) {
-                FloBus.getInstance().post(new DiagramValidationEvent(code.getReason()));
-                return false;
-            }
-            return true;
-        }
-
-        public boolean hasAlwaysTrueLoop(ArrowTargetableDiagramElement<?> startPoint, ArrowTargetableDiagramElement<?> endPoint) {
-            if (!(startPoint instanceof LogicBlockUiElement) || !(endPoint instanceof LogicBlockUiElement)) {
-                return false;
-            }
-            Set<ArrowTargetableDiagramElement<?>> visited = new HashSet<>();
-            return searchReachable(startPoint, visited, true);
-        }
-
-        private boolean searchReachable(ArrowTargetableDiagramElement<?> startPoint,
-                                        Set<ArrowTargetableDiagramElement<?>> visited, boolean onlyCheckLogicBlocks) {
-            visited.add(startPoint);
-            boolean reachable = false;
-            for (Pair<ArrowTargetableDiagramElement<?>, ?> connected : startPoint.getConnectedElements()) {
-                if (onlyCheckLogicBlocks && !(connected.first instanceof LogicBlockUiElement))
-                    continue;
-                if (visited.contains(connected.first)) {
-                    if (onlyCheckLogicBlocks) {
-                        return true;
-                    }
-                } else {
-                    reachable |= searchReachable(connected.first, visited, onlyCheckLogicBlocks);
-                    if (onlyCheckLogicBlocks) {
-                        visited.remove(connected.first);
-                    }
-                }
-            }
-            return reachable;
-        }
-
-        public boolean allReachable() {
-            Set<ArrowTargetableDiagramElement<?>> visited = new HashSet<>();
-            searchReachable(mEditorView.getDiagram().getEntryElement(), visited, false);
-            for (ArrowTargetableDiagramElement<?> connectable : mEditorView.getDiagram().getConnectables()) {
-                if (!visited.contains(connectable)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        public boolean entryElementIsCorrect() {
-            return mEditorView.getDiagram().getEntryElement().getConnectedElements().size() > 0;
-        }
-
-        public static class DiagramValidationEvent {
-            public final String msg;
-
-            public DiagramValidationEvent(String msg) {
-                this.msg = msg;
-            }
-        }
-    }
-
     /**
      * This class is responsible for moving elements in response to touches
      */
@@ -360,7 +278,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         }
 
         private boolean handleEvent(TouchEvent touchEvent) {
-            switch(touchEvent.getTouchType()) {
+            switch (touchEvent.getTouchType()) {
                 case TOUCH_UP:
                     // LETTING GO
                     return handleLettingGo(touchEvent);
