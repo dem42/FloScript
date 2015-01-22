@@ -1,8 +1,7 @@
 package com.premature.floscript.db;
 
-import android.support.v4.content.AsyncTaskLoader;
 import android.content.Context;
-import android.database.Cursor;
+import android.support.v4.content.AsyncTaskLoader;
 
 /**
  * Created by martin on 17/01/15.
@@ -24,6 +23,7 @@ public abstract class GenericLoader<T> extends AsyncTaskLoader<T> {
 
     /**
      * This method should preform the database query
+     *
      * @return
      */
     abstract public T runQuery();
@@ -68,7 +68,8 @@ public abstract class GenericLoader<T> extends AsyncTaskLoader<T> {
     /**
      * Handles a request to start the Loader.
      */
-    @Override protected void onStartLoading() {
+    @Override
+    protected void onStartLoading() {
         if (result != null) {
             // If we currently have a result available, deliver it
             // immediately.
@@ -85,7 +86,8 @@ public abstract class GenericLoader<T> extends AsyncTaskLoader<T> {
     /**
      * Handles a request to stop the Loader.
      */
-    @Override protected void onStopLoading() {
+    @Override
+    protected void onStopLoading() {
         // Attempt to cancel the current load task if possible.
         cancelLoad();
     }
@@ -93,7 +95,8 @@ public abstract class GenericLoader<T> extends AsyncTaskLoader<T> {
     /**
      * Handles a request to cancel a load.
      */
-    @Override public void onCanceled(T newResult) {
+    @Override
+    public void onCanceled(T newResult) {
         super.onCanceled(newResult);
 
         // At this point we can release the resources associated with 'apps'
@@ -104,7 +107,8 @@ public abstract class GenericLoader<T> extends AsyncTaskLoader<T> {
     /**
      * Handles a request to completely reset the Loader.
      */
-    @Override protected void onReset() {
+    @Override
+    protected void onReset() {
         super.onReset();
 
         // Ensure the loader is stopped

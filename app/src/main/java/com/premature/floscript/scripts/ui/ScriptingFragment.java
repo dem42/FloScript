@@ -1,7 +1,6 @@
 package com.premature.floscript.scripts.ui;
 
 import android.app.Activity;
-import android.app.DialogFragment;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -73,7 +72,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
-     *
+     * <p/>
      * We use this instead of a overloaded constructor because
      * android will call the no argument constructor when it decides to
      * recreate our fragment later. So we shouldn't use those all over the place
@@ -126,7 +125,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        switch(id) {
+        switch (id) {
             case R.id.action_save:
                 saveDiagram();
                 return true;
@@ -307,6 +306,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     DiagramDao getDiagramDao() {
         return mDiagramDao;
     }
+
     // these methods are for the interaction with nested async task (dont want inner class asyncs)
     void showDiagram(Diagram diagram) {
         mDiagramEditorView.setDiagram(diagram);
@@ -331,7 +331,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
      * This class turns our buttons into stateful push buttons.
      * </p>
      * This means that they can no longer register click events, because this class consumes all touch
-     * events. For that reason, a user of this class who desires custom behaviour for onClick events
+     * events. For that reason, a user of this class who desires custom behaviour for onDiagramMenuItemClick events
      * should extend this class and place the logic inside the {@link #doOnClick()} method
      */
     private static class StickyButtonOnTouchListener implements View.OnTouchListener {
@@ -377,7 +377,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
      * has been pressed and also to receive callbacks from the diagram editor about element placement
      * or element selection which affects the pin-unpin button.
      */
-    private static class StickyButtonCoordinator implements OnDiagramEditorListener{
+    private static class StickyButtonCoordinator implements OnDiagramEditorListener {
         private List<StickyButtonOnTouchListener> mElementButtons = new ArrayList<>();
         private StickyButtonOnTouchListener mPinUnpinListener;
         private Button mPinUButton;
@@ -438,8 +438,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         protected Boolean doInBackground(Diagram... params) {
             if (mFrag != null) {
                 return mFrag.getDiagramDao().saveDiagram(params[0]);
-            }
-            else {
+            } else {
                 return false;
             }
         }
@@ -469,8 +468,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         protected Diagram doInBackground(String... params) {
             if (mFrag != null) {
                 return mFrag.getDiagramDao().getDiagram(params[0]);
-            }
-            else {
+            } else {
                 return null;
             }
         }
@@ -482,7 +480,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
             }
         }
     }
-
 
 
 }
