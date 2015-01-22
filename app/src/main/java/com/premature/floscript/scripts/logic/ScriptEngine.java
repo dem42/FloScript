@@ -2,7 +2,7 @@ package com.premature.floscript.scripts.logic;
 
 import android.util.Log;
 
-import org.mozilla.javascript.*;
+import org.mozilla.javascript.Scriptable;
 
 import java.io.StringWriter;
 
@@ -50,7 +50,7 @@ public class ScriptEngine {
         return "";
     }
 
-    public static void main(String... args) {
+    public static void main(String... args) throws ScriptCompilationException {
         Script s1 = new Script("java.lang.System.out.println(\"HELLO1\")", "test1", false);
         Script s2 = new Script("java.lang.System.out.println(\"HELLO2\")", "test2", false);
         Script s3 = new Script("java.lang.System.out.println(\"HELLO3\")", "test3", false);

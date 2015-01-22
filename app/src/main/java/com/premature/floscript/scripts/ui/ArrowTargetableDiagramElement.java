@@ -1,5 +1,6 @@
 package com.premature.floscript.scripts.ui;
 
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 
@@ -7,7 +8,6 @@ import com.premature.floscript.scripts.logic.Script;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -33,7 +33,8 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
 
     public abstract Iterable<ArrowAnchorPoint> getAnchorPoints();
 
-    /** Returns an iterable of all the elements that this element is connected to
+    /**
+     * Returns an iterable of all the elements that this element is connected to
      * through an arrow.
      */
     public List<Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement>> getConnectedElements() {
@@ -46,6 +47,14 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
         return result;
     }
 
+    /**
+     * Retrieve the script associated with this diagram element.
+     * <p/>
+     * This may return <code>null</code> if the user hasn't picked a script yet
+     *
+     * @return associated script or <code>null</code>
+     */
+    @Nullable
     public Script getScript() {
         return script;
     }
@@ -83,6 +92,7 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
 
     /**
      * Connects an arrow to this diagram element
+     *
      * @param arrow
      * @param arrowXPosDp
      * @param arrowYPosDp
@@ -141,7 +151,9 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
         return new Pair<>(bestOur, bestHis);
     }
 
-    /** A connectable type must have a descriptor which specifies its type */
+    /**
+     * A connectable type must have a descriptor which specifies its type
+     */
     public abstract String getTypeDesc();
 
     /**
@@ -159,10 +171,11 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
         }
 
         public int getXPosDip() {
-            return (int)(mXPosDip + mOwner.getXPos());
+            return (int) (mXPosDip + mOwner.getXPos());
         }
+
         public int getYPosDip() {
-            return (int)(mYPosDip + mOwner.getYPos());
+            return (int) (mYPosDip + mOwner.getYPos());
         }
 
         @Override

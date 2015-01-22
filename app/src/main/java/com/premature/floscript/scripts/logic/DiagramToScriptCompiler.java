@@ -24,9 +24,11 @@ import java.util.Map;
 public final class DiagramToScriptCompiler {
     private static final String TAG = "COMPILER";
     private String mCodeShell;
+
     public DiagramToScriptCompiler(Context ctx) {
         mCodeShell = ResourceAndFileUtils.readFile(ctx, R.raw.script_shell, true);
     }
+
     public Script compile(Diagram diagram) throws ScriptCompilationException {
         StringBuilder code = new StringBuilder("function runScript (env) {\n");
 
@@ -56,8 +58,7 @@ public final class DiagramToScriptCompiler {
         for (ArrowTargetableDiagramElement<?> elem : connectables) {
             if (elem.getTypeDesc() == StartUiElement.TYPE_TOKEN) {
                 result.put(elem, Scripts.ENTRY_POINT_SCRIPT.getName());
-            }
-            else {
+            } else {
                 result.put(elem, base + (++counter));
             }
         }
@@ -67,18 +68,16 @@ public final class DiagramToScriptCompiler {
     private void depthFirstCompile(ArrowTargetableDiagramElement<?> elem,
                                    List<Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement>> connectedElements,
                                    StringBuilder code,
-                                   Map<ArrowTargetableDiagramElement<?>, String> generatedFunNames) {
+                                   Map<ArrowTargetableDiagramElement<?>, String> generatedFunNames) throws ScriptCompilationException {
         if (connectedElements.size() == 0) {
             // empty script
             code.append(Scripts.createFunctionWrapper(elem.getScript(), generatedFunNames.get(elem), null, null));
-        }
-        else if (connectedElements.size() == 1) {
+        } else if (connectedElements.size() == 1) {
             Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement> connectedElement = connectedElements.get(0);
             // we wrap and append the entryFunction which the code shell uses as the entry point
             code.append(Scripts.createFunctionWrapper(elem.getScript(), generatedFunNames.get(elem), generatedFunNames.get(connectedElement.first), null));
             depthFirstCompile(connectedElement.first, connectedElement.first.getConnectedElements(), code, generatedFunNames);
-        }
-        else {
+        } else {
             Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement> connectedElement1 = connectedElements.get(0);
             Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement> connectedElement2 = connectedElements.get(1);
 

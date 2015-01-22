@@ -19,7 +19,11 @@ public final class Scripts {
         return new Script("com.premature.floscript.scripts.logic.FloJsApi.logMessage(\"HELLO LOGIC\")", name, false);
     }
 
-    public static String createFunctionWrapper(Script codeToWrap, String functionName, @Nullable String yesOrDefaultScript, @Nullable String noScript) {
+    public static String createFunctionWrapper(Script codeToWrap, String functionName, @Nullable String yesOrDefaultScript, @Nullable String noScript)
+            throws ScriptCompilationException {
+        if (codeToWrap == null) {
+            throw new ScriptCompilationException(CompilationErrorCode.ELEMENT_WITHOUT_SCRIPT, "Element = " + functionName);
+        }
         StringBuilder bob = new StringBuilder("function " + functionName + " (env) {\n");
 
         bob.append(codeToWrap.getSourceCode()).append("\n");

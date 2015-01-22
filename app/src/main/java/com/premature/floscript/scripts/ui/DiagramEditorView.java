@@ -9,10 +9,12 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.TextView;
 
 import com.premature.floscript.R;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -29,6 +31,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private int mBgColor;
     private float mDensityScale;
     private Diagram mDiagram;
+    private View popup;
 
     // the below members are responsible for the editing state
     @Nullable
@@ -193,6 +196,17 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
                         doInvalidate = true;
                     } else {
                         mTouchedElement = findTouchedElement(mEditorView.getDiagram().getConnectables(), touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                        if (mTouchedElement instanceof StartUiElement) {
+                            mEditorView.popup = new TextView(mEditorView.getContext());
+                            mEditorView.popup.setClickable(true);
+                            mEditorView.popup.setMinimumWidth(100);
+                            mEditorView.popup.setMinimumHeight(100);
+                            ((TextView) mEditorView.popup).setText("Hello popup");
+                            ArrayList<View> touchable = new ArrayList<>();
+                            touchable.add(mEditorView.popup);
+                            mEditorView.addTouchables(touchable);
+
+                        }
                     }
                     Log.d(TAG, "looking for a new element " + mTouchedElement + " in resp to " + touchEvent);
                     break;
@@ -269,6 +283,10 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         // this means that we need to scale up to the size of our device
         // and then everything will have the same physical size on all devices
         canvas.scale(mDensityScale, mDensityScale);
+
+        if (popup != null) {
+            popup.draw(canvas);
+        }
 
         if (mEditingState == EditingState.ARROW_DRAGGING) {
             mFloatingArrow.draw(canvas);
