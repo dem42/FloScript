@@ -122,6 +122,7 @@ public final class ScriptsDao {
                     Script script = new Script(code, name, true, diagramName, diagramVersion);
                     script.setId(id);
                     scripts.add(script);
+                    query.moveToNext();
                 }
             }
         } finally {
@@ -129,6 +130,7 @@ public final class ScriptsDao {
                 query.close();
             }
         }
+        Log.d(TAG, "loaded scripts " + scripts);
         return scripts;
     }
 }

@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.premature.floscript.MainActivity;
 import com.premature.floscript.R;
+import com.premature.floscript.db.DbUtils;
 import com.premature.floscript.db.ListFromDbLoader;
 import com.premature.floscript.db.ScriptsDao;
 import com.premature.floscript.scripts.logic.Script;
@@ -38,6 +39,7 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
     public static final String DIAGRAM_NAME_PARAM = "DIAGRAM_NAME_PARAM";
     public static final String SCRIPT_ID_PARAM = "SCRIPT_ID_PARAM";
     private static final String TAG = "SCRIPT_COLL";
+    public static final int LOADER_ID = 12340;
     @InjectView(android.R.id.list)
     GridView mScriptCollection;
 
@@ -56,6 +58,8 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
         mScriptCollectionAdapter = new ScriptArrayAdapter(this, new ArrayList<Script>());
         mScriptCollection.setAdapter(mScriptCollectionAdapter);
         mScriptCollection.setOnItemClickListener(this);
+
+        DbUtils.initOrRestartTheLoader(this, getSupportLoaderManager(), LOADER_ID);
     }
 
     /* *************** */
