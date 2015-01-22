@@ -23,6 +23,8 @@ import com.premature.floscript.scripts.logic.DiagramToScriptCompiler;
 import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.logic.ScriptCompilationException;
 import com.premature.floscript.scripts.logic.ScriptEngine;
+import com.premature.floscript.util.FloBus;
+import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +33,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 import static android.view.View.LAYER_TYPE_SOFTWARE;
+import static com.premature.floscript.scripts.ui.DiagramEditorView.DiagramValidator.DiagramValidationEvent;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -101,6 +104,8 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         }
         init();
 
+        FloBus.getInstance().register(this);
+
         // need to call this if we want to manipulate the options menu
         setHasOptionsMenu(true);
     }
@@ -147,6 +152,11 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Subscribe
+    public void onDiagramValidationError(DiagramValidationEvent validationEvent) {
+        TextPopupDialog.showPopup(getFragmentManager(), validationEvent.msg);
     }
 
     //TODO: get rid of adming stuff

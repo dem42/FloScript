@@ -35,12 +35,28 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
 
     /**
      * Returns an iterable of all the elements that this element is connected to
-     * through an arrow.
+     * through an arrow. These are elements where we are the start point and the other
+     * element is the end point
      */
     public List<Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement>> getConnectedElements() {
         List<Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement>> result = new ArrayList<>();
         for (ArrowUiElement arrow : mArrowToAnchor.keySet()) {
             if (arrow.getEndPoint() != this) {
+                result.add(new Pair(arrow.getEndPoint(), arrow));
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns an iterable of all the elements that are connecting to this element
+     * through an arrow. These are elements where we are the end point and the other
+     * element is the start point
+     */
+    public List<Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement>> getConnectingElements() {
+        List<Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement>> result = new ArrayList<>();
+        for (ArrowUiElement arrow : mArrowToAnchor.keySet()) {
+            if (arrow.getStartPoint() != this) {
                 result.add(new Pair(arrow.getEndPoint(), arrow));
             }
         }
@@ -155,6 +171,16 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
      * A connectable type must have a descriptor which specifies its type
      */
     public abstract String getTypeDesc();
+
+    /**
+     * This checks whether this element cannot have an arrow connected to it
+     *
+     * @return <code>true</code> if the element cannot have any more arrows attached
+     */
+    public boolean hasAllArrowsConnected() {
+        // the default implementation is to allow just one connected element
+        return getConnectedElements().size() >= 1;
+    }
 
     /**
      * This class represents a point on the diagram element where an arrow can

@@ -86,4 +86,9 @@ public final class DiamondUiElement extends ArrowTargetableDiagramElement<Diamon
     public String getTypeDesc() {
         return TYPE_TOKEN;
     }
+
+    @Override
+    public boolean hasAllArrowsConnected() {
+        return getConnectedElements().size() >= 2;
+    }
 }

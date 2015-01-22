@@ -7,17 +7,21 @@ import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.premature.floscript.R;
+import com.premature.floscript.scripts.logic.CompilationErrorCode;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
 import com.premature.floscript.util.FloBus;
 import com.squareup.otto.Subscribe;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This view is responsible for drawing a mDiagram of a floscript instance encapsulated
@@ -43,6 +47,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     @Nullable
     private ArrowUiElement mFloatingArrow;
     private EditingState mEditingState = EditingState.ELEMENT_EDITING;
+    private DiagramValidator mDiagramValidator;
 
     private enum EditingState {
         ELEMENT_EDITING, ARROW_PLACING, ARROW_PLACED, ARROW_DRAGGING;
@@ -102,6 +107,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         mPopupMenu = new DiagramPopupMenu(mMenuButtons, this);
 
         mDetector = new GestureDetector(getContext(), new DiagramGestureListener(this));
+        mDiagramValidator = new DiagramValidator(this);
 
         FloBus.getInstance().register(this);
     }
@@ -176,11 +182,21 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         invalidate();
     }
 
-    private void placeFloatingArrow() {
-        mEditingState = EditingState.ELEMENT_EDITING;
-        mDiagram.addArrow(mFloatingArrow);
-        mOnDiagramEditorListener.onElementPlaced();
-        mFloatingArrow = null;
+    private void placeFloatingArrowStartPoint(ArrowTargetableDiagramElement<?> start, TouchEvent touchEvent) {
+        if (mDiagramValidator.validateArrowAddition(start, mFloatingArrow.getEndPoint())) {
+            mFloatingArrow.anchorStartPoint(start, touchEvent);
+            mEditingState = EditingState.ARROW_PLACED;
+        }
+    }
+
+    private void placeFloatingArrowEndPoint(ArrowTargetableDiagramElement<?> end, TouchEvent touchEvent) {
+        if (mDiagramValidator.validateArrowAddition(mFloatingArrow.getStartPoint(), end)) {
+            mEditingState = EditingState.ELEMENT_EDITING;
+            mFloatingArrow.anchorEndPoint(end, touchEvent);
+            mDiagram.addArrow(mFloatingArrow);
+            mOnDiagramEditorListener.onElementPlaced();
+            mFloatingArrow = null;
+        }
     }
 
     private DiagramElement<?> placeFloatingConnectable(int xPosDips, int yPosDips) {
@@ -250,74 +266,165 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         return null;
     }
 
+    public static final class DiagramValidator {
+
+        private final DiagramEditorView mEditorView;
+
+        public DiagramValidator(DiagramEditorView editorView) {
+            this.mEditorView = editorView;
+        }
+
+        public boolean validateArrowAddition(ArrowTargetableDiagramElement<?> startPoint, @Nullable ArrowTargetableDiagramElement<?> endPoint) {
+            if (endPoint == null) {
+                return checkAndNotify(startPoint.hasAllArrowsConnected(), CompilationErrorCode.MAX_CHILDREN_REACHED);
+            } else {
+                if (checkAndNotify(!(endPoint instanceof StartUiElement), CompilationErrorCode.CANNOT_CONNECT_TO_ENTRY)) {
+                    return checkAndNotify(hasAlwaysTrueLoop(startPoint, endPoint), CompilationErrorCode.HAS_ALWAYS_TRUE_LOOP);
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        private boolean checkAndNotify(boolean result, CompilationErrorCode code) {
+            if (!result) {
+                FloBus.getInstance().post(new DiagramValidationEvent(code.getReason()));
+                return false;
+            }
+            return true;
+        }
+
+        public boolean hasAlwaysTrueLoop(ArrowTargetableDiagramElement<?> startPoint, ArrowTargetableDiagramElement<?> endPoint) {
+            if (!(startPoint instanceof LogicBlockUiElement) || !(endPoint instanceof LogicBlockUiElement)) {
+                return false;
+            }
+            Set<ArrowTargetableDiagramElement<?>> visited = new HashSet<>();
+            return searchReachable(startPoint, visited, true);
+        }
+
+        private boolean searchReachable(ArrowTargetableDiagramElement<?> startPoint,
+                                        Set<ArrowTargetableDiagramElement<?>> visited, boolean onlyCheckLogicBlocks) {
+            visited.add(startPoint);
+            boolean reachable = false;
+            for (Pair<ArrowTargetableDiagramElement<?>, ?> connected : startPoint.getConnectedElements()) {
+                if (onlyCheckLogicBlocks && !(connected.first instanceof LogicBlockUiElement))
+                    continue;
+                if (visited.contains(connected.first)) {
+                    if (onlyCheckLogicBlocks) {
+                        return true;
+                    }
+                } else {
+                    reachable |= searchReachable(connected.first, visited, onlyCheckLogicBlocks);
+                    if (onlyCheckLogicBlocks) {
+                        visited.remove(connected.first);
+                    }
+                }
+            }
+            return reachable;
+        }
+
+        public boolean allReachable() {
+            Set<ArrowTargetableDiagramElement<?>> visited = new HashSet<>();
+            searchReachable(mEditorView.getDiagram().getEntryElement(), visited, false);
+            for (ArrowTargetableDiagramElement<?> connectable : mEditorView.getDiagram().getConnectables()) {
+                if (!visited.contains(connectable)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public boolean entryElementIsCorrect() {
+            return mEditorView.getDiagram().getEntryElement().getConnectedElements().size() > 0;
+        }
+
+        public static class DiagramValidationEvent {
+            public final String msg;
+
+            public DiagramValidationEvent(String msg) {
+                this.msg = msg;
+            }
+        }
+    }
+
     /**
      * This class is responsible for moving elements in response to touches
      */
     private static final class ElementMover {
-
         private final DiagramEditorView mEditorView;
+
         private DiagramElement<?> mTouchedElement = null;
 
-        ElementMover(DiagramEditorView editorView) {
+        public ElementMover(DiagramEditorView editorView) {
             this.mEditorView = editorView;
         }
 
         private boolean handleEvent(TouchEvent touchEvent) {
-            boolean doInvalidate = false;
             switch(touchEvent.getTouchType()) {
                 case TOUCH_UP:
                     // LETTING GO
-                    mTouchedElement = null;
-                    if (mEditorView.mEditingState == EditingState.ARROW_DRAGGING) {
-                        mEditorView.mEditingState = EditingState.ARROW_PLACED;
-                        doInvalidate = true;
-                    }
-                    Log.d(TAG, "letting go " + touchEvent);
-                    break;
+                    return handleLettingGo(touchEvent);
                 case TOUCH_DRAGGED:
                     //DRAGGING
-                    if (mEditorView.mEditingState == EditingState.ARROW_DRAGGING || mEditorView.mEditingState == EditingState.ARROW_PLACED) {
-                        mEditorView.mEditingState = EditingState.ARROW_DRAGGING;
-                        ArrowTargetableDiagramElement<?> end = findTouchedElement(mEditorView.getDiagram().getConnectables(), touchEvent.getXPosDips(), touchEvent.getYPosDips());
-                        if (end != null && end != mEditorView.mFloatingArrow.getStartPoint()) {
-                            mEditorView.mFloatingArrow.anchorEndPoint(end, touchEvent);
-                            mEditorView.placeFloatingArrow();
-                        } else {
-                            mEditorView.mFloatingArrow.onArrowHeadDrag(touchEvent.getXPosDips(), touchEvent.getYPosDips());
-                        }
-                        doInvalidate = true;
-                        Log.d(TAG, "dragging " + mEditorView.mFloatingArrow + " in resp to " + touchEvent + " touched elem is " + end);
-                    } else if (mTouchedElement != null) {
-                        mTouchedElement.moveCenterTo(touchEvent.getXPosDips(), touchEvent.getYPosDips());
-                        doInvalidate = true;
-                        Log.d(TAG, "moving " + mTouchedElement + " in resp to " + touchEvent);
-                    }
-                    break;
+                    return handleDragging(touchEvent);
                 case TOUCH_DOWN:
                     // SELECTING
-                    if (mEditorView.mPopupMenu.isActive()) {
-                        mEditorView.mPopupMenu.handleClick(touchEvent);
-                    } else if (mEditorView.mEditingState == EditingState.ARROW_PLACING) {
-                        ArrowTargetableDiagramElement<?> start = findTouchedElement(mEditorView.getDiagram().getConnectables(), touchEvent.getXPosDips(), touchEvent.getYPosDips());
-                        if (start != null) {
-                            mEditorView.mFloatingArrow.anchorStartPoint(start, touchEvent);
-                            mEditorView.mEditingState = EditingState.ARROW_PLACED;
-                            doInvalidate = true;
-                        }
-                    } else if (mEditorView.mFloatingConnectable != null) {
-                        mTouchedElement = mEditorView.placeFloatingConnectable(touchEvent.getXPosDips(), touchEvent.getYPosDips());
-                        doInvalidate = true;
-                    } else {
-                        mTouchedElement = findTouchedElement(mEditorView.getDiagram().getConnectables(), touchEvent.getXPosDips(), touchEvent.getYPosDips());
-                    }
-                    Log.d(TAG, "looking for a new element " + mTouchedElement + " in resp to " + touchEvent);
-                    break;
+                    return handleFirstTouch(touchEvent);
                 default:
                     throw new IllegalArgumentException("Unrecognized event type " + touchEvent.getTouchType());
+            }
+        }
+
+        private boolean handleFirstTouch(TouchEvent touchEvent) {
+            boolean doInvalidate = false;
+            if (mEditorView.mPopupMenu.isActive()) {
+                mEditorView.mPopupMenu.handleClick(touchEvent);
+            } else if (mEditorView.mEditingState == EditingState.ARROW_PLACING) {
+                ArrowTargetableDiagramElement<?> start = findTouchedElement(mEditorView.getDiagram().getConnectables(), touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                if (start != null) {
+                    mEditorView.placeFloatingArrowStartPoint(start, touchEvent);
+                    doInvalidate = true;
+                }
+            } else if (mEditorView.mFloatingConnectable != null) {
+                mTouchedElement = mEditorView.placeFloatingConnectable(touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                doInvalidate = true;
+            } else {
+                mTouchedElement = findTouchedElement(mEditorView.getDiagram().getConnectables(), touchEvent.getXPosDips(), touchEvent.getYPosDips());
+            }
+            Log.d(TAG, "looking for a new element " + mTouchedElement + " in resp to " + touchEvent);
+            return doInvalidate;
+        }
+
+        private boolean handleDragging(TouchEvent touchEvent) {
+            boolean doInvalidate = false;
+            if (mEditorView.mEditingState == EditingState.ARROW_DRAGGING || mEditorView.mEditingState == EditingState.ARROW_PLACED) {
+                mEditorView.mEditingState = EditingState.ARROW_DRAGGING;
+                ArrowTargetableDiagramElement<?> end = findTouchedElement(mEditorView.getDiagram().getConnectables(), touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                if (end != null && end != mEditorView.mFloatingArrow.getStartPoint()) {
+                    mEditorView.placeFloatingArrowEndPoint(end, touchEvent);
+                } else {
+                    mEditorView.mFloatingArrow.onArrowHeadDrag(touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                }
+                doInvalidate = true;
+                Log.d(TAG, "dragging " + mEditorView.mFloatingArrow + " in resp to " + touchEvent + " touched elem is " + end);
+            } else if (mTouchedElement != null) {
+                mTouchedElement.moveCenterTo(touchEvent.getXPosDips(), touchEvent.getYPosDips());
+                doInvalidate = true;
+                Log.d(TAG, "moving " + mTouchedElement + " in resp to " + touchEvent);
             }
             return doInvalidate;
         }
 
+
+        private boolean handleLettingGo(TouchEvent touchEvent) {
+            mTouchedElement = null;
+            Log.d(TAG, "letting go " + touchEvent);
+            if (mEditorView.mEditingState == EditingState.ARROW_DRAGGING) {
+                mEditorView.mEditingState = EditingState.ARROW_PLACED;
+                return true;
+            }
+            return false;
+        }
 
         public void handleEvents(List<TouchEvent> touchEvents) {
             boolean doInvalidate = false;
@@ -335,7 +442,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
         private final DiagramEditorView mEditorView;
 
-        private DiagramGestureListener(DiagramEditorView mEditorView) {
+        public DiagramGestureListener(DiagramEditorView mEditorView) {
             this.mEditorView = mEditorView;
         }
 
