@@ -8,9 +8,9 @@
     <view
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        class="com.premature.floscript.scripts.ui.DiagramEditorView"
+        class="com.premature.floscript.scripts.ui.diagram.DiagramEditorView"
         android:id="@+id/script_editor"
-        app:backgroundColor="#33b5e5"/>
+        app:backgroundColor="#33b5e5" />
 
     <!-- uses the dark theme action bar pulled from a stack answer -->
     <!--
@@ -26,11 +26,12 @@
         android:layout_gravity="bottom|center_horizontal"
         android:clickable="true"/>
         -->
-    <include layout="@layout/element_selector"
+    <include
+        layout="@layout/element_selector"
         android:id="@+id/element_selector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true"
-        android:layout_gravity="bottom|center_horizontal"/>
+        android:layout_gravity="bottom|center_horizontal" />
 
 </FrameLayout>

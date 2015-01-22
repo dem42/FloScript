@@ -23,6 +23,13 @@ import com.premature.floscript.scripts.logic.DiagramToScriptCompiler;
 import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.logic.ScriptCompilationException;
 import com.premature.floscript.scripts.logic.ScriptEngine;
+import com.premature.floscript.scripts.ui.diagram.ArrowUiElement;
+import com.premature.floscript.scripts.ui.diagram.Diagram;
+import com.premature.floscript.scripts.ui.diagram.DiagramEditorView;
+import com.premature.floscript.scripts.ui.diagram.DiagramElement;
+import com.premature.floscript.scripts.ui.diagram.DiamondUiElement;
+import com.premature.floscript.scripts.ui.diagram.LogicBlockUiElement;
+import com.premature.floscript.scripts.ui.diagram.OnDiagramEditorListener;
 import com.premature.floscript.util.FloBus;
 import com.squareup.otto.Subscribe;
 
@@ -33,7 +40,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 import static android.view.View.LAYER_TYPE_SOFTWARE;
-import static com.premature.floscript.scripts.ui.DiagramValidator.DiagramValidationEvent;
+import static com.premature.floscript.scripts.ui.diagram.DiagramValidator.DiagramValidationEvent;
 
 /**
  * A simple {@link Fragment} subclass.

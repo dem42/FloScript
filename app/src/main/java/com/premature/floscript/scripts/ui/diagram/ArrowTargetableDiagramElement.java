@@ -1,4 +1,4 @@
-package com.premature.floscript.scripts.ui;
+package com.premature.floscript.scripts.ui.diagram;
 
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -21,7 +21,7 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
     /**
      * This map stores information about where arrows are anchored on this element
      * thread safe might be executed from different
-     * {@link com.premature.floscript.scripts.ui.DiagramEditorView.ElementMover} runnables
+     * {@link DiagramEditorView.ElementMover} runnables
      */
     private final ConcurrentHashMap<ArrowUiElement, ArrowAnchorPoint> mArrowToAnchor;
     private Script script;

@@ -1,4 +1,4 @@
-package com.premature.floscript.scripts.ui;
+package com.premature.floscript.scripts.ui.diagram;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -15,8 +15,6 @@ import android.util.Pair;
 
 import com.premature.floscript.scripts.logic.Condition;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
-
-import static com.premature.floscript.scripts.ui.ArrowTargetableDiagramElement.ArrowAnchorPoint;
 
 /**
  * Created by martin on 04/01/15.
@@ -52,7 +50,7 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
 
     public ArrowUiElement(Diagram diagram, int width, int height) {
         super(diagram, 0f, 0f, width, height);
-        this.mArrowHeadHeight = (int)(2.5f * mHeight);
+        this.mArrowHeadHeight = (int) (2.5f * mHeight);
         this.mArrowHeadWidth = mWidth / 5;
         this.mArrowHeadXPos = mWidth + mArrowHeadWidth;
         this.mArrowHeadYPos = mArrowHeadHeight / 2.0f;
@@ -97,23 +95,24 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         // based on closest anchor to end element
         mStartPoint.unanchor(this);
         mEndPoint.unanchor(this);
-        Pair<ArrowAnchorPoint, ArrowAnchorPoint> startEndAnchors = mStartPoint.connectElement(mEndPoint, this);
+        Pair<ArrowTargetableDiagramElement.ArrowAnchorPoint, ArrowTargetableDiagramElement.ArrowAnchorPoint> startEndAnchors = mStartPoint.connectElement(mEndPoint, this);
 
-        ArrowAnchorPoint startA = startEndAnchors.first;
+        ArrowTargetableDiagramElement.ArrowAnchorPoint startA = startEndAnchors.first;
         this.mXPos = startA.getXPosDip();
         this.mYPos = startA.getYPosDip();
-        ArrowAnchorPoint endA = startEndAnchors.second;
+        ArrowTargetableDiagramElement.ArrowAnchorPoint endA = startEndAnchors.second;
         setDistanceAngAngle(startA.getXPosDip(), startA.getYPosDip(), endA.getXPosDip(), endA.getYPosDip());
     }
 
     private void setDistanceAngAngle(double x1, double y1, double x2, double y2) {
-        double arrowLength = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2)*(y1 - y2));
-        this.mArrowScalingFac = (float)((arrowLength - mArrowHeadWidth) / mWidth);
-        this.mArrowAngleDegs = (float)(RAD_TO_DEG * Math.atan2(y2 - y1, x2 - x1));
+        double arrowLength = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+        this.mArrowScalingFac = (float) ((arrowLength - mArrowHeadWidth) / mWidth);
+        this.mArrowAngleDegs = (float) (RAD_TO_DEG * Math.atan2(y2 - y1, x2 - x1));
     }
 
     /**
      * This method is invoked when the arrow head is dragged on the screen
+     *
      * @param arrowHeadXPosDp the x (mWidth) position of the middle of the arrowhead
      * @param arrowHeadYPosDp the y (mHeight) position of the middle of the arrowhead
      */
@@ -200,8 +199,8 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
             this.setStartPoint(null);
             return;
         }
-        ArrowAnchorPoint arrowAnchorPoint = start.connectArrow(this, (int)this.getXPos(), (int)this.getYPos());
-        Log.d(TAG, "arrow start anchoring  " +  start + " at anchor point " + arrowAnchorPoint);
+        ArrowTargetableDiagramElement.ArrowAnchorPoint arrowAnchorPoint = start.connectArrow(this, (int) this.getXPos(), (int) this.getYPos());
+        Log.d(TAG, "arrow start anchoring  " + start + " at anchor point " + arrowAnchorPoint);
         moveTo(arrowAnchorPoint.getXPosDip(), arrowAnchorPoint.getYPosDip());
         setStartPoint(start);
     }

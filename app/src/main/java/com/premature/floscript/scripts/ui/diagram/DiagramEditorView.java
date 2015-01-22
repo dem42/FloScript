@@ -1,4 +1,4 @@
-package com.premature.floscript.scripts.ui;
+package com.premature.floscript.scripts.ui.diagram;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -12,6 +12,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.premature.floscript.R;
+import com.premature.floscript.scripts.ui.OnElementSelectorListener;
+import com.premature.floscript.scripts.ui.ScriptCollectionActivity;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
 import com.premature.floscript.util.FloBus;
 import com.squareup.otto.Subscribe;

@@ -1,4 +1,4 @@
-package com.premature.floscript.scripts.ui;
+package com.premature.floscript.scripts.ui.diagram;
 
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
@@ -7,8 +7,8 @@ import android.graphics.drawable.Drawable;
  * Created by martin on 05/01/15.
  * <p/>
  * A drawable floscript diagram element which has a position and size. It presents a fluent api for
- * moving the drawable around the canvas with the methods {@link com.premature.floscript.scripts.ui.DiagramElement#moveTo(float, float) moveTo}
- * and {@link com.premature.floscript.scripts.ui.DiagramElement#advanceBy(float, float) advanceBy}
+ * moving the drawable around the canvas with the methods {@link DiagramElement#moveTo(float, float) moveTo}
+ * and {@link DiagramElement#advanceBy(float, float) advanceBy}
  */
 public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>> {
 
@@ -74,6 +74,7 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
 
     /**
      * A mPinned diagram element cannot be moved until its unpinned using {@link #setPinned(boolean)}
+     *
      * @return <code>true</code> if the element is mPinned to the background
      */
     public boolean isPinned() {
@@ -82,6 +83,7 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
 
     /**
      * Change the mPinned state of the element
+     *
      * @param pinned the new mPinned state of the element
      */
     public void setPinned(boolean pinned) {
@@ -89,6 +91,7 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
     }
 
     public abstract void draw(Canvas canvas);
+
     public abstract Drawable getDrawable();
 
     protected final SELF_TYPE self() {

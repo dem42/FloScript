@@ -1,4 +1,4 @@
-package com.premature.floscript.scripts.ui;
+package com.premature.floscript.scripts.ui.diagram;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -33,14 +33,14 @@ public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBloc
     public LogicBlockUiElement(Diagram diagram, int width, int height) {
         super(diagram, 0f, 0f, width, height);
         ArrayList<ArrowAnchorPoint> list = new ArrayList<>();
-        list.add(new ArrowAnchorPoint(0,0, this));
-        list.add(new ArrowAnchorPoint(0,height/2, this));
-        list.add(new ArrowAnchorPoint(0,height, this));
-        list.add(new ArrowAnchorPoint(width/2,0, this));
-        list.add(new ArrowAnchorPoint(width,0, this));
-        list.add(new ArrowAnchorPoint(width,height/2, this));
-        list.add(new ArrowAnchorPoint(width/2,height, this));
-        list.add(new ArrowAnchorPoint(width,height, this));
+        list.add(new ArrowAnchorPoint(0, 0, this));
+        list.add(new ArrowAnchorPoint(0, height / 2, this));
+        list.add(new ArrowAnchorPoint(0, height, this));
+        list.add(new ArrowAnchorPoint(width / 2, 0, this));
+        list.add(new ArrowAnchorPoint(width, 0, this));
+        list.add(new ArrowAnchorPoint(width, height / 2, this));
+        list.add(new ArrowAnchorPoint(width / 2, height, this));
+        list.add(new ArrowAnchorPoint(width, height, this));
         this.mAnchorPoints = Collections.unmodifiableList(list);
         this.setScript(Scripts.getHelloLogic("logic_hello"));
         initShape();

@@ -5,10 +5,10 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.premature.floscript.R;
-import com.premature.floscript.scripts.ui.ArrowTargetableDiagramElement;
-import com.premature.floscript.scripts.ui.ArrowUiElement;
-import com.premature.floscript.scripts.ui.Diagram;
-import com.premature.floscript.scripts.ui.StartUiElement;
+import com.premature.floscript.scripts.ui.diagram.ArrowTargetableDiagramElement;
+import com.premature.floscript.scripts.ui.diagram.ArrowUiElement;
+import com.premature.floscript.scripts.ui.diagram.Diagram;
+import com.premature.floscript.scripts.ui.diagram.StartUiElement;
 import com.premature.floscript.util.ResourceAndFileUtils;
 
 import java.util.HashMap;

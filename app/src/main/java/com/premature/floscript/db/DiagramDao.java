@@ -7,12 +7,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.premature.floscript.scripts.logic.Condition;
-import com.premature.floscript.scripts.ui.ArrowTargetableDiagramElement;
-import com.premature.floscript.scripts.ui.ArrowUiElement;
-import com.premature.floscript.scripts.ui.Diagram;
-import com.premature.floscript.scripts.ui.DiamondUiElement;
-import com.premature.floscript.scripts.ui.LogicBlockUiElement;
-import com.premature.floscript.scripts.ui.StartUiElement;
+import com.premature.floscript.scripts.ui.diagram.ArrowTargetableDiagramElement;
+import com.premature.floscript.scripts.ui.diagram.ArrowUiElement;
+import com.premature.floscript.scripts.ui.diagram.Diagram;
+import com.premature.floscript.scripts.ui.diagram.DiamondUiElement;
+import com.premature.floscript.scripts.ui.diagram.LogicBlockUiElement;
+import com.premature.floscript.scripts.ui.diagram.StartUiElement;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,8 +23,8 @@ import java.util.Map;
 /**
  * Created by martin on 15/01/15.
  * <p/>
- * For storing and retrieving {@link com.premature.floscript.scripts.ui.Diagram} objects which can be rendered onto
- * the {@link com.premature.floscript.scripts.ui.DiagramEditorView}
+ * For storing and retrieving {@link com.premature.floscript.scripts.ui.diagram.Diagram} objects which can be rendered onto
+ * the {@link com.premature.floscript.scripts.ui.diagram.DiagramEditorView}
  */
 public final class DiagramDao {
     private static final String TAG = "DIAGRAM_DAO";
@@ -75,11 +75,10 @@ public final class DiagramDao {
             Long scriptId = null;
             if (diagram.getCompiledDiagram() != null) {
                 long longScriptId = mScriptsDao.saveScript(diagram.getCompiledDiagram());
-                if(longScriptId == -1) {
+                if (longScriptId == -1) {
                     Log.e(TAG, "Failed to insert script " + diagram.getCompiledDiagram());
                     return false;
-                }
-                else {
+                } else {
                     scriptId = longScriptId;
                 }
             }
@@ -152,7 +151,7 @@ public final class DiagramDao {
             // select distinct
             query = getDiagramNamesAsCursor(executable);
             query.moveToFirst();
-            while(!query.isAfterLast()) {
+            while (!query.isAfterLast()) {
                 String diagramName = query.getString(query.getColumnIndex(DIAGRAMS_NAME));
                 Long scriptId = query.getLong(query.getColumnIndex(DIAGRAMS_SCRIPT));
                 namesAndIds.add(new DbUtils.NameAndId(diagramName, scriptId));
@@ -168,6 +167,7 @@ public final class DiagramDao {
 
     /**
      * This function fetches diagram names into a cursor.
+     *
      * @param executable determines whether we only want to fetch executable diagrams (i.e
      *                   ones which have a script)
      * @return
@@ -185,7 +185,7 @@ public final class DiagramDao {
         try {
             query = mDb.getReadableDatabase().query(DIAGRAMS_TABLE, DIAGRAMS_COLUMNS, "name=?", new String[]{name},
                     null, null, "version desc", "1");
-            if(!query.moveToFirst()) {
+            if (!query.moveToFirst()) {
                 return null;
             }
             long diagramId = query.getLong(query.getColumnIndex(DIAGRAMS_ID));
@@ -226,7 +226,7 @@ public final class DiagramDao {
                     diagram.addArrow(arrow);
                     query.moveToNext();
                 }
-        }
+            }
         } finally {
             if (query != null) {
                 query.close();
@@ -241,7 +241,7 @@ public final class DiagramDao {
             query = mDb.getReadableDatabase().query(true, CONNECT_TABLE, CONNECT_COLUMNS,
                     "diagram_id=?", new String[]{Long.toString(diagramId)},
                     null, null, null, null);
-            if(query.moveToFirst()) {
+            if (query.moveToFirst()) {
                 while (!query.isAfterLast()) {
                     Long id = query.getLong(query.getColumnIndex(CONNECT_ID));
                     String type = query.getString(query.getColumnIndex(CONNECT_TYPE));
@@ -252,7 +252,7 @@ public final class DiagramDao {
                     ArrowTargetableDiagramElement<?> connectable = createConnectableFromType(diagram, type);
                     diagram.addConnectable(connectable);
                     if (connectable instanceof StartUiElement) {
-                        diagram.setEntryElement((StartUiElement)connectable);
+                        diagram.setEntryElement((StartUiElement) connectable);
                     }
                     connectable.moveTo(xPos, yPos);
                     connectable.setPinned(pinned == 0 ? false : true);
@@ -269,7 +269,7 @@ public final class DiagramDao {
     }
 
     private ArrowTargetableDiagramElement<?> createConnectableFromType(Diagram diagram, String type) {
-        switch(type) {
+        switch (type) {
             case LogicBlockUiElement.TYPE_TOKEN:
                 return new LogicBlockUiElement(diagram);
             case DiamondUiElement.TYPE_TOKEN:
