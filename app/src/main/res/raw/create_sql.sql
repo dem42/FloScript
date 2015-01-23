@@ -2,7 +2,6 @@
 create table scripts (
     _id integer primary key autoincrement,
     name text not null,
-    version integer not null,
     created integer not null,
     description text,
     diagram_name text,

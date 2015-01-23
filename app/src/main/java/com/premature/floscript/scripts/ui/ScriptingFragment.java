@@ -215,6 +215,9 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
     @Override
     public void saveClicked(String name) {
+        if (!mDiagramEditorView.isDiagramValid()) {
+            return;
+        }
         final Diagram diagram = mDiagramEditorView.getDiagram();
         diagram.setName(name);
         try {

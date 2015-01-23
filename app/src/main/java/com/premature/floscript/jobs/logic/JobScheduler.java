@@ -38,7 +38,6 @@ public final class JobScheduler {
     public JobScheduler(Context context) {
         this.context = context.getApplicationContext();
         this.mAlarmManager = (AlarmManager) this.context.getSystemService(Context.ALARM_SERVICE);
-        registerReceiver(EventTriggerReceiver.class, "android.net.conn.CONNECTIVITY_CHANGE");
     }
 
     private static Map<String, Class<? extends BroadcastReceiver>> eventToReceiver = new HashMap<>();
@@ -48,6 +47,7 @@ public final class JobScheduler {
     static {
         eventActionToCodes.put("android.net.conn.CONNECTIVITY_CHANGE", "CONNECTIVITY_CHANGE");
         codesToEventActions.put("CONNECTIVITY_CHANGE", "android.net.conn.CONNECTIVITY_CHANGE");
+        eventToReceiver.put("android.net.conn.CONNECTIVITY_CHANGE", EventTriggerReceiver.class);
     }
 
     /**
@@ -60,12 +60,13 @@ public final class JobScheduler {
 
 
     public static List<String> getAvailableEventTriggers() {
-        return new ArrayList<>(eventToReceiver.keySet());
+        return new ArrayList<>(codesToEventActions.keySet());
     }
 
     /**
      * Schedule the parameter {@link Job job} for execution based on the values of the triggers
      * held by this job
+     *
      * @param job
      */
     public void scheduleJob(Job job) {
@@ -86,30 +87,31 @@ public final class JobScheduler {
                 long millisWindowDuration = TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
                 if (Build.VERSION.SDK_INT >= 19) {
                     scheduleExactTimeBetween(millisStartWindow, millisWindowDuration, wrapAsIntent(job));
-                }
-                else {
+                } else {
                     scheduleExactTimeAt(millisStartWindow, wrapAsIntent(job));
                 }
 
-            }
-            else {
+            } else {
                 // schedule for next day
             }
         }
         if (job.getEventTrigger() != null) {
-            String eventAction = eventActionToCodes.get(job.getEventTrigger());
-            Log.d(TAG, "Event action trigger is " + eventAction);
+            String eventAction = codesToEventActions.get(job.getEventTrigger());
+            Log.d(TAG, "Event action trigger is " + eventAction + " " + eventToReceiver);
             Class<?> receiver = eventToReceiver.get(eventAction);
-            Log.d(TAG, "Event action trigger is " + eventAction + " recever is " + receiver.getSimpleName());
-            ComponentName componentName = new ComponentName(context.getApplicationContext(), receiver);
-            PackageManager packageManager = context.getApplicationContext().getPackageManager();
-            packageManager.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+            if (receiver != null) {
+                Log.d(TAG, "Event action trigger is " + eventAction + " recever is " + receiver.getSimpleName());
+                ComponentName componentName = new ComponentName(context.getApplicationContext(), receiver);
+                PackageManager packageManager = context.getApplicationContext().getPackageManager();
+                packageManager.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+            }
         }
     }
 
 
     /**
      * Cancel the scheduled job
+     *
      * @param job
      */
     public void descheduleJob(Job job) {

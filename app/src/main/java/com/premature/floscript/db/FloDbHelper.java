@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 public class FloDbHelper extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "floscript_db";
-    public static final int VERSION = 9;
+    public static final int VERSION = 10;
     private static final String TAG = "DB_HELPER";
 
     // singleton db helper
@@ -72,7 +72,7 @@ public class FloDbHelper extends SQLiteOpenHelper {
 
     private void executeCreateStatements(SQLiteDatabase db, String createStatements) {
         Matcher matcher = mCreatePattern.matcher(createStatements);
-        while(matcher.find()) {
+        while (matcher.find()) {
             String group = matcher.group(1).replaceAll("\\s+", " ");
             Log.d(TAG, "Found create statement \"" + group + "\"");
             db.execSQL(group);

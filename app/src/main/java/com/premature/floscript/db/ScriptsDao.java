@@ -21,16 +21,16 @@ public final class ScriptsDao {
 
     public static final String SCRIPTS_ID = "_id";
     public static final String SCRIPTS_NAME = "name";
-    public static final String SCRIPTS_VERSION = "version";
     public static final String SCRIPTS_DESCRIPTION = "description";
     public static final String SCRIPTS_CREATED = "created";
     public static final String SCRIPTS_CODE = "code";
     public static final String SCRIPTS_DIAGRAM_NAME = "diagram_name";
     public static final String SCRIPTS_DIAGRAM_VERSION = "diagram_version";
+    public static final String SCRIPTS_IS_FUNC = "is_function";
     public static final String SCRIPTS_TABLE = "scripts";
     private static final String[] SCRIPTS_COLUMNS = {SCRIPTS_ID, SCRIPTS_NAME,
-            SCRIPTS_VERSION, SCRIPTS_DESCRIPTION, SCRIPTS_CREATED, SCRIPTS_CODE,
-            SCRIPTS_DIAGRAM_NAME, SCRIPTS_DIAGRAM_VERSION};
+            SCRIPTS_DESCRIPTION, SCRIPTS_CREATED, SCRIPTS_CODE,
+            SCRIPTS_DIAGRAM_NAME, SCRIPTS_DIAGRAM_VERSION, SCRIPTS_IS_FUNC};
     private final FloDbHelper mDb;
 
     public ScriptsDao(Context ctx) {
@@ -47,34 +47,17 @@ public final class ScriptsDao {
         columnToValue.put(SCRIPTS_CODE, script.getSourceCode());
         columnToValue.put(SCRIPTS_DIAGRAM_NAME, script.getDiagramName());
         columnToValue.put(SCRIPTS_DIAGRAM_VERSION, script.getDiagramVersion());
+        columnToValue.put(SCRIPTS_IS_FUNC, script.isFunction());
         long id = mDb.getWritableDatabase().insert(SCRIPTS_TABLE, null, columnToValue);
-        script.setId( (id != -1) ? id : null);
+        script.setId((id != -1) ? id : null);
         return id;
-    }
-
-    public void printTestsInDb() {
-        Cursor query = null;
-        try {
-            query = mDb.getReadableDatabase().query(SCRIPTS_TABLE, SCRIPTS_COLUMNS, null, new String[]{}, null, null, null);
-            query.moveToFirst();
-            while(!query.isAfterLast()) {
-                String name = query.getString(query.getColumnIndex(SCRIPTS_NAME));
-                String code = query.getString(query.getColumnIndex(SCRIPTS_CODE));
-                Log.d(TAG, "Script found " + name + ", " + code);
-                query.moveToNext();
-            }
-        } finally {
-            if (query != null) {
-                query.close();
-            }
-        }
     }
 
     public Long getScriptId(Script script) {
         Cursor query = null;
         try {
             query = mDb.getReadableDatabase().query(SCRIPTS_TABLE, new String[]{SCRIPTS_ID}, "name=?", new String[]{script.getName()}, null, null, null);
-            if(query.moveToFirst()) {
+            if (query.moveToFirst()) {
                 return query.getLong(query.getColumnIndex(SCRIPTS_ID));
             }
             return null;
@@ -89,13 +72,14 @@ public final class ScriptsDao {
         Cursor query = null;
         try {
             query = mDb.getReadableDatabase().query(SCRIPTS_TABLE, SCRIPTS_COLUMNS, "_id=?", new String[]{Long.toString(scriptId)}, null, null, null);
-            if(query.moveToFirst()) {
+            if (query.moveToFirst()) {
                 String code = query.getString(query.getColumnIndex(SCRIPTS_CODE));
                 String name = query.getString(query.getColumnIndex(SCRIPTS_NAME));
                 Long id = query.getLong(query.getColumnIndex(SCRIPTS_ID));
                 String diagramName = query.getString(query.getColumnIndex(SCRIPTS_DIAGRAM_NAME));
                 Integer diagramVersion = query.getInt(query.getColumnIndex(SCRIPTS_DIAGRAM_VERSION));
-                Script script = new Script(code, name, true, diagramName, diagramVersion);
+                boolean isFunc = query.getInt(query.getColumnIndex(SCRIPTS_IS_FUNC)) != 0;
+                Script script = new Script(code, name, isFunc, diagramName, diagramVersion);
                 script.setId(id);
                 return script;
             }
@@ -112,14 +96,15 @@ public final class ScriptsDao {
         List<Script> scripts = new ArrayList<>();
         try {
             query = mDb.getReadableDatabase().query(SCRIPTS_TABLE, SCRIPTS_COLUMNS, null, new String[]{}, null, null, "created desc");
-            if(query.moveToFirst()) {
-                while(!query.isAfterLast()) {
+            if (query.moveToFirst()) {
+                while (!query.isAfterLast()) {
                     String code = query.getString(query.getColumnIndex(SCRIPTS_CODE));
                     String name = query.getString(query.getColumnIndex(SCRIPTS_NAME));
                     Long id = query.getLong(query.getColumnIndex(SCRIPTS_ID));
                     String diagramName = query.getString(query.getColumnIndex(SCRIPTS_DIAGRAM_NAME));
                     Integer diagramVersion = query.getInt(query.getColumnIndex(SCRIPTS_DIAGRAM_VERSION));
-                    Script script = new Script(code, name, true, diagramName, diagramVersion);
+                    boolean isFunc = query.getInt(query.getColumnIndex(SCRIPTS_IS_FUNC)) != 0;
+                    Script script = new Script(code, name, isFunc, diagramName, diagramVersion);
                     script.setId(id);
                     scripts.add(script);
                     query.moveToNext();

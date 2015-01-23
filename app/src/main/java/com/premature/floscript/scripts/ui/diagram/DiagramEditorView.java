@@ -47,6 +47,10 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private EditingState mEditingState = EditingState.ELEMENT_EDITING;
     private DiagramValidator mDiagramValidator;
 
+    public boolean isDiagramValid() {
+        return mDiagramValidator.allReachable();
+    }
+
     private enum EditingState {
         ELEMENT_EDITING, ARROW_PLACING, ARROW_PLACED, ARROW_DRAGGING;
     }

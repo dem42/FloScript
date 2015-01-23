@@ -4,9 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,7 +44,7 @@ import butterknife.InjectView;
  * an existing script. It then persists the new job which can then be enabled/disabled
  * from the {@link com.premature.floscript.jobs.ui.JobsFragment}
  */
-public class JobAddEditActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<List<DbUtils.NameAndId>>,
+public class JobAddEditActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<List<DbUtils.NameAndId>>,
         AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "JOB_ADD_ACTIVITY";
@@ -56,6 +56,7 @@ public class JobAddEditActivity extends FragmentActivity implements LoaderManage
     private enum JobActivityMode {
         ADD, EDIT;
     }
+
     private JobActivityMode mMode;
     private boolean mJobEnabled = true;
 
@@ -112,7 +113,7 @@ public class JobAddEditActivity extends FragmentActivity implements LoaderManage
     }
 
     private List<String> withEmptyItem(List<String> availableEventTriggers) {
-        availableEventTriggers.add(null);
+        availableEventTriggers.add(" ");
         return availableEventTriggers;
     }
 
@@ -123,8 +124,7 @@ public class JobAddEditActivity extends FragmentActivity implements LoaderManage
         Integer position = mDiagramNameToPos.get(jobParcel.getScript().getDiagramName());
         if (position != null) {
             mDiagramNameSpinner.setSelection(position);
-        }
-        else {
+        } else {
             Log.e(TAG, "Couldn't locate a position in spinner for job " + jobParcel);
         }
         if (jobParcel.getTimeTrigger() != null) {
@@ -198,8 +198,7 @@ public class JobAddEditActivity extends FragmentActivity implements LoaderManage
         Loader<Object> loader = manager.getLoader(JOB_ADD);
         if (loader == null) {
             manager.initLoader(JOB_ADD, null, this);
-        }
-        else {
+        } else {
             manager.restartLoader(JOB_ADD, null, this);
         }
     }
@@ -281,10 +280,9 @@ public class JobAddEditActivity extends FragmentActivity implements LoaderManage
 
         @Override
         protected void onPostExecute(Boolean dbCallResult) {
-            if(dbCallResult) {
+            if (dbCallResult) {
                 Toast.makeText(applicationContext, "Job saved", Toast.LENGTH_SHORT).show();
-            }
-            else {
+            } else {
                 Toast.makeText(applicationContext, "Failed to save job", Toast.LENGTH_SHORT).show();
             }
         }

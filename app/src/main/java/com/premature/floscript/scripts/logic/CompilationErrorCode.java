@@ -9,7 +9,8 @@ public enum CompilationErrorCode {
     ELEMENT_WITHOUT_SCRIPT("The following element doesn't contain any code."),
     MAX_CHILDREN_REACHED("This element cannot have any more arrows connected."),
     CANNOT_CONNECT_TO_ENTRY("It is not allowed to connect to the entry element."),
-    HAS_ALWAYS_TRUE_LOOP("Adding this arrow would created an infinite loop.");
+    HAS_ALWAYS_TRUE_LOOP("Adding this arrow would created an infinite loop."),
+    NOT_ALL_DIAGRAM_ELEMENTS_ARE_REACHABLE("Some elements in the diagram cannot be reached from the entry node.");
     final String reason;
 
     public String getReason() {

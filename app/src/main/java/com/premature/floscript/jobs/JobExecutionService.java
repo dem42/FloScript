@@ -34,7 +34,7 @@ public class JobExecutionService extends IntentService {
      */
     public static void startActionJob(Context context, String eventActionName) {
         Intent intent = new Intent(context, JobExecutionService.class);
-        intent.setAction(ACTION_TIME);
+        intent.setAction(ACTION_EVENT);
         intent.putExtra(EVENT_NAME, eventActionName);
         context.startService(intent);
     }
@@ -66,7 +66,6 @@ public class JobExecutionService extends IntentService {
             }
         }
     }
-
 
 
     /**

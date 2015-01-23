@@ -1,6 +1,7 @@
 package com.premature.floscript.scripts.ui.diagram;
 
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.util.Pair;
 
 import com.premature.floscript.scripts.logic.CompilationErrorCode;
@@ -17,6 +18,7 @@ import java.util.Set;
  */
 public final class DiagramValidator {
 
+    private static final String TAG = "DIAG_VALIDTR";
     private final DiagramEditorView mEditorView;
 
     public DiagramValidator(DiagramEditorView editorView) {
@@ -25,10 +27,10 @@ public final class DiagramValidator {
 
     public boolean validateArrowAddition(ArrowTargetableDiagramElement<?> startPoint, @Nullable ArrowTargetableDiagramElement<?> endPoint) {
         if (endPoint == null) {
-            return checkAndNotify(startPoint.hasAllArrowsConnected(), CompilationErrorCode.MAX_CHILDREN_REACHED);
+            return checkAndNotify(!startPoint.hasAllArrowsConnected(), CompilationErrorCode.MAX_CHILDREN_REACHED);
         } else {
             if (checkAndNotify(!(endPoint instanceof StartUiElement), CompilationErrorCode.CANNOT_CONNECT_TO_ENTRY)) {
-                return checkAndNotify(hasAlwaysTrueLoop(startPoint, endPoint), CompilationErrorCode.HAS_ALWAYS_TRUE_LOOP);
+                return checkAndNotify(!hasAlwaysTrueLoop(startPoint, endPoint), CompilationErrorCode.HAS_ALWAYS_TRUE_LOOP);
             } else {
                 return false;
             }
@@ -40,14 +42,10 @@ public final class DiagramValidator {
         searchReachable(mEditorView.getDiagram().getEntryElement(), visited, false);
         for (ArrowTargetableDiagramElement<?> connectable : mEditorView.getDiagram().getConnectables()) {
             if (!visited.contains(connectable)) {
-                return false;
+                return checkAndNotify(false, CompilationErrorCode.NOT_ALL_DIAGRAM_ELEMENTS_ARE_REACHABLE);
             }
         }
         return true;
-    }
-
-    public boolean entryElementIsCorrect() {
-        return mEditorView.getDiagram().getEntryElement().getConnectedElements().size() > 0;
     }
 
     private boolean checkAndNotify(boolean result, CompilationErrorCode code) {
@@ -63,28 +61,22 @@ public final class DiagramValidator {
             return false;
         }
         Set<ArrowTargetableDiagramElement<?>> visited = new HashSet<>();
-        return searchReachable(startPoint, visited, true);
+        searchReachable(endPoint, visited, true);
+        return visited.contains(startPoint);
     }
 
-    private boolean searchReachable(ArrowTargetableDiagramElement<?> startPoint,
+    private void searchReachable(ArrowTargetableDiagramElement<?> startPoint,
                                     Set<ArrowTargetableDiagramElement<?>> visited, boolean onlyCheckLogicBlocks) {
+        Log.d(TAG, "For startPoint " + startPoint + " visited are " + visited);
         visited.add(startPoint);
-        boolean reachable = false;
         for (Pair<ArrowTargetableDiagramElement<?>, ?> connected : startPoint.getConnectedElements()) {
             if (onlyCheckLogicBlocks && !(connected.first instanceof LogicBlockUiElement))
                 continue;
             if (visited.contains(connected.first)) {
-                if (onlyCheckLogicBlocks) {
-                    return true;
-                }
             } else {
-                reachable |= searchReachable(connected.first, visited, onlyCheckLogicBlocks);
-                if (onlyCheckLogicBlocks) {
-                    visited.remove(connected.first);
-                }
+                searchReachable(connected.first, visited, onlyCheckLogicBlocks);
             }
         }
-        return reachable;
     }
 
     public static class DiagramValidationEvent {
