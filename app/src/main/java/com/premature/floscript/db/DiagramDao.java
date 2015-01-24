@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.premature.floscript.scripts.logic.Condition;
+import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.ui.diagram.ArrowTargetableDiagramElement;
 import com.premature.floscript.scripts.ui.diagram.ArrowUiElement;
 import com.premature.floscript.scripts.ui.diagram.Diagram;
@@ -134,6 +135,11 @@ public final class DiagramDao {
         columnToValue.put(CONNECT_PINNED, connectable.isPinned());
         columnToValue.put(CONNECT_TYPE, connectable.getTypeDesc());
         if (connectable.getScript() != null) {
+            Script script = connectable.getScript();
+            if (script.getId() == null) {
+                // script needs to be saved first
+                mScriptsDao.saveScript(script);
+            }
             columnToValue.put(CONNECT_SCRIPT, connectable.getScript().getId());
         }
         long id = mDb.getWritableDatabase().insert(CONNECT_TABLE, null, columnToValue);

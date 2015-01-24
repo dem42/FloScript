@@ -121,7 +121,7 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         mJobName.setText(jobParcel.getJobName());
         mJobDesc.setText(jobParcel.getComment());
 
-        Integer position = mDiagramNameToPos.get(jobParcel.getScript().getDiagramName());
+        Integer position = mDiagramNameToPos.get(jobParcel.getScript());
         if (position != null) {
             mDiagramNameSpinner.setSelection(position);
         } else {

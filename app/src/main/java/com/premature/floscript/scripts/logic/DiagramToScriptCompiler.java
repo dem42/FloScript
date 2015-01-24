@@ -48,7 +48,7 @@ public final class DiagramToScriptCompiler {
         depthFirstCompile(entryElement, connectedElements, code, generatedFunNames);
 
         code.append(mCodeShell).append("return function_stack.length == 0;\n}\n");
-        return new Script(code.toString(), diagram.getName(), true, diagram.getName(), diagram.getVersion());
+        return new Script(code.toString(), diagram.getName(), Script.Type.FUNCTION);
     }
 
     private Map<ArrowTargetableDiagramElement<?>, String> generateFunNames(List<ArrowTargetableDiagramElement<?>> connectables) {

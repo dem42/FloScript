@@ -33,7 +33,7 @@ public class ScriptEngine {
 
             // Now evaluate the string we've collected.
             String code = script.getSourceCode();
-            if (script.isFunction()) {
+            if (Script.Type.FUNCTION == script.getType()) {
                 code += "(env);";
             }
 
@@ -51,21 +51,21 @@ public class ScriptEngine {
     }
 
     public static void main(String... args) throws ScriptCompilationException {
-        Script s1 = new Script("java.lang.System.out.println(\"HELLO1\")", "test1", false);
-        Script s2 = new Script("java.lang.System.out.println(\"HELLO2\")", "test2", false);
-        Script s3 = new Script("java.lang.System.out.println(\"HELLO3\")", "test3", false);
+        Script s1 = new Script("java.lang.System.out.println(\"HELLO1\")", "test1");
+        Script s2 = new Script("java.lang.System.out.println(\"HELLO2\")", "test2");
+        Script s3 = new Script("java.lang.System.out.println(\"HELLO3\")", "test3");
         runScript(s1);
 
         System.out.println(Scripts.createFunctionWrapper(s1, "test1", null, null));
         System.out.println(Scripts.createFunctionWrapper(s1, "test1", "test3", null));
         System.out.println(Scripts.createFunctionWrapper(s1, "test1", "yesfun", "nofun"));
 
-        Script s4 = new Script("var z = true; z === true;", "test4", false);
+        Script s4 = new Script("var z = true; z === true;", "test4");
         System.out.println(runScript(s4));
-        Script s5 = new Script("var z = true; z === false;", "test5", false);
+        Script s5 = new Script("var z = true; z === false;", "test5");
         System.out.println(runScript(s5));
 
-        Script s6 = new Script("function hmm() { var i = 1; i++; java.lang.System.out.println(i);}", "test6", true);
+        Script s6 = new Script("function hmm() { var i = 1; i++; java.lang.System.out.println(i);}", "test6", Script.Type.FUNCTION);
         System.out.println(runScript(s6));
     }
 }

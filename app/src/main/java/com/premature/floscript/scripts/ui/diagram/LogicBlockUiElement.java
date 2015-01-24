@@ -8,8 +8,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 
-import com.premature.floscript.scripts.logic.Scripts;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,16 +31,11 @@ public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBloc
     public LogicBlockUiElement(Diagram diagram, int width, int height) {
         super(diagram, 0f, 0f, width, height);
         ArrayList<ArrowAnchorPoint> list = new ArrayList<>();
-        list.add(new ArrowAnchorPoint(0, 0, this));
         list.add(new ArrowAnchorPoint(0, height / 2, this));
-        list.add(new ArrowAnchorPoint(0, height, this));
         list.add(new ArrowAnchorPoint(width / 2, 0, this));
-        list.add(new ArrowAnchorPoint(width, 0, this));
         list.add(new ArrowAnchorPoint(width, height / 2, this));
         list.add(new ArrowAnchorPoint(width / 2, height, this));
-        list.add(new ArrowAnchorPoint(width, height, this));
         this.mAnchorPoints = Collections.unmodifiableList(list);
-        this.setScript(Scripts.getHelloLogic("logic_hello"));
         initShape();
     }
 

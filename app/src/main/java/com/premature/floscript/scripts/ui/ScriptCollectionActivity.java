@@ -37,7 +37,7 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
         AdapterView.OnItemClickListener {
 
     public static final String DIAGRAM_NAME_PARAM = "DIAGRAM_NAME_PARAM";
-    public static final String SCRIPT_ID_PARAM = "SCRIPT_ID_PARAM";
+    public static final String SCRIPT_PARAM = "SCRIPT_PARAM";
     private static final String TAG = "SCRIPT_COLL";
     public static final int LOADER_ID = 12340;
     @InjectView(android.R.id.list)
@@ -86,8 +86,12 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Script script = mScriptCollectionAdapter.getItem(position);
         Log.d(TAG, "Picked script " + script.getName());
+        if (script.getType() == Script.Type.DIAMOND_TEMPLATE || script.getType() == Script.Type.BLOCK_TEMPLATE) {
+            // a template script needs its variables populated
+
+        }
         Intent data = new Intent(getApplicationContext(), MainActivity.class);
-        data.putExtra(SCRIPT_ID_PARAM, script.getId());
+        data.putExtra(SCRIPT_PARAM, script);
         setResult(0, data);
         finish();
     }

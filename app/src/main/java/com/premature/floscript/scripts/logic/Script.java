@@ -2,7 +2,6 @@ package com.premature.floscript.scripts.logic;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
 
 /**
  * Created by martin on 02/01/15.
@@ -13,44 +12,35 @@ public class Script implements Parcelable {
     private final String mSourceCode;
     private final String mName;
     private Long mId;
-    private final boolean mIsFunction;
+    private final Type mType;
+    // the below is a json object that describes the values
+    private final String mVariables;
+    // var types is a json array of type metadata needed by javacode to write into mVariables
+    private final String mVarTypes;
 
-    // optional fields describing the diagram that this
-    // script was created from
-    @Nullable
-    private String mDiagramName;
-    @Nullable
-    private Integer mDiagramVersion;
-
-    public Script(String sourceCode, String name, boolean isFunction) {
-        this(sourceCode, name, isFunction, null, null);
+    public Script(String sourceCode, String name) {
+        this(sourceCode, name, Type.BLOCK);
     }
 
-    public Script(String sourceCode, String name, boolean isFunction, String diagramName, Integer diagramVersion) {
+    public Script(String sourceCode, String name, Type type) {
+        this(sourceCode, name, type, null, null);
+    }
+
+    public Script(String sourceCode, String name, Type type, String variables, String varTypes) {
         this.mSourceCode = sourceCode;
         this.mName = name;
-        this.mDiagramName = diagramName;
-        this.mDiagramVersion = diagramVersion;
-        this.mIsFunction = isFunction;
+        this.mType = type;
+        this.mVariables = variables;
+        this.mVarTypes = varTypes;
     }
 
     private Script(Parcel in) {
         this.mSourceCode = in.readString();
         this.mName = in.readString();
         this.mId = in.readLong();
-        this.mIsFunction = in.readByte() != 0;
-        this.mDiagramName = in.readString();
-        this.mDiagramVersion = (Integer) in.readValue(null);
-    }
-
-    @Nullable
-    public String getDiagramName() {
-        return mDiagramName;
-    }
-
-    @Nullable
-    public int getDiagramVersion() {
-        return mDiagramVersion;
+        this.mType = Type.fromCode(in.readInt());
+        this.mVariables = in.readString();
+        this.mVarTypes = in.readString();
     }
 
     public String getSourceCode() {
@@ -65,8 +55,8 @@ public class Script implements Parcelable {
         return mId;
     }
 
-    public boolean isFunction() {
-        return mIsFunction;
+    public Type getType() {
+        return mType;
     }
 
     public void setId(Long id) {
@@ -79,9 +69,9 @@ public class Script implements Parcelable {
                 "mSourceCode='" + mSourceCode + '\'' +
                 ", mName='" + mName + '\'' +
                 ", mId=" + mId +
-                ", mIsFunction =" + mIsFunction +
-                ", mDiagramName='" + mDiagramName + '\'' +
-                ", mDiagramVersion=" + mDiagramVersion +
+                ", mIsFunction =" + mType +
+                ", mVariables='" + mVariables + '\'' +
+                ", mVarTypes='" + mVarTypes + '\'' +
                 '}';
     }
 
@@ -95,9 +85,9 @@ public class Script implements Parcelable {
         dest.writeString(mSourceCode);
         dest.writeString(mName);
         dest.writeLong(mId);
-        dest.writeByte((byte) (mIsFunction ? 1 : 0));
-        dest.writeString(mDiagramName);
-        dest.writeValue(mDiagramVersion);
+        dest.writeInt(mType.getCode());
+        dest.writeString(mVariables);
+        dest.writeString(mVarTypes);
     }
 
     public static final Parcelable.Creator<Script> CREATOR = new Parcelable.Creator<Script>() {
@@ -110,4 +100,81 @@ public class Script implements Parcelable {
             return new Script[size];
         }
     };
+
+    public String getVariables() {
+        return mVariables;
+    }
+
+    public String getVarTypes() {
+        return mVarTypes;
+    }
+
+    /**
+     * The type of the script determines how it can be used and what happens to and
+     * how it is invoked during execution
+     */
+    public static enum Type {
+        FUNCTION(0),
+        DIAMOND(1),
+        BLOCK(2),
+        DIAMOND_TEMPLATE(3),
+        BLOCK_TEMPLATE(4);
+        final int code;
+
+        Type(int code) {
+            this.code = code;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public static Type fromCode(int code) {
+            switch (code) {
+                case 0:
+                    return FUNCTION;
+                case 1:
+                    return DIAMOND;
+                case 2:
+                    return BLOCK;
+                case 3:
+                    return DIAMOND_TEMPLATE;
+                case 4:
+                    return BLOCK_TEMPLATE;
+                default:
+                    throw new IllegalArgumentException("Unknown code " + code);
+            }
+        }
+    }
+
+    /**
+     * This enum is used on java side to decide how to write/read the variables data
+     */
+    public static enum VarType {
+        STRING(0),
+        INTEGER(1),
+        DATE(2);
+        final int code;
+
+        VarType(int code) {
+            this.code = code;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public static VarType fromCode(int code) {
+            switch (code) {
+                case 0:
+                    return STRING;
+                case 1:
+                    return INTEGER;
+                case 2:
+                    return DATE;
+                default:
+                    throw new IllegalArgumentException("Unknown code " + code);
+            }
+        }
+    }
 }

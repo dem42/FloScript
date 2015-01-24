@@ -48,6 +48,15 @@ public final class DiagramValidator {
         return true;
     }
 
+    public boolean allHaveScripts() {
+        for (ArrowTargetableDiagramElement<?> elem : mEditorView.getDiagram().getConnectables()) {
+            if (elem.getScript() == null) {
+                return checkAndNotify(false, CompilationErrorCode.UNSCRIPTED_ELEMENTS);
+            }
+        }
+        return true;
+    }
+
     private boolean checkAndNotify(boolean result, CompilationErrorCode code) {
         if (!result) {
             FloBus.getInstance().post(new DiagramValidationEvent(code.getReason()));
@@ -66,7 +75,7 @@ public final class DiagramValidator {
     }
 
     private void searchReachable(ArrowTargetableDiagramElement<?> startPoint,
-                                    Set<ArrowTargetableDiagramElement<?>> visited, boolean onlyCheckLogicBlocks) {
+                                 Set<ArrowTargetableDiagramElement<?>> visited, boolean onlyCheckLogicBlocks) {
         Log.d(TAG, "For startPoint " + startPoint + " visited are " + visited);
         visited.add(startPoint);
         for (Pair<ArrowTargetableDiagramElement<?>, ?> connected : startPoint.getConnectedElements()) {

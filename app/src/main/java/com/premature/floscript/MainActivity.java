@@ -92,7 +92,7 @@ public class MainActivity extends ActionBarActivity implements JobsFragment.OnJo
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (data != null) {
-            long scriptId = data.getLongExtra(ScriptCollectionActivity.SCRIPT_ID_PARAM, -1);
+            long scriptId = data.getLongExtra(ScriptCollectionActivity.SCRIPT_PARAM, -1);
             FloBus.getInstance().post(new ScriptAvailableEvent(scriptId != -1 ? scriptId : null));
         }
     }
@@ -102,6 +102,7 @@ public class MainActivity extends ActionBarActivity implements JobsFragment.OnJo
      * for switching the fragments.
      * Based on the implementation in dev.android
      * </p>
+     *
      * @see <a href="http://developer.android.com/guide/topics/ui/actionbar.html">actionbar</a>
      */
     private static class TabListener<F extends Fragment> implements ActionBar.TabListener {
@@ -121,8 +122,7 @@ public class MainActivity extends ActionBarActivity implements JobsFragment.OnJo
                 mFragment = Fragment.instantiate(mActivity, mFragmentClass.getName());
                 // add the mFragment to the holder
                 fragmentTransaction.add(R.id.tab_holder, mFragment, mFragmentClass.getName());
-            }
-            else {
+            } else {
                 fragmentTransaction.attach(mFragment);
             }
         }
