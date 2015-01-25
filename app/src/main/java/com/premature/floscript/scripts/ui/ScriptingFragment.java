@@ -123,7 +123,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         this.mDensity = getResources().getDisplayMetrics().density;
         this.mLogicBlockElement = new LogicBlockUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
         this.mDiamondElement = new DiamondUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
-        this.mArrowElement = new ArrowUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
+        this.mArrowElement = new ArrowUiElement(null, (int) (40 * mDensity), (int) (6 * mDensity));
 
     }
 
@@ -203,6 +203,9 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     }
 
     private void saveDiagram() {
+        if (!mDiagramEditorView.isDiagramValid()) {
+            return;
+        }
         SaveDialog dialog = new SaveDialog();
         dialog.setTargetFragment(this, 1);
         dialog.show(getActivity().getSupportFragmentManager(), "save dialog");
@@ -215,9 +218,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
     @Override
     public void saveClicked(String name) {
-        if (!mDiagramEditorView.isDiagramValid()) {
-            return;
-        }
         final Diagram diagram = mDiagramEditorView.getDiagram();
         diagram.setName(name);
         try {

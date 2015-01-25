@@ -173,7 +173,9 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
     @Override
     public Drawable getDrawable() {
         LayerDrawable arrow = new LayerDrawable(new Drawable[]{mArrowBody, mArrowHead});
-        arrow.setBounds(0, 0, getWidth(), getHeight());
+        mArrowBody.setBounds(0, (mArrowHeadHeight - getHeight()) / 2, getWidth() - mArrowHeadWidth, (mArrowHeadHeight + getHeight()) / 2);
+        mArrowHead.setBounds(getWidth() - mArrowHeadWidth, 0, getWidth(), mArrowHeadHeight);
+        //arrow.setBounds(0, 0, getWidth(), mArrowHeadHeight);
         return arrow;
     }
 
