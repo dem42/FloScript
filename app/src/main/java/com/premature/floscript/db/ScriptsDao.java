@@ -31,7 +31,7 @@ public final class ScriptsDao {
     public static final String SCRIPTS_TABLE = "scripts";
     private static final String[] SCRIPTS_COLUMNS = {SCRIPTS_ID, SCRIPTS_NAME,
             SCRIPTS_DESCRIPTION, SCRIPTS_CREATED, SCRIPTS_CODE,
-            SCRIPTS_VARIABLES, SCRIPTS_TYPE};
+            SCRIPTS_VARIABLES, SCRIPTS_VAR_TYPES, SCRIPTS_TYPE};
     private final FloDbHelper mDb;
 
     public ScriptsDao(Context ctx) {

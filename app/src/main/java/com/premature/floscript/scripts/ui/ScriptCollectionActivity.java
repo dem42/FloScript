@@ -41,6 +41,8 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
     public static final String SCRIPT_PARAM = "SCRIPT_PARAM";
     private static final String TAG = "SCRIPT_COLL";
     public static final int LOADER_ID = 12340;
+    // the selected position inside the grid view
+    private int selectedPosition = 0;
     @InjectView(android.R.id.list)
     GridView mScriptCollection;
 
@@ -85,7 +87,7 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Script script = mScriptCollectionAdapter.getItem(position);
-        mScriptCollection.setSelection(position);
+        selectedPosition = position;
         Log.d(TAG, "Picked script " + script.getName());
         if (script.getType() == Script.Type.DIAMOND_TEMPLATE || script.getType() == Script.Type.BLOCK_TEMPLATE) {
             // a template script needs its variables populated
@@ -100,8 +102,8 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
 
     @Override
     public void variablesParsed(String variables) {
-        int position = mScriptCollection.getSelectedItemPosition();
-        Script script = mScriptCollectionAdapter.getItem(position);
+        Script script = mScriptCollectionAdapter.getItem(selectedPosition);
+        script.setId(null);
         Log.d(TAG, "After parsed finished the picked script is " + script.getName());
         script.setVariables(variables);
         Intent data = new Intent(getApplicationContext(), MainActivity.class);
