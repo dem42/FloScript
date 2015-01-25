@@ -98,7 +98,8 @@ public class DiagramPopupMenu {
             for (MyButton btn : buttons) {
                 if (btn.contains(adjustedX, adjustedY)) {
                     listener.onDiagramMenuItemClick(btn.getName());
-                    break;
+                    // let the caller take care of deactivating the menu
+                    return;
                 }
             }
         }
