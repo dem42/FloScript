@@ -3,6 +3,7 @@ package com.premature.floscript.db;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.premature.floscript.scripts.logic.Script;
@@ -25,6 +26,7 @@ public final class ScriptsDao {
     public static final String SCRIPTS_CREATED = "created";
     public static final String SCRIPTS_CODE = "code";
     public static final String SCRIPTS_VARIABLES = "variables";
+    public static final String SCRIPTS_VAR_TYPES = "var_types";
     public static final String SCRIPTS_TYPE = "type";
     public static final String SCRIPTS_TABLE = "scripts";
     private static final String[] SCRIPTS_COLUMNS = {SCRIPTS_ID, SCRIPTS_NAME,
@@ -37,6 +39,10 @@ public final class ScriptsDao {
     }
 
     public long saveScript(Script script) {
+        return saveScript(script, mDb.getWritableDatabase());
+    }
+
+    static long saveScript(Script script, SQLiteDatabase db) {
         if (script.getId() != null) {
             throw new IllegalArgumentException("The script " + script.getName() + " has already been saved");
         }
@@ -45,8 +51,9 @@ public final class ScriptsDao {
         columnToValue.put(SCRIPTS_CREATED, new Date().getTime());
         columnToValue.put(SCRIPTS_CODE, script.getSourceCode());
         columnToValue.put(SCRIPTS_VARIABLES, script.getVariables());
+        columnToValue.put(SCRIPTS_VAR_TYPES, script.getVarTypes());
         columnToValue.put(SCRIPTS_TYPE, script.getType().getCode());
-        long id = mDb.getWritableDatabase().insert(SCRIPTS_TABLE, null, columnToValue);
+        long id = db.insert(SCRIPTS_TABLE, null, columnToValue);
         script.setId((id != -1) ? id : null);
         return id;
     }
@@ -75,8 +82,9 @@ public final class ScriptsDao {
                 String name = query.getString(query.getColumnIndex(SCRIPTS_NAME));
                 Long id = query.getLong(query.getColumnIndex(SCRIPTS_ID));
                 String variables = query.getString(query.getColumnIndex(SCRIPTS_VARIABLES));
+                String varTypes = query.getString(query.getColumnIndex(SCRIPTS_VAR_TYPES));
                 Script.Type type = Script.Type.fromCode(query.getInt(query.getColumnIndex(SCRIPTS_TYPE)));
-                Script script = new Script(code, name, type, variables);
+                Script script = new Script(code, name, type, variables, varTypes);
                 script.setId(id);
                 return script;
             }
@@ -99,8 +107,9 @@ public final class ScriptsDao {
                     String name = query.getString(query.getColumnIndex(SCRIPTS_NAME));
                     Long id = query.getLong(query.getColumnIndex(SCRIPTS_ID));
                     String variables = query.getString(query.getColumnIndex(SCRIPTS_VARIABLES));
+                    String varTypes = query.getString(query.getColumnIndex(SCRIPTS_VAR_TYPES));
                     Script.Type type = Script.Type.fromCode(query.getInt(query.getColumnIndex(SCRIPTS_TYPE)));
-                    Script script = new Script(code, name, type, variables);
+                    Script script = new Script(code, name, type, variables, varTypes);
                     script.setId(id);
                     scripts.add(script);
                     query.moveToNext();

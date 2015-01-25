@@ -21,6 +21,7 @@ import com.premature.floscript.db.DbUtils;
 import com.premature.floscript.db.ListFromDbLoader;
 import com.premature.floscript.db.ScriptsDao;
 import com.premature.floscript.scripts.logic.Script;
+import com.premature.floscript.scripts.logic.VariablesParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ import butterknife.InjectView;
  * This activity presents a selection of scripts for the user to choose from.
  */
 public class ScriptCollectionActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<List<Script>>,
-        AdapterView.OnItemClickListener {
+        AdapterView.OnItemClickListener, VariablesDialog.OnVariablesListener {
 
     public static final String DIAGRAM_NAME_PARAM = "DIAGRAM_NAME_PARAM";
     public static final String SCRIPT_PARAM = "SCRIPT_PARAM";
@@ -81,15 +82,28 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
         mScriptCollectionAdapter.clear();
     }
 
-
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Script script = mScriptCollectionAdapter.getItem(position);
+        mScriptCollection.setSelection(position);
         Log.d(TAG, "Picked script " + script.getName());
         if (script.getType() == Script.Type.DIAMOND_TEMPLATE || script.getType() == Script.Type.BLOCK_TEMPLATE) {
             // a template script needs its variables populated
-
+            VariablesDialog.showPopup(getSupportFragmentManager(), VariablesParser.createVarsMap(script));
+        } else {
+            Intent data = new Intent(getApplicationContext(), MainActivity.class);
+            data.putExtra(SCRIPT_PARAM, script);
+            setResult(0, data);
+            finish();
         }
+    }
+
+    @Override
+    public void variablesParsed(String variables) {
+        int position = mScriptCollection.getSelectedItemPosition();
+        Script script = mScriptCollectionAdapter.getItem(position);
+        Log.d(TAG, "After parsed finished the picked script is " + script.getName());
+        script.setVariables(variables);
         Intent data = new Intent(getApplicationContext(), MainActivity.class);
         data.putExtra(SCRIPT_PARAM, script);
         setResult(0, data);
@@ -150,10 +164,10 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
     }
 
     public static class ScriptAvailableEvent {
-        public final Long scriptId;
+        public final Script script;
 
-        public ScriptAvailableEvent(Long scriptId) {
-            this.scriptId = scriptId;
+        public ScriptAvailableEvent(Script script) {
+            this.script = script;
         }
     }
 }

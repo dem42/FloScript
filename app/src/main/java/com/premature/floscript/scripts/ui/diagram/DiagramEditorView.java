@@ -145,7 +145,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
     @Subscribe
     public void onScriptAvailable(ScriptCollectionActivity.ScriptAvailableEvent scriptAvailableEvent) {
-        Log.d(TAG, "User chose the script with id " + scriptAvailableEvent.scriptId);
+        Log.d(TAG, "User chose the script with name " + scriptAvailableEvent.script.getName());
     }
 
     @Override

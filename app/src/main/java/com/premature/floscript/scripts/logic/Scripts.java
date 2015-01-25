@@ -12,6 +12,17 @@ public final class Scripts {
     private Scripts() {
     }
 
+    public static final Script LOGIC_OUTUP_TEMP = new Script("java.lang.System.out.println(var.msg)",
+            "output_template", Script.Type.BLOCK_TEMPLATE,
+            "{'msg':'undefined'}", "{'msg':'STRING'}");
+
+    public static final Script DIAMOND_BETWEEN_TIME_TEMP =
+            new Script("var now = Date.now(); " +
+                    "var result = now.getHour() > vars.startHour || (now.getHour() == vars.startHour && now.getMinute() > vars.startMinute;)" +
+                    "result = result && (now.getHour() < vars.endHour || (now.getHour() == vars.endHour && now.getMinute() < vars.endMinute);)",
+                    "between_time_template", Script.Type.DIAMOND_TEMPLATE,
+                    "{'startHour':'undefined','startMinute':'undefined','endHour':'undefined','endMinute':'undefined'}",
+                    "{'startHour':'INT','startMinute':'INT','endHour':'INT','endMinute':'INT'}");
 
     public static final Script ENTRY_POINT_SCRIPT = new Script("", "entryFunction");
 

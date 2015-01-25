@@ -14,7 +14,7 @@ public class Script implements Parcelable {
     private Long mId;
     private final Type mType;
     // the below is a json object that describes the values
-    private final String mVariables;
+    private String mVariables;
     // var types is a json array of type metadata needed by javacode to write into mVariables
     private final String mVarTypes;
 
@@ -109,6 +109,10 @@ public class Script implements Parcelable {
         return mVarTypes;
     }
 
+    public void setVariables(String variables) {
+        this.mVariables = variables;
+    }
+
     /**
      * The type of the script determines how it can be used and what happens to and
      * how it is invoked during execution
@@ -152,7 +156,7 @@ public class Script implements Parcelable {
      */
     public static enum VarType {
         STRING(0),
-        INTEGER(1),
+        INT(1),
         DATE(2);
         final int code;
 
@@ -169,7 +173,7 @@ public class Script implements Parcelable {
                 case 0:
                     return STRING;
                 case 1:
-                    return INTEGER;
+                    return INT;
                 case 2:
                     return DATE;
                 default:

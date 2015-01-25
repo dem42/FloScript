@@ -1,7 +1,7 @@
 -- a script object, which represents executable code (a function for example)
 create table scripts (
     _id integer primary key autoincrement,
-    name text not null,
+    name text not null unique,
     created integer not null,
     description text,
     diagram_name text,

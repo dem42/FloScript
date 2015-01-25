@@ -8,10 +8,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.premature.floscript.jobs.ui.JobsFragment;
+import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.ui.ScriptCollectionActivity;
 import com.premature.floscript.scripts.ui.ScriptingFragment;
 import com.premature.floscript.util.FloBus;
@@ -27,6 +29,8 @@ import static com.premature.floscript.scripts.ui.ScriptCollectionActivity.Script
  * and a {@link com.premature.floscript.scripts.ui.ScriptingFragment}
  */
 public class MainActivity extends ActionBarActivity implements JobsFragment.OnJobsFragmentInteractionListener, ScriptingFragment.OnScriptingFragmentInteractionListener {
+
+    private static final String TAG = "MAIN_ACT";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,8 +96,9 @@ public class MainActivity extends ActionBarActivity implements JobsFragment.OnJo
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (data != null) {
-            long scriptId = data.getLongExtra(ScriptCollectionActivity.SCRIPT_PARAM, -1);
-            FloBus.getInstance().post(new ScriptAvailableEvent(scriptId != -1 ? scriptId : null));
+            Script script = data.getParcelableExtra(ScriptCollectionActivity.SCRIPT_PARAM);
+            Log.d(TAG, "received script" + script.getName());
+            FloBus.getInstance().post(new ScriptAvailableEvent(script));
         }
     }
 
