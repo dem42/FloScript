@@ -17,21 +17,23 @@ public class Script implements Parcelable {
     private String mVariables;
     // var types is a json array of type metadata needed by javacode to write into mVariables
     private String mVarTypes;
+    private String mDescription;
 
     public Script(String sourceCode, String name) {
         this(sourceCode, name, Type.BLOCK);
     }
 
     public Script(String sourceCode, String name, Type type) {
-        this(sourceCode, name, type, null, null);
+        this(sourceCode, name, type, null, null, null);
     }
 
-    public Script(String sourceCode, String name, Type type, String variables, String varTypes) {
+    public Script(String sourceCode, String name, Type type, String variables, String varTypes, String desc) {
         this.mSourceCode = sourceCode;
         this.mName = name;
         this.mType = type;
         this.mVariables = variables;
         this.mVarTypes = varTypes;
+        this.mDescription = desc;
     }
 
     private Script(Parcel in) {
@@ -41,6 +43,7 @@ public class Script implements Parcelable {
         this.mType = Type.fromCode(in.readInt());
         this.mVariables = in.readString();
         this.mVarTypes = in.readString();
+        this.mDescription = in.readString();
     }
 
     public String getSourceCode() {
@@ -66,12 +69,12 @@ public class Script implements Parcelable {
     @Override
     public String toString() {
         return "Script{" +
-                "mSourceCode='" + mSourceCode + '\'' +
-                ", mName='" + mName + '\'' +
+                "mName='" + mName + '\'' +
                 ", mId=" + mId +
                 ", mIsFunction =" + mType +
                 ", mVariables='" + mVariables + '\'' +
                 ", mVarTypes='" + mVarTypes + '\'' +
+                ", mDescription ='" + mDescription + '\'' +
                 '}';
     }
 
@@ -88,6 +91,7 @@ public class Script implements Parcelable {
         dest.writeInt(mType.getCode());
         dest.writeString(mVariables);
         dest.writeString(mVarTypes);
+        dest.writeString(mDescription);
     }
 
     public static final Parcelable.Creator<Script> CREATOR = new Parcelable.Creator<Script>() {
@@ -112,6 +116,14 @@ public class Script implements Parcelable {
 
     public void setVariables(String variables) {
         this.mVariables = variables;
+    }
+
+    public String getDescription() {
+        return mDescription;
+    }
+
+    public void setDescription(String description) {
+        this.mDescription = description;
     }
 
     /**

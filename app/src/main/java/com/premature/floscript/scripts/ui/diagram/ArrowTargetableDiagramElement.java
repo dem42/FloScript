@@ -32,9 +32,9 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
     // the below are used for drawing comments on top of the drawable
     protected final Paint mTextPaint;
     protected String[] wrappedComments;
-    protected float yOffset = 0;
-    protected float xOffset = 0;
     protected float lineHeight = 0;
+    private float yOffset = 0;
+    private float xOffset = 0;
 
     protected ArrowTargetableDiagramElement(Diagram diagram, float xPos, float yPos, int width, int height) {
         super(diagram, xPos, yPos, width, height);
@@ -125,6 +125,14 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
         return getWidth();
     }
 
+    public float getTextXOffset() {
+        return xOffset;
+    }
+
+    public float getTextYOffset() {
+        return yOffset;
+    }
+
     /**
      * Connects an arrow to this diagram element
      *
@@ -141,12 +149,12 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
 
     protected ArrowAnchorPoint getNearestAnchorPoint(int arrowXPosDp, int arrowYPosDp) {
         ArrowAnchorPoint closest = null;
-        int minManhDist = Integer.MAX_VALUE;
+        int minDist = Integer.MAX_VALUE;
         for (ArrowAnchorPoint anchorPoint : getAnchorPoints()) {
-            int manhDist = Math.abs(anchorPoint.getXPosDip() - arrowXPosDp) + Math.abs(anchorPoint.getYPosDip() - arrowYPosDp);
-            if (manhDist < minManhDist) {
-                Log.d(TAG, "Anchor Point " + anchorPoint + " is closer to (" + arrowXPosDp + ", " + arrowYPosDp + ") with " + manhDist + " than " + closest);
-                minManhDist = manhDist;
+            int dist = distance(anchorPoint.getXPosDip(), anchorPoint.getYPosDip(), arrowXPosDp, arrowYPosDp);
+            if (dist < minDist) {
+                Log.d(TAG, "Anchor Point " + anchorPoint + " is closer to (" + arrowXPosDp + ", " + arrowYPosDp + ") with " + dist + " than " + closest);
+                minDist = dist;
                 closest = anchorPoint;
             }
         }
@@ -167,12 +175,12 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
 
         ArrowAnchorPoint bestOur = null;
         ArrowAnchorPoint bestHis = null;
-        int minManhDist = Integer.MAX_VALUE;
+        int minDist = Integer.MAX_VALUE;
         for (ArrowAnchorPoint ourAnchor : ourAnchors) {
             for (ArrowAnchorPoint hisAnchor : hisAnchors) {
-                int manhDist = Math.abs(ourAnchor.getXPosDip() - hisAnchor.getXPosDip()) + Math.abs(ourAnchor.getYPosDip() - hisAnchor.getYPosDip());
-                if (manhDist < minManhDist) {
-                    minManhDist = manhDist;
+                int dist = distance(ourAnchor.getXPosDip(), ourAnchor.getYPosDip(), hisAnchor.getXPosDip(), hisAnchor.getYPosDip());
+                if (dist < minDist) {
+                    minDist = dist;
                     bestOur = ourAnchor;
                     bestHis = hisAnchor;
                 }
@@ -184,6 +192,10 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
         end.mArrowToAnchor.put(arrow, bestHis);
 
         return new Pair<>(bestOur, bestHis);
+    }
+
+    private int distance(int xPosDip1, int yPosDip1, int xPosDip2, int yPosDip2) {
+        return Math.abs(xPosDip1 - xPosDip2) + Math.abs(yPosDip1 - yPosDip2);
     }
 
     /**

@@ -1,6 +1,13 @@
 package com.premature.floscript.scripts.logic;
 
+import android.content.Context;
 import android.support.annotation.Nullable;
+
+import com.premature.floscript.R;
+import com.premature.floscript.util.ResourceAndFileUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by martin on 16/01/15.
@@ -11,18 +18,6 @@ public final class Scripts {
 
     private Scripts() {
     }
-
-    public static final Script LOGIC_OUTUP_TEMP = new Script("java.lang.System.out.println(var.msg)",
-            "output_template", Script.Type.BLOCK_TEMPLATE,
-            "{'msg':'undefined'}", "{'msg':'STRING'}");
-
-    public static final Script DIAMOND_BETWEEN_TIME_TEMP =
-            new Script("var now = Date.now(); " +
-                    "var result = now.getHour() > vars.startHour || (now.getHour() == vars.startHour && now.getMinute() > vars.startMinute;)" +
-                    "result = result && (now.getHour() < vars.endHour || (now.getHour() == vars.endHour && now.getMinute() < vars.endMinute);)",
-                    "between_time_template", Script.Type.DIAMOND_TEMPLATE,
-                    "{'startHour':'undefined','startMinute':'undefined','endHour':'undefined','endMinute':'undefined'}",
-                    "{'startHour':'INT','startMinute':'INT','endHour':'INT','endMinute':'INT'}");
 
     public static final Script ENTRY_POINT_SCRIPT = new Script("", "entryFunction");
 
@@ -57,5 +52,40 @@ public final class Scripts {
         }
         bob.append("}").append("\n");
         return bob.toString();
+    }
+
+    private static Script getScriptFromFile(Context ctx, int rawResourceId) {
+        String fileContents = ResourceAndFileUtils.readFile(ctx, rawResourceId, true);
+        return parseScript(fileContents);
+    }
+
+    private static Script parseScript(String scriptString) {
+        String nameSecLbl = "/*Name Section*/";
+        int nameSection = scriptString.indexOf(nameSecLbl);
+        String typeSecLbl = "/*Type Section*/";
+        int typeSection = scriptString.indexOf(typeSecLbl);
+        String varSecLbl = "/*Var Section*/";
+        int varSection = scriptString.indexOf(varSecLbl);
+        String varTypSecLbl = "/*Var Types Section*/";
+        int varTypeSection = scriptString.indexOf(varTypSecLbl);
+        String codeSecLbl = "/*Code Section*/";
+        int codeSection = scriptString.indexOf(codeSecLbl);
+        String cmtSecLbl = "/*Comment Section*/";
+        int commentSection = scriptString.indexOf(cmtSecLbl);
+        // the +1 is so that we start at the start of the next line
+        String name = scriptString.substring(nameSection + nameSecLbl.length() + 1, typeSection);
+        Script.Type type = Script.Type.valueOf(scriptString.substring(typeSection + typeSecLbl.length() + 1, varSection));
+        String vars = scriptString.substring(varSection + varSecLbl.length() + 1, varTypeSection);
+        String varTypes = scriptString.substring(varTypeSection + varTypSecLbl.length() + 1, codeSection);
+        String code = scriptString.substring(codeSection + codeSecLbl.length() + 1, commentSection);
+        String comment = scriptString.substring(commentSection + cmtSecLbl.length() + 1, scriptString.length());
+        return new Script(code, name, type, vars, varTypes, comment);
+    }
+
+    public static List<Script> getPreinstalledScripts(Context ctx) {
+        List<Script> scripts = new ArrayList<>();
+        scripts.add(getScriptFromFile(ctx, R.raw.output_msg));
+        scripts.add(getScriptFromFile(ctx, R.raw.between_test));
+        return scripts;
     }
 }

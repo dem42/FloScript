@@ -1,0 +1,15 @@
+/* Name Section */
+Between Time Template
+/* Type Section */
+DIAMOND_TEMPLATE
+/* Var Section */
+{'startHour':'undefined','startMinute':'undefined','endHour':'undefined','endMinute':'undefined'}
+/* Var Types Section */
+{'startHour':'INT','startMinute':'INT','endHour':'INT','endMinute':'INT'}
+/* Code Section */
+var now = Date.now();
+var result = now.getHour() > vars.startHour || (now.getHour() == vars.startHour && now.getMinute() > vars.startMinute)
+result = result && (now.getHour() < vars.endHour || (now.getHour() == vars.endHour && now.getMinute() < vars.endMinute))
+/* Comment Section */
+now >= ${startHour}:${startMinute}
+ and now <= ${endHour}:${endMinute}

@@ -6,9 +6,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import com.premature.floscript.R;
+import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.logic.Scripts;
 import com.premature.floscript.util.ResourceAndFileUtils;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -56,10 +58,11 @@ public class FloDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         executeCreateStatements(db, ResourceAndFileUtils.readSqlFile(mContext, R.raw.create_sql));
-
+        List<Script> preinstalledScripts = Scripts.getPreinstalledScripts(mContext);
         // save some basic scripts
-        ScriptsDao.saveScript(Scripts.DIAMOND_BETWEEN_TIME_TEMP, db);
-        ScriptsDao.saveScript(Scripts.LOGIC_OUTUP_TEMP, db);
+        for (Script script : preinstalledScripts) {
+            ScriptsDao.saveScript(script, db);
+        }
     }
 
     @Override

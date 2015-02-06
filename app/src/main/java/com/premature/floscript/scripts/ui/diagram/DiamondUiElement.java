@@ -63,13 +63,35 @@ public final class DiamondUiElement extends ArrowTargetableDiagramElement<Diamon
         mDiamond.setBounds(0, 0, mWidth, mHeight);
     }
 
+    // we want the string to fit inside the diamond so we manipulate the offsets
+    @Override
+    public float getTextXOffset() {
+        return super.getTextXOffset() + getWidth() / 4f;
+    }
+
+    @Override
+    public float getTextYOffset() {
+        return super.getTextYOffset() + getHeight() / 4f;
+    }
+
+    // we want the string to fit inside the diamond so we manipulate the offsets
+    @Override
+    public int getTextHeight() {
+        return (int) (3f * getHeight() / 4f);
+    }
+
+    @Override
+    public int getTextWidth() {
+        return (int) (3f * getWidth() / 4f);
+    }
+
     @Override
     public void draw(Canvas canvas) {
         int saveCount = canvas.save();
         canvas.translate(mXPos, mYPos);
         mDiamond.draw(canvas);
         if (getScript() != null) {
-            FloDrawableUtils.drawTextCentredNonThreadSafe(canvas, mTextPaint, wrappedComments, xOffset, yOffset, lineHeight);
+            FloDrawableUtils.drawTextCentredNonThreadSafe(canvas, mTextPaint, wrappedComments, getTextXOffset(), getTextYOffset(), lineHeight);
         }
         canvas.restoreToCount(saveCount);
     }

@@ -50,6 +50,7 @@ public final class ScriptsDao {
         columnToValue.put(SCRIPTS_NAME, script.getName());
         columnToValue.put(SCRIPTS_CREATED, new Date().getTime());
         columnToValue.put(SCRIPTS_CODE, script.getSourceCode());
+        columnToValue.put(SCRIPTS_DESCRIPTION, script.getDescription());
         columnToValue.put(SCRIPTS_VARIABLES, script.getVariables());
         columnToValue.put(SCRIPTS_VAR_TYPES, script.getVarTypes());
         columnToValue.put(SCRIPTS_TYPE, script.getType().getCode());
@@ -80,11 +81,12 @@ public final class ScriptsDao {
             if (query.moveToFirst()) {
                 String code = query.getString(query.getColumnIndex(SCRIPTS_CODE));
                 String name = query.getString(query.getColumnIndex(SCRIPTS_NAME));
+                String desc = query.getString(query.getColumnIndex(SCRIPTS_DESCRIPTION));
                 Long id = query.getLong(query.getColumnIndex(SCRIPTS_ID));
                 String variables = query.getString(query.getColumnIndex(SCRIPTS_VARIABLES));
                 String varTypes = query.getString(query.getColumnIndex(SCRIPTS_VAR_TYPES));
                 Script.Type type = Script.Type.fromCode(query.getInt(query.getColumnIndex(SCRIPTS_TYPE)));
-                Script script = new Script(code, name, type, variables, varTypes);
+                Script script = new Script(code, name, type, variables, varTypes, desc);
                 script.setId(id);
                 return script;
             }
@@ -105,11 +107,12 @@ public final class ScriptsDao {
                 while (!query.isAfterLast()) {
                     String code = query.getString(query.getColumnIndex(SCRIPTS_CODE));
                     String name = query.getString(query.getColumnIndex(SCRIPTS_NAME));
+                    String desc = query.getString(query.getColumnIndex(SCRIPTS_DESCRIPTION));
                     Long id = query.getLong(query.getColumnIndex(SCRIPTS_ID));
                     String variables = query.getString(query.getColumnIndex(SCRIPTS_VARIABLES));
                     String varTypes = query.getString(query.getColumnIndex(SCRIPTS_VAR_TYPES));
                     Script.Type type = Script.Type.fromCode(query.getInt(query.getColumnIndex(SCRIPTS_TYPE)));
-                    Script script = new Script(code, name, type, variables, varTypes);
+                    Script script = new Script(code, name, type, variables, varTypes, desc);
                     script.setId(id);
                     scripts.add(script);
                     query.moveToNext();

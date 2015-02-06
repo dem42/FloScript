@@ -71,7 +71,7 @@ public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBloc
         canvas.translate(mXPos, mYPos);
         mLogicBlock.draw(canvas);
         if (getScript() != null) {
-            FloDrawableUtils.drawTextCentredNonThreadSafe(canvas, mTextPaint, wrappedComments, xOffset, yOffset, lineHeight);
+            FloDrawableUtils.drawTextCentredNonThreadSafe(canvas, mTextPaint, wrappedComments, getTextXOffset(), getTextYOffset(), lineHeight);
         }
         canvas.restoreToCount(saveCount);
     }

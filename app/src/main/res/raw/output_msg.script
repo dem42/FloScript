@@ -1,0 +1,12 @@
+/* Name Section */
+Output Message Template
+/* Type Section */
+BLOCK_TEMPLATE
+/* Var Section */
+{'msg':'undefined'}
+/* Var Types Section */
+{'msg':'STRING'}
+/* Code Section */
+java.lang.System.out.println(var.msg)
+/* Comment Section */
+print ${msg}
