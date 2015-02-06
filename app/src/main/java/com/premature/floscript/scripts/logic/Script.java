@@ -2,6 +2,7 @@ package com.premature.floscript.scripts.logic;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 
 import java.util.Map;
 
@@ -108,10 +109,12 @@ public class Script implements Parcelable {
         }
     };
 
+    @Nullable
     public String getVariables() {
         return mVariables;
     }
 
+    @Nullable
     public String getVarTypes() {
         return mVarTypes;
     }
@@ -121,6 +124,7 @@ public class Script implements Parcelable {
         populateDescriptionFromVariables();
     }
 
+    @Nullable
     public String getDescription() {
         return mDescription;
     }

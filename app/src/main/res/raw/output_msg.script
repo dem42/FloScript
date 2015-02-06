@@ -7,6 +7,6 @@ BLOCK_TEMPLATE
 /* Var Types Section */
 {'msg':'STRING'}
 /* Code Section */
-java.lang.System.out.println(var.msg)
+com.premature.floscript.scripts.logic.FloJsApi.logMessage(vars.msg);
 /* Comment Section */
 print ${msg}

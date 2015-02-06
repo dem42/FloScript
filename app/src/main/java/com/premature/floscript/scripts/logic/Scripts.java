@@ -27,15 +27,19 @@ public final class Scripts {
             throw new ScriptCompilationException(CompilationErrorCode.ELEMENT_WITHOUT_SCRIPT, "Element = " + functionName);
         }
         StringBuilder bob = new StringBuilder("function " + functionName + " (env) {\n");
-
-        if (!codeToWrap.getVariables().isEmpty()) {
-            bob.append(codeToWrap.getVariables()).append("\n");
+        if (codeToWrap.getVariables() != null && !codeToWrap.getVariables().isEmpty()) {
+            bob.append("var vars = ").append(codeToWrap.getVariables()).append(";\n");
         }
-
         if (!codeToWrap.getSourceCode().isEmpty()) {
-            bob.append(codeToWrap.getSourceCode()).append("\n");
+            if (Script.Type.FUNCTION == codeToWrap.getType()) {
+                bob.append("(");
+                bob.append(codeToWrap.getSourceCode());
+                bob.append(")(env);");
+            } else {
+                bob.append(codeToWrap.getSourceCode());
+            }
+            bob.append("\n");
         }
-
         if (yesOrDefaultScript != null && noScript != null) {
             bob.append("  if (result === true) { ").append("\n")
                     .append("    env.execute(" + yesOrDefaultScript).append(");").append("\n")

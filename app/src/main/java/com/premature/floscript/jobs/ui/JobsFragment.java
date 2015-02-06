@@ -23,13 +23,13 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.premature.floscript.R;
-
 import com.premature.floscript.db.DbUtils;
 import com.premature.floscript.db.JobsDao;
 import com.premature.floscript.db.ListFromDbLoader;
 import com.premature.floscript.db.ScriptsDao;
 import com.premature.floscript.jobs.logic.Job;
 import com.premature.floscript.jobs.logic.JobScheduler;
+import com.premature.floscript.scripts.logic.ScriptEngine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -174,6 +174,9 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
                     if (id == R.id.action_job_edit) {
                         editJob(job);
                         return true;
+                    } else if (id == R.id.action_job_execute) {
+                        executeJob(job);
+                        return true;
                     }
                     else if (id == R.id.action_job_toggle_enabled) {
                         toggleEnabled(job, view);
@@ -189,6 +192,10 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
             Log.d(TAG, "clicked on jobContent " + jobContent);
             mListener.onJobsFragmentInteraction(job.toString());
         }
+    }
+
+    private void executeJob(Job job) {
+        ScriptEngine.runScript(job.getScript());
     }
 
     private void toggleEnabled(Job job, View viewOfJob) {

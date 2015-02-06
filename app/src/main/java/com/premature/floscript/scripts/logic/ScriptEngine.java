@@ -34,7 +34,7 @@ public class ScriptEngine {
             // Now evaluate the string we've collected.
             String code = script.getSourceCode();
             if (Script.Type.FUNCTION == script.getType()) {
-                code += "(env);";
+                code = "(" + code + ")();";
             }
 
             Object result = cx.evaluateString(scope, code, "<test-script>", 1, null);

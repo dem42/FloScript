@@ -13,5 +13,6 @@
     <string name="action_job_edit">Edit</string>
     <string name="action_job_disable">Disable</string>
     <string name="action_job_enable">Enable</string>
+    <string name="action_job_execute">Execute</string>
 
 </resources>
