@@ -8,6 +8,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 
+import com.premature.floscript.util.FloDrawableUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,9 +59,9 @@ public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBloc
         logicBlockShape = new PathShape(logicBlockPath, 2f, 2f);
         mLogicBlock = new ShapeDrawable(logicBlockShape);
         mLogicBlock.getPaint().setAntiAlias(true);
-        mLogicBlock.getPaint().setStyle(Paint.Style.STROKE);
+        mLogicBlock.getPaint().setStyle(Paint.Style.FILL);
         mLogicBlock.getPaint().setStrokeWidth(0.05f);
-        mLogicBlock.getPaint().setColor(Color.GREEN);
+        mLogicBlock.getPaint().setColor(Color.WHITE);
         mLogicBlock.setBounds(0, 0, mWidth, mHeight);
     }
 
@@ -68,6 +70,9 @@ public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBloc
         int saveCount = canvas.save();
         canvas.translate(mXPos, mYPos);
         mLogicBlock.draw(canvas);
+        if (getScript() != null) {
+            FloDrawableUtils.drawTextCentredNonThreadSafe(canvas, mTextPaint, wrappedComments, xOffset, yOffset, lineHeight);
+        }
         canvas.restoreToCount(saveCount);
     }
 

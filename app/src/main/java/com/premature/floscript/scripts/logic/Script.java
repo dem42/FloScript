@@ -16,7 +16,7 @@ public class Script implements Parcelable {
     // the below is a json object that describes the values
     private String mVariables;
     // var types is a json array of type metadata needed by javacode to write into mVariables
-    private final String mVarTypes;
+    private String mVarTypes;
 
     public Script(String sourceCode, String name) {
         this(sourceCode, name, Type.BLOCK);
@@ -37,7 +37,7 @@ public class Script implements Parcelable {
     private Script(Parcel in) {
         this.mSourceCode = in.readString();
         this.mName = in.readString();
-        this.mId = in.readLong();
+        this.mId = (Long) in.readValue(null);
         this.mType = Type.fromCode(in.readInt());
         this.mVariables = in.readString();
         this.mVarTypes = in.readString();
@@ -84,7 +84,7 @@ public class Script implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mSourceCode);
         dest.writeString(mName);
-        dest.writeLong(mId);
+        dest.writeValue(mId);
         dest.writeInt(mType.getCode());
         dest.writeString(mVariables);
         dest.writeString(mVarTypes);
@@ -95,6 +95,7 @@ public class Script implements Parcelable {
         public Script createFromParcel(Parcel source) {
             return new Script(source);
         }
+
         @Override
         public Script[] newArray(int size) {
             return new Script[size];

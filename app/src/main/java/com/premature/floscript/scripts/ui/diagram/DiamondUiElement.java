@@ -8,6 +8,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 
+import com.premature.floscript.util.FloDrawableUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,8 +22,8 @@ import java.util.List;
 public final class DiamondUiElement extends ArrowTargetableDiagramElement<DiamondUiElement> {
     public static final String TYPE_TOKEN = "DIAMOND";
 
-    private static final int DEFAULT_WIDTH = 50;
-    private static final int DEFAULT_HEIGHT = 60;
+    private static final int DEFAULT_WIDTH = 70;
+    private static final int DEFAULT_HEIGHT = 90;
     private final List<ArrowTargetableDiagramElement.ArrowAnchorPoint> mAnchorPoints;
     private Path diamondPath;
     private PathShape diamondShape;
@@ -53,9 +55,8 @@ public final class DiamondUiElement extends ArrowTargetableDiagramElement<Diamon
         diamondShape = new PathShape(diamondPath, 2, 6f);
         mDiamond = new ShapeDrawable(diamondShape);
 
-        mDiamond.getPaint().setColor(Color.GREEN);
-        ;
-        mDiamond.getPaint().setStyle(Paint.Style.STROKE);
+        mDiamond.getPaint().setColor(Color.WHITE);
+        mDiamond.getPaint().setStyle(Paint.Style.FILL);
         // this value is in pixels, but canvas conversions apply to it too
         mDiamond.getPaint().setStrokeWidth(0.05f);
         mDiamond.getPaint().setAntiAlias(true);
@@ -67,6 +68,9 @@ public final class DiamondUiElement extends ArrowTargetableDiagramElement<Diamon
         int saveCount = canvas.save();
         canvas.translate(mXPos, mYPos);
         mDiamond.draw(canvas);
+        if (getScript() != null) {
+            FloDrawableUtils.drawTextCentredNonThreadSafe(canvas, mTextPaint, wrappedComments, xOffset, yOffset, lineHeight);
+        }
         canvas.restoreToCount(saveCount);
     }
 

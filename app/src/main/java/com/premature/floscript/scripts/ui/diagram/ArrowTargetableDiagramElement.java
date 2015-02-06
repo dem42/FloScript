@@ -1,5 +1,9 @@
 package com.premature.floscript.scripts.ui.diagram;
 
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
@@ -25,10 +29,22 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
      */
     private final ConcurrentHashMap<ArrowUiElement, ArrowAnchorPoint> mArrowToAnchor;
     private Script script;
+    // the below are used for drawing comments on top of the drawable
+    protected final Paint mTextPaint;
+    protected String[] wrappedComments;
+    protected float yOffset = 0;
+    protected float xOffset = 0;
+    protected float lineHeight = 0;
 
     protected ArrowTargetableDiagramElement(Diagram diagram, float xPos, float yPos, int width, int height) {
         super(diagram, xPos, yPos, width, height);
         mArrowToAnchor = new ConcurrentHashMap<>();
+
+        mTextPaint = new Paint();
+        mTextPaint.setStyle(Paint.Style.FILL);
+        mTextPaint.setColor(Color.BLACK);
+        mTextPaint.setTextSize(15);
+        mTextPaint.setTypeface(Typeface.MONOSPACE);
     }
 
     public abstract Iterable<ArrowAnchorPoint> getAnchorPoints();
@@ -77,6 +93,7 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
 
     public void setScript(Script script) {
         this.script = script;
+        updateComments(script.getName());
     }
 
     @Override
@@ -100,10 +117,12 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
         return self();
     }
 
-    private void refreshConnectedArrows() {
-        for (ArrowUiElement connectedArrow : mArrowToAnchor.keySet()) {
-            connectedArrow.onDiagramElementEndpointChange();
-        }
+    public int getTextHeight() {
+        return getHeight();
+    }
+
+    public int getTextWidth() {
+        return getWidth();
     }
 
     /**
@@ -180,6 +199,62 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
     public boolean hasAllArrowsConnected() {
         // the default implementation is to allow just one connected element
         return getConnectedElements().size() >= 1;
+    }
+
+    private void refreshConnectedArrows() {
+        for (ArrowUiElement connectedArrow : mArrowToAnchor.keySet()) {
+            connectedArrow.onDiagramElementEndpointChange();
+        }
+    }
+
+    private void updateComments(String text) {
+        final Rect bounds = new Rect();
+        final float length = bounds.width();
+        final StringBuilder sb = new StringBuilder(text);
+        final int textWidth = getWidth();
+        final int parts = (int) Math.ceil(length / textWidth);
+        final int charsInPart = Math.max(1, (int) Math.floor((1f * text.length()) / parts));
+
+        int inserted = 0;
+        int pos = charsInPart;
+        int last_pos = 0;
+        mTextPaint.getTextBounds(text, 0, text.length(), bounds);
+        Log.d(TAG, "measured width for " + text + " is " + length + " width " + textWidth + " " +
+                parts + " " + charsInPart);
+
+        while (pos < text.length()) {
+            int nEol = text.indexOf('\n', last_pos);
+            int nSpc = text.indexOf(' ', last_pos);
+            int nextPos = Math.min(nSpc == -1 ? Integer.MAX_VALUE : nSpc, nEol == -1 ? Integer.MAX_VALUE : nEol);
+            if (nextPos <= pos) {
+                if (text.charAt(nextPos) == ' ') {
+                    sb.insert(nextPos + inserted, '\n');
+                    inserted++;
+                }
+                last_pos = nextPos;
+            } else {
+                sb.insert(pos + inserted, "-\n");
+                inserted += 2;
+                last_pos = pos;
+            }
+            pos = last_pos + charsInPart;
+        }
+        final String[] cparts = sb.toString().split("\n");
+        final int height = bounds.height();
+        final int textHeight = getHeight();
+        final int linesThatFit = Math.min(cparts.length, Math.max((int) Math.floor((1f * textHeight) / height), 1));
+        wrappedComments = new String[linesThatFit];
+        for (int i = 0; i < linesThatFit; i++) {
+            wrappedComments[i] = cparts[i];
+        }
+        lineHeight = height;
+
+        Log.d(TAG, "line height " + height + " lines all height " + linesThatFit * height + " getHeight " + textHeight);
+        yOffset = Math.max(0, (textHeight - linesThatFit * height) / 2);
+        xOffset = textWidth / 2;
+        for (int i = 0; i < wrappedComments.length; i++) {
+            xOffset = Math.min((textWidth - mTextPaint.measureText(wrappedComments[i])) / 2f, xOffset);
+        }
     }
 
     /**
