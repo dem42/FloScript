@@ -102,6 +102,10 @@ public class VariablesDialog extends DialogFragment {
                         case STRING:
                             object.add(entry.getKey(), new JsonPrimitive(((EditText) viewPair.first).getText().toString()));
                             break;
+                        case INT:
+                            EditText editText = (EditText) viewPair.first;
+                            object.add(entry.getKey(), new JsonPrimitive(Integer.parseInt(editText.getText().toString())));
+                            break;
                         default:
                             throw new UnsupportedOperationException("Unsuported type " + viewPair.second);
                     }
@@ -124,10 +128,10 @@ public class VariablesDialog extends DialogFragment {
                 lbl.setText(label);
                 return view.findViewById(R.id.variable_item_string_in);
             case INT:
-                view = getActivity().getLayoutInflater().inflate(R.layout.string_script_variable_item, layout, true);
-                lbl = (TextView) view.findViewById(R.id.variable_item_string);
+                view = getActivity().getLayoutInflater().inflate(R.layout.int_script_variable_item, layout, true);
+                lbl = (TextView) view.findViewById(R.id.variable_item_int);
                 lbl.setText(label);
-                return view.findViewById(R.id.variable_item_string_in);
+                return view.findViewById(R.id.variable_item_int_in);
         }
         return null;
     }
@@ -150,7 +154,6 @@ public class VariablesDialog extends DialogFragment {
         obj.add("test2", new JsonPrimitive(1));
         String json = gson.toJson(obj);
         System.out.println("Using Gson.toJson() on a raw collection: " + json);
-        //org.mozilla.javascript.json.JsonParser p2 = new org.mozilla.javascript.json.JsonParser();
         JsonParser parser = new JsonParser();
         JsonObject obj2 = parser.parse(json).getAsJsonObject();
         System.out.println(obj2.entrySet());

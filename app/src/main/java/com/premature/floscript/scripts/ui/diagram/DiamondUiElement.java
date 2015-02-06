@@ -77,12 +77,12 @@ public final class DiamondUiElement extends ArrowTargetableDiagramElement<Diamon
     // we want the string to fit inside the diamond so we manipulate the offsets
     @Override
     public int getTextHeight() {
-        return (int) (3f * getHeight() / 4f);
+        return (int) (getHeight() / 2f);
     }
 
     @Override
     public int getTextWidth() {
-        return (int) (3f * getWidth() / 4f);
+        return (int) (getWidth() / 2f);
     }
 
     @Override
@@ -91,7 +91,7 @@ public final class DiamondUiElement extends ArrowTargetableDiagramElement<Diamon
         canvas.translate(mXPos, mYPos);
         mDiamond.draw(canvas);
         if (getScript() != null) {
-            FloDrawableUtils.drawTextCentredNonThreadSafe(canvas, mTextPaint, wrappedComments, getTextXOffset(), getTextYOffset(), lineHeight);
+            FloDrawableUtils.drawMultilineText(canvas, mTextPaint, wrappedComments, getTextXOffset(), getTextYOffset(), lineHeight);
         }
         canvas.restoreToCount(saveCount);
     }

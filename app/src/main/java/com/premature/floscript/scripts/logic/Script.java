@@ -3,6 +3,8 @@ package com.premature.floscript.scripts.logic;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Map;
+
 /**
  * Created by martin on 02/01/15.
  * <p/>
@@ -116,14 +118,19 @@ public class Script implements Parcelable {
 
     public void setVariables(String variables) {
         this.mVariables = variables;
+        populateDescriptionFromVariables();
     }
 
     public String getDescription() {
         return mDescription;
     }
 
-    public void setDescription(String description) {
-        this.mDescription = description;
+    private void populateDescriptionFromVariables() {
+        Map<String, String> varValueMap = VariablesParser.createVarValueMap(this);
+        for (Map.Entry<String, String> varToVal : varValueMap.entrySet()) {
+            String varKey = "${" + varToVal.getKey() + "}";
+            mDescription = mDescription.replace(varKey, varToVal.getValue());
+        }
     }
 
     /**

@@ -41,7 +41,7 @@ public final class StartUiElement extends ArrowTargetableDiagramElement<StartUiE
     private void init() {
         outsideCircle = new ShapeDrawable(new OvalShape());
         innerCircle = new ShapeDrawable(new OvalShape());
-        outsideCircle.getPaint().setColor(Color.GREEN);
+        outsideCircle.getPaint().setColor(Color.WHITE);
         outsideCircle.getPaint().setAntiAlias(true);
         outsideCircle.getPaint().setStyle(Paint.Style.FILL);
 
@@ -50,7 +50,7 @@ public final class StartUiElement extends ArrowTargetableDiagramElement<StartUiE
         innerCircle.getPaint().setStyle(Paint.Style.FILL);
 
         outsideCircle.setBounds(0, 0, mWidth, mHeight);
-        innerCircle.setBounds(0, 0, mWidth /3, mHeight /3);
+        innerCircle.setBounds(0, 0, mWidth / 3, mHeight / 3);
     }
 
     @Override
@@ -58,7 +58,7 @@ public final class StartUiElement extends ArrowTargetableDiagramElement<StartUiE
         int savePoint = canvas.save();
         canvas.translate(mXPos, mYPos);
         outsideCircle.draw(canvas);
-        canvas.translate(mWidth /2 - mWidth /6, mHeight /2 - mHeight /6);
+        canvas.translate(mWidth / 2 - mWidth / 6, mHeight / 2 - mHeight / 6);
         innerCircle.draw(canvas);
         canvas.restoreToCount(savePoint);
     }

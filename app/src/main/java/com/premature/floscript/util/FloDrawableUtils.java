@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
@@ -16,15 +15,12 @@ public final class FloDrawableUtils {
     private FloDrawableUtils() {
     }
 
-    private static Rect TEXT_BOUNDS = new Rect();
-
     /**
-     * This draws text centered vertically with the appropriate margin along the x axis too
-     * NOT THREAD SAFE because it caches the text bounds
+     * Draws multiline text
      */
-    public static void drawTextCentredNonThreadSafe(Canvas canvas, Paint paint, String[] multiLineText,
-                                                    float xOff, float yOff, float lineHeight) {
-        float yOffset = 0;
+    public static void drawMultilineText(Canvas canvas, Paint paint, String[] multiLineText,
+                                         float xOff, float yOff, float lineHeight) {
+        float yOffset = -paint.ascent(); // to make text have a top baseline
         for (String text : multiLineText) {
             canvas.drawText(text, xOff, yOff + yOffset, paint);
             yOffset += lineHeight;

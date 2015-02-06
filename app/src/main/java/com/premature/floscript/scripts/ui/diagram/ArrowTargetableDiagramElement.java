@@ -11,6 +11,7 @@ import android.util.Pair;
 import com.premature.floscript.scripts.logic.Script;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -43,7 +44,7 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
         mTextPaint = new Paint();
         mTextPaint.setStyle(Paint.Style.FILL);
         mTextPaint.setColor(Color.BLACK);
-        mTextPaint.setTextSize(15);
+        mTextPaint.setTextSize(10);
         mTextPaint.setTypeface(Typeface.MONOSPACE);
     }
 
@@ -93,7 +94,7 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
 
     public void setScript(Script script) {
         this.script = script;
-        updateComments(script.getName());
+        updateComments(script.getDescription());
     }
 
     @Override
@@ -149,9 +150,9 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
 
     protected ArrowAnchorPoint getNearestAnchorPoint(int arrowXPosDp, int arrowYPosDp) {
         ArrowAnchorPoint closest = null;
-        int minDist = Integer.MAX_VALUE;
+        double minDist = Integer.MAX_VALUE;
         for (ArrowAnchorPoint anchorPoint : getAnchorPoints()) {
-            int dist = distance(anchorPoint.getXPosDip(), anchorPoint.getYPosDip(), arrowXPosDp, arrowYPosDp);
+            double dist = distance(anchorPoint.getXPosDip(), anchorPoint.getYPosDip(), arrowXPosDp, arrowYPosDp);
             if (dist < minDist) {
                 Log.d(TAG, "Anchor Point " + anchorPoint + " is closer to (" + arrowXPosDp + ", " + arrowYPosDp + ") with " + dist + " than " + closest);
                 minDist = dist;
@@ -175,10 +176,10 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
 
         ArrowAnchorPoint bestOur = null;
         ArrowAnchorPoint bestHis = null;
-        int minDist = Integer.MAX_VALUE;
+        double minDist = Integer.MAX_VALUE;
         for (ArrowAnchorPoint ourAnchor : ourAnchors) {
             for (ArrowAnchorPoint hisAnchor : hisAnchors) {
-                int dist = distance(ourAnchor.getXPosDip(), ourAnchor.getYPosDip(), hisAnchor.getXPosDip(), hisAnchor.getYPosDip());
+                double dist = distance(ourAnchor.getXPosDip(), ourAnchor.getYPosDip(), hisAnchor.getXPosDip(), hisAnchor.getYPosDip());
                 if (dist < minDist) {
                     minDist = dist;
                     bestOur = ourAnchor;
@@ -194,8 +195,8 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
         return new Pair<>(bestOur, bestHis);
     }
 
-    private int distance(int xPosDip1, int yPosDip1, int xPosDip2, int yPosDip2) {
-        return Math.abs(xPosDip1 - xPosDip2) + Math.abs(yPosDip1 - yPosDip2);
+    private double distance(int xPosDip1, int yPosDip1, int xPosDip2, int yPosDip2) {
+        return Math.sqrt((xPosDip1 - xPosDip2) * (xPosDip1 - xPosDip2) + (yPosDip1 - yPosDip2) * (yPosDip1 - yPosDip2));
     }
 
     /**
@@ -221,29 +222,33 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
 
     private void updateComments(String text) {
         final Rect bounds = new Rect();
+        mTextPaint.getTextBounds(text, 0, text.length(), bounds);
         final float length = bounds.width();
         final StringBuilder sb = new StringBuilder(text);
-        final int textWidth = getWidth();
+        final int textWidth = getTextWidth();
         final int parts = (int) Math.ceil(length / textWidth);
         final int charsInPart = Math.max(1, (int) Math.floor((1f * text.length()) / parts));
 
         int inserted = 0;
         int pos = charsInPart;
         int last_pos = 0;
-        mTextPaint.getTextBounds(text, 0, text.length(), bounds);
         Log.d(TAG, "measured width for " + text + " is " + length + " width " + textWidth + " " +
                 parts + " " + charsInPart);
 
         while (pos < text.length()) {
-            int nEol = text.indexOf('\n', last_pos);
-            int nSpc = text.indexOf(' ', last_pos);
-            int nextPos = Math.min(nSpc == -1 ? Integer.MAX_VALUE : nSpc, nEol == -1 ? Integer.MAX_VALUE : nEol);
+            // find any end of lines and break on them
+            int nEol = text.indexOf("\n", last_pos);
+            if (nEol != -1 && nEol <= pos) {
+                last_pos = nEol + 1;
+                pos = last_pos + charsInPart;
+                continue;
+            }
+            // no eols so we have to find the closest space
+            int nSpc = text.lastIndexOf(" ", pos);
+            int nextPos = nSpc == -1 ? Integer.MAX_VALUE : nSpc;
             if (nextPos <= pos) {
-                if (text.charAt(nextPos) == ' ') {
-                    sb.insert(nextPos + inserted, '\n');
-                    inserted++;
-                }
-                last_pos = nextPos;
+                sb.replace(nextPos + inserted, nextPos + inserted + 1, "\n");
+                last_pos = nextPos + 1;
             } else {
                 sb.insert(pos + inserted, "-\n");
                 inserted += 2;
@@ -252,8 +257,9 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
             pos = last_pos + charsInPart;
         }
         final String[] cparts = sb.toString().split("\n");
+        Log.d(TAG, Arrays.toString(cparts));
         final int height = bounds.height();
-        final int textHeight = getHeight();
+        final int textHeight = getTextHeight();
         final int linesThatFit = Math.min(cparts.length, Math.max((int) Math.floor((1f * textHeight) / height), 1));
         wrappedComments = new String[linesThatFit];
         for (int i = 0; i < linesThatFit; i++) {

@@ -11,5 +11,4 @@ var now = Date.now();
 var result = now.getHour() > vars.startHour || (now.getHour() == vars.startHour && now.getMinute() > vars.startMinute)
 result = result && (now.getHour() < vars.endHour || (now.getHour() == vars.endHour && now.getMinute() < vars.endMinute))
 /* Comment Section */
-now >= ${startHour}:${startMinute}
- and now <= ${endHour}:${endMinute}
+now >= ${startHour}:${startMinute} and now <= ${endHour}:${endMinute}

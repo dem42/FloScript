@@ -19,13 +19,31 @@ import java.util.Map;
 public class VariablesParser {
     private static final String TAG = "VAR_PARSER";
 
-    public static Map<String, Script.VarType> createVarsMap(Script script) {
+    /**
+     * Create a variable name to variable type map
+     */
+    public static Map<String, Script.VarType> createVarTypesMap(Script script) {
         Gson gson = new Gson();
         JsonParser parser = new JsonParser();
         JsonObject varTypes = parser.parse(script.getVarTypes()).getAsJsonObject();
         Map<String, Script.VarType> namesTypes = new HashMap<>();
         for (Map.Entry<String, JsonElement> entry : varTypes.entrySet()) {
             namesTypes.put(entry.getKey(), gson.fromJson(varTypes.get(entry.getKey()), Script.VarType.class));
+        }
+        Log.d(TAG, "Parsed variables for script " + script.getName() + " = " + namesTypes);
+        return namesTypes;
+    }
+
+    /**
+     * Create a variable name to variable value map
+     */
+    public static Map<String, String> createVarValueMap(Script script) {
+        Gson gson = new Gson();
+        JsonParser parser = new JsonParser();
+        JsonObject vars = parser.parse(script.getVariables()).getAsJsonObject();
+        Map<String, String> namesTypes = new HashMap<>();
+        for (Map.Entry<String, JsonElement> entry : vars.entrySet()) {
+            namesTypes.put(entry.getKey(), gson.fromJson(vars.get(entry.getKey()), String.class));
         }
         Log.d(TAG, "Parsed variables for script " + script.getName() + " = " + namesTypes);
         return namesTypes;

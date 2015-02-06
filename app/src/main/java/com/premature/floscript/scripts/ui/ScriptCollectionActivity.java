@@ -91,7 +91,7 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
         Log.d(TAG, "Picked script " + script.getName());
         if (script.getType() == Script.Type.DIAMOND_TEMPLATE || script.getType() == Script.Type.BLOCK_TEMPLATE) {
             // a template script needs its variables populated
-            VariablesDialog.showPopup(getSupportFragmentManager(), VariablesParser.createVarsMap(script));
+            VariablesDialog.showPopup(getSupportFragmentManager(), VariablesParser.createVarTypesMap(script));
         } else {
             Intent data = new Intent(getApplicationContext(), MainActivity.class);
             data.putExtra(SCRIPT_PARAM, script);
@@ -103,9 +103,9 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
     @Override
     public void variablesParsed(String variables) {
         Script script = mScriptCollectionAdapter.getItem(selectedPosition);
+        script.setVariables(variables);
         script.setId(null);
         Log.d(TAG, "After parsed finished the picked script is " + script.getName());
-        script.setVariables(variables);
         Intent data = new Intent(getApplicationContext(), MainActivity.class);
         data.putExtra(SCRIPT_PARAM, script);
         setResult(0, data);
@@ -146,9 +146,8 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
             TextView scriptNameLbl = (TextView) view.findViewById(R.id.script_col_name);
             scriptNameLbl.setText(script.getName());
 
-            //TODO: we need something to add here .. from the diagram perhaps?
             TextView scriptComments = (TextView) view.findViewById(R.id.script_col_comment);
-            scriptComments.setText("To be added");
+            scriptComments.setText(script.getDescription());
 
             ImageView scriptImg = (ImageView) view.findViewById(R.id.scripts_col_icon);
             scriptImg.setImageResource(R.drawable.job_icon_enabled);

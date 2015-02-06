@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 public class FloDbHelper extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "floscript_db";
-    public static final int VERSION = 14;
+    public static final int VERSION = 15;
     private static final String TAG = "DB_HELPER";
 
     // singleton db helper
