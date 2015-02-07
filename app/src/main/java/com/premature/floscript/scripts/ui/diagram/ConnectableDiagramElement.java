@@ -9,6 +9,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.premature.floscript.scripts.logic.Script;
+import com.premature.floscript.util.FloDrawableUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * </p>
  * This class represents a common base class for all objects to which arrows can connect
  */
-public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>> extends DiagramElement<SELF_TYPE> {
+public abstract class ConnectableDiagramElement extends DiagramElement {
 
     private static final String TAG = "ARROW_TARGET";
     /**
@@ -37,7 +38,7 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
     private float yOffset = 0;
     private float xOffset = 0;
 
-    protected ArrowTargetableDiagramElement(Diagram diagram, float xPos, float yPos, int width, int height) {
+    protected ConnectableDiagramElement(Diagram diagram, float xPos, float yPos, int width, int height) {
         super(diagram, xPos, yPos, width, height);
         mArrowToAnchor = new ConcurrentHashMap<>();
 
@@ -55,8 +56,8 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
      * through an arrow. These are elements where we are the start point and the other
      * element is the end point
      */
-    public List<Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement>> getConnectedElements() {
-        List<Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement>> result = new ArrayList<>();
+    public List<Pair<ConnectableDiagramElement, ArrowUiElement>> getConnectedElements() {
+        List<Pair<ConnectableDiagramElement, ArrowUiElement>> result = new ArrayList<>();
         for (ArrowUiElement arrow : mArrowToAnchor.keySet()) {
             if (arrow.getEndPoint() != this) {
                 result.add(new Pair(arrow.getEndPoint(), arrow));
@@ -70,8 +71,8 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
      * through an arrow. These are elements where we are the end point and the other
      * element is the start point
      */
-    public List<Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement>> getConnectingElements() {
-        List<Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement>> result = new ArrayList<>();
+    public List<Pair<ConnectableDiagramElement, ArrowUiElement>> getConnectingElements() {
+        List<Pair<ConnectableDiagramElement, ArrowUiElement>> result = new ArrayList<>();
         for (ArrowUiElement arrow : mArrowToAnchor.keySet()) {
             if (arrow.getStartPoint() != this) {
                 result.add(new Pair(arrow.getEndPoint(), arrow));
@@ -98,24 +99,21 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
     }
 
     @Override
-    public SELF_TYPE moveTo(float xPos, float yPos) {
+    public void moveTo(float xPos, float yPos) {
         super.moveTo(xPos, yPos);
         refreshConnectedArrows();
-        return self();
     }
 
     @Override
-    public SELF_TYPE moveCenterTo(float xPos, float yPos) {
+    public void moveCenterTo(float xPos, float yPos) {
         super.moveCenterTo(xPos, yPos);
         refreshConnectedArrows();
-        return self();
     }
 
     @Override
-    public SELF_TYPE advanceBy(float xStep, float yStep) {
+    public void advanceBy(float xStep, float yStep) {
         super.advanceBy(xStep, yStep);
         refreshConnectedArrows();
-        return self();
     }
 
     public int getTextHeight() {
@@ -152,7 +150,7 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
         ArrowAnchorPoint closest = null;
         double minDist = Integer.MAX_VALUE;
         for (ArrowAnchorPoint anchorPoint : getAnchorPoints()) {
-            double dist = distance(anchorPoint.getXPosDip(), anchorPoint.getYPosDip(), arrowXPosDp, arrowYPosDp);
+            double dist = FloDrawableUtils.distance(anchorPoint.getXPosDip(), anchorPoint.getYPosDip(), arrowXPosDp, arrowYPosDp);
             if (dist < minDist) {
                 Log.d(TAG, "Anchor Point " + anchorPoint + " is closer to (" + arrowXPosDp + ", " + arrowYPosDp + ") with " + dist + " than " + closest);
                 minDist = dist;
@@ -170,7 +168,7 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
         mArrowToAnchor.remove(arrowUiElement);
     }
 
-    public Pair<ArrowAnchorPoint, ArrowAnchorPoint> connectElement(ArrowTargetableDiagramElement<?> end, ArrowUiElement arrow) {
+    public Pair<ArrowAnchorPoint, ArrowAnchorPoint> connectElement(ConnectableDiagramElement end, ArrowUiElement arrow) {
         Iterable<ArrowAnchorPoint> ourAnchors = getAnchorPoints();
         Iterable<ArrowAnchorPoint> hisAnchors = end.getAnchorPoints();
 
@@ -179,7 +177,7 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
         double minDist = Integer.MAX_VALUE;
         for (ArrowAnchorPoint ourAnchor : ourAnchors) {
             for (ArrowAnchorPoint hisAnchor : hisAnchors) {
-                double dist = distance(ourAnchor.getXPosDip(), ourAnchor.getYPosDip(), hisAnchor.getXPosDip(), hisAnchor.getYPosDip());
+                double dist = FloDrawableUtils.distance(ourAnchor.getXPosDip(), ourAnchor.getYPosDip(), hisAnchor.getXPosDip(), hisAnchor.getYPosDip());
                 if (dist < minDist) {
                     minDist = dist;
                     bestOur = ourAnchor;
@@ -193,10 +191,6 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
         end.mArrowToAnchor.put(arrow, bestHis);
 
         return new Pair<>(bestOur, bestHis);
-    }
-
-    private double distance(int xPosDip1, int yPosDip1, int xPosDip2, int yPosDip2) {
-        return Math.sqrt((xPosDip1 - xPosDip2) * (xPosDip1 - xPosDip2) + (yPosDip1 - yPosDip2) * (yPosDip1 - yPosDip2));
     }
 
     /**
@@ -280,10 +274,10 @@ public abstract class ArrowTargetableDiagramElement<SELF_TYPE extends DiagramEle
      * be connected
      */
     public static final class ArrowAnchorPoint {
-        private final ArrowTargetableDiagramElement<?> mOwner;
+        private final ConnectableDiagramElement mOwner;
         private final int mXPosDip, mYPosDip;
 
-        public ArrowAnchorPoint(int mXPosDip, int mYPosDip, ArrowTargetableDiagramElement<?> owner) {
+        public ArrowAnchorPoint(int mXPosDip, int mYPosDip, ConnectableDiagramElement owner) {
             this.mXPosDip = mXPosDip;
             this.mYPosDip = mYPosDip;
             this.mOwner = owner;

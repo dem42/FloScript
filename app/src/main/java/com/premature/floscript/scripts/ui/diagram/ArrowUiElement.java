@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
@@ -13,22 +14,23 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 
-import com.premature.floscript.scripts.logic.Condition;
+import com.premature.floscript.scripts.logic.ArrowCondition;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
+import com.premature.floscript.util.FloDrawableUtils;
 
 /**
  * Created by martin on 04/01/15.
  * <p/>
  * An mArrowHead shape that represents the flow of logic in a flowchart diagram
  */
-public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
+public final class ArrowUiElement extends DiagramElement {
 
     private static final String TAG = "ARROW_UI";
     private static final double RAD_TO_DEG = (180.0 / Math.PI);
     private static final int DEFAULT_HEIGHT = 3;
     private static final int DEFAULT_WIDTH = 50;
-    private ArrowTargetableDiagramElement<?> mStartPoint;
-    private ArrowTargetableDiagramElement<?> mEndPoint;
+    private ConnectableDiagramElement mStartPoint;
+    private ConnectableDiagramElement mEndPoint;
 
     private ShapeDrawable mArrowHead;
     private ShapeDrawable mArrowBody;
@@ -42,7 +44,8 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
     // this is important for knowing the extends of the arrow
     private float mArrowHeadXPos;
     private float mArrowHeadYPos;
-    private Condition condition = Condition.NONE;
+    private ArrowCondition mCondition = ArrowCondition.NONE;
+    private Paint mArrowTextPaint;
 
     public ArrowUiElement(Diagram diagram) {
         this(diagram, DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -54,6 +57,11 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         this.mArrowHeadWidth = mWidth / 5;
         this.mArrowHeadXPos = mWidth + mArrowHeadWidth;
         this.mArrowHeadYPos = mArrowHeadHeight / 2.0f;
+
+        mArrowTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mArrowTextPaint.setTypeface(Typeface.MONOSPACE);
+        mArrowTextPaint.setColor(Color.BLACK);
+
         initShape();
     }
 
@@ -95,12 +103,12 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         // based on closest anchor to end element
         mStartPoint.unanchor(this);
         mEndPoint.unanchor(this);
-        Pair<ArrowTargetableDiagramElement.ArrowAnchorPoint, ArrowTargetableDiagramElement.ArrowAnchorPoint> startEndAnchors = mStartPoint.connectElement(mEndPoint, this);
+        Pair<ConnectableDiagramElement.ArrowAnchorPoint, ConnectableDiagramElement.ArrowAnchorPoint> startEndAnchors = mStartPoint.connectElement(mEndPoint, this);
 
-        ArrowTargetableDiagramElement.ArrowAnchorPoint startA = startEndAnchors.first;
+        ConnectableDiagramElement.ArrowAnchorPoint startA = startEndAnchors.first;
         this.mXPos = startA.getXPosDip();
         this.mYPos = startA.getYPosDip();
-        ArrowTargetableDiagramElement.ArrowAnchorPoint endA = startEndAnchors.second;
+        ConnectableDiagramElement.ArrowAnchorPoint endA = startEndAnchors.second;
         setDistanceAngAngle(startA.getXPosDip(), startA.getYPosDip(), endA.getXPosDip(), endA.getYPosDip());
     }
 
@@ -122,20 +130,45 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         this.mArrowHeadYPos = arrowHeadYPosDp;
     }
 
-    public ArrowTargetableDiagramElement<?> getStartPoint() {
+    @Override
+    public boolean contains(int xPosDps, int yPosDps) {
+        Log.d(TAG, "Contains: " + mXPos + "," + mYPos + ":" + mArrowHeadXPos + "," + mArrowHeadYPos + ":" + xPosDps + "," + yPosDps);
+        float max_dist = 50;
+        float vx = mArrowHeadXPos - mXPos;
+        float vy = mArrowHeadYPos - mYPos;
+        float dist = (float) FloDrawableUtils.distance(vx, vy, 0, 0);
+        float xCoT = xPosDps - mXPos;
+        float yCoT = yPosDps - mYPos;
+        float proj = (xCoT * vx + yCoT * vy) / dist;
+        if (proj <= -max_dist) {
+            Log.d(TAG, "projection too far behind " + proj);
+            return false;
+        }
+        if (proj >= dist + max_dist) {
+            Log.d(TAG, "projection too far ahead " + proj);
+            return false;
+        }
+        float px = proj * (vx / dist);
+        float py = proj * (vy / dist);
+        float dist_to_pt = (float) FloDrawableUtils.distance(xCoT, yCoT, px, py);
+        Log.d(TAG, "projection" + proj + " " + dist_to_pt + " px,py: " + px + ":" + py);
+        return dist_to_pt <= max_dist;
+    }
+
+    public ConnectableDiagramElement getStartPoint() {
         return mStartPoint;
     }
 
-    public void setStartPoint(ArrowTargetableDiagramElement<?> startPoint) {
+    public void setStartPoint(ConnectableDiagramElement startPoint) {
         this.mStartPoint = startPoint;
         onDiagramElementEndpointChange();
     }
 
-    public ArrowTargetableDiagramElement<?> getEndPoint() {
+    public ConnectableDiagramElement getEndPoint() {
         return mEndPoint;
     }
 
-    public void setEndPoint(ArrowTargetableDiagramElement<?> endPoint) {
+    public void setEndPoint(ConnectableDiagramElement endPoint) {
         this.mEndPoint = endPoint;
         if (endPoint == null) {
             endPoint.unanchor(this);
@@ -167,6 +200,11 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
         // now draw the arrow head
         canvas.translate(mArrowScalingFac * mWidth, -(mArrowHeadHeight - mHeight) / 2.0f);
         mArrowHead.draw(canvas);
+
+        if (mCondition != ArrowCondition.NONE) {
+            canvas.drawText(mCondition.toString(), -mArrowScalingFac * mWidth / 2f, 0f, mArrowTextPaint);
+        }
+
         canvas.restoreToCount(saveCount);
     }
 
@@ -190,28 +228,28 @@ public final class ArrowUiElement extends DiagramElement<ArrowUiElement> {
                 '}';
     }
 
-    public void anchorEndPoint(@Nullable ArrowTargetableDiagramElement<?> end, TouchEvent touchEvent) {
+    public void anchorEndPoint(@Nullable ConnectableDiagramElement end, TouchEvent touchEvent) {
         setEndPoint(end);
         Log.d(TAG, "arrow end anchoring  ");
     }
 
-    public void anchorStartPoint(@Nullable ArrowTargetableDiagramElement<?> start, TouchEvent touchEvent) {
+    public void anchorStartPoint(@Nullable ConnectableDiagramElement start, TouchEvent touchEvent) {
         if (start == null) {
             start.unanchor(this);
             this.setStartPoint(null);
             return;
         }
-        ArrowTargetableDiagramElement.ArrowAnchorPoint arrowAnchorPoint = start.connectArrow(this, (int) this.getXPos(), (int) this.getYPos());
+        ConnectableDiagramElement.ArrowAnchorPoint arrowAnchorPoint = start.connectArrow(this, (int) this.getXPos(), (int) this.getYPos());
         Log.d(TAG, "arrow start anchoring  " + start + " at anchor point " + arrowAnchorPoint);
         moveTo(arrowAnchorPoint.getXPosDip(), arrowAnchorPoint.getYPosDip());
         setStartPoint(start);
     }
 
-    public Condition getCondition() {
-        return condition;
+    public ArrowCondition getCondition() {
+        return mCondition;
     }
 
-    public void setCondition(Condition condition) {
-        this.condition = condition;
+    public void setCondition(ArrowCondition condition) {
+        this.mCondition = condition;
     }
 }

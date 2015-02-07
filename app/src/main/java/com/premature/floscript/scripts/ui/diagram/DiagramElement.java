@@ -10,7 +10,7 @@ import android.graphics.drawable.Drawable;
  * moving the drawable around the canvas with the methods {@link DiagramElement#moveTo(float, float) moveTo}
  * and {@link DiagramElement#advanceBy(float, float) advanceBy}
  */
-public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>> {
+public abstract class DiagramElement {
 
     private final Diagram mDiagram;
     protected float mXPos;
@@ -27,28 +27,25 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
         this.mHeight = height;
     }
 
-    public SELF_TYPE moveTo(float xPos, float yPos) {
+    public void moveTo(float xPos, float yPos) {
         if (!mPinned) {
             this.mXPos = xPos;
             this.mYPos = yPos;
         }
-        return self();
     }
 
-    public SELF_TYPE moveCenterTo(float xPos, float yPos) {
+    public void moveCenterTo(float xPos, float yPos) {
         if (!mPinned) {
             this.mXPos = xPos - mWidth / 2;
             this.mYPos = yPos - mHeight / 2;
         }
-        return self();
     }
 
-    public SELF_TYPE advanceBy(float xStep, float yStep) {
+    public void advanceBy(float xStep, float yStep) {
         if (!mPinned) {
             this.mXPos += xStep;
             this.mYPos += yStep;
         }
-        return self();
     }
 
     public boolean contains(int xPosDps, int yPosDps) {
@@ -93,10 +90,6 @@ public abstract class DiagramElement<SELF_TYPE extends DiagramElement<SELF_TYPE>
     public abstract void draw(Canvas canvas);
 
     public abstract Drawable getDrawable();
-
-    protected final SELF_TYPE self() {
-        return (SELF_TYPE) this;
-    }
 
     @Override
     public String toString() {

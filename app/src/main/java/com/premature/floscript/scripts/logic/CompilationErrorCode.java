@@ -11,7 +11,7 @@ public enum CompilationErrorCode {
     CANNOT_CONNECT_TO_ENTRY("It is not allowed to connect to the entry element."),
     HAS_ALWAYS_TRUE_LOOP("Adding this arrow would created an infinite loop."),
     NOT_ALL_DIAGRAM_ELEMENTS_ARE_REACHABLE("Some elements in the diagram cannot be reached from the entry node."),
-    UNSCRIPTED_ELEMENTS("Some elements do not have scripts attached.");
+    UNSCRIPTED_ELEMENTS("Make sure all are non-empty.");
     final String reason;
 
     public String getReason() {

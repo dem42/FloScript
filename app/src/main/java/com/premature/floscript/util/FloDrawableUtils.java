@@ -60,4 +60,8 @@ public final class FloDrawableUtils {
 
         return bitmap;
     }
+
+    public static double distance(float xPosDip1, float yPosDip1, float xPosDip2, float yPosDip2) {
+        return Math.sqrt((xPosDip1 - xPosDip2) * (xPosDip1 - xPosDip2) + (yPosDip1 - yPosDip2) * (yPosDip1 - yPosDip2));
+    }
 }

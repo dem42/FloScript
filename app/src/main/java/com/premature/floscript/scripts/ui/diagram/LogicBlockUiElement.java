@@ -20,7 +20,7 @@ import java.util.List;
  * This class encapsulates the view logic of a flowscript logic-block. A logic block
  * contains some code logic that will get executed should the control flow reach this element.
  */
-public class LogicBlockUiElement extends ArrowTargetableDiagramElement<LogicBlockUiElement> {
+public class LogicBlockUiElement extends ConnectableDiagramElement {
     public static final String TYPE_TOKEN = "LOGIC_BLOCK";
 
     private static final int DEFAULT_WIDTH = 70;

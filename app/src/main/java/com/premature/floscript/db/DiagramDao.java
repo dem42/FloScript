@@ -6,10 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.premature.floscript.scripts.logic.Condition;
+import com.premature.floscript.scripts.logic.ArrowCondition;
 import com.premature.floscript.scripts.logic.Script;
-import com.premature.floscript.scripts.ui.diagram.ArrowTargetableDiagramElement;
 import com.premature.floscript.scripts.ui.diagram.ArrowUiElement;
+import com.premature.floscript.scripts.ui.diagram.ConnectableDiagramElement;
 import com.premature.floscript.scripts.ui.diagram.Diagram;
 import com.premature.floscript.scripts.ui.diagram.DiamondUiElement;
 import com.premature.floscript.scripts.ui.diagram.LogicBlockUiElement;
@@ -93,8 +93,8 @@ public final class DiagramDao {
                 Log.e(TAG, "Failed to insert diagram " + diagram);
                 return false;
             }
-            Map<ArrowTargetableDiagramElement<?>, Long> connectableIds = new HashMap<>();
-            for (ArrowTargetableDiagramElement<?> connectable : diagram.getConnectables()) {
+            Map<ConnectableDiagramElement, Long> connectableIds = new HashMap<>();
+            for (ConnectableDiagramElement connectable : diagram.getConnectables()) {
                 if (!saveConnectable(id, connectable, connectableIds)) {
                     Log.e(TAG, "Failed to insert connectable " + connectable);
                     return false;
@@ -114,12 +114,12 @@ public final class DiagramDao {
         return true;
     }
 
-    private boolean saveArrows(long diagramId, ArrowUiElement arrow, Map<ArrowTargetableDiagramElement<?>, Long> connectableIds) {
+    private boolean saveArrows(long diagramId, ArrowUiElement arrow, Map<ConnectableDiagramElement, Long> connectableIds) {
         ContentValues columnToValue = new ContentValues();
         columnToValue.put(ARROWS_DIAGRAM, diagramId);
         columnToValue.put(ARROWS_SRC, connectableIds.get(arrow.getStartPoint()));
         columnToValue.put(ARROWS_TARGET, connectableIds.get(arrow.getEndPoint()));
-        columnToValue.put(ARROWS_CONDITION, Condition.convertToInt(arrow.getCondition()));
+        columnToValue.put(ARROWS_CONDITION, ArrowCondition.convertToInt(arrow.getCondition()));
         long id = mDb.getWritableDatabase().insert(ARROWS_TABLE, null, columnToValue);
         if (id == -1) {
             return false;
@@ -127,7 +127,7 @@ public final class DiagramDao {
         return true;
     }
 
-    private boolean saveConnectable(long diagramId, ArrowTargetableDiagramElement<?> connectable, Map<ArrowTargetableDiagramElement<?>, Long> connectableIds) {
+    private boolean saveConnectable(long diagramId, ConnectableDiagramElement connectable, Map<ConnectableDiagramElement, Long> connectableIds) {
         ContentValues columnToValue = new ContentValues();
         columnToValue.put(CONNECT_DIAGRAM, diagramId);
         columnToValue.put(CONNECT_XPOS, connectable.getXPos());
@@ -202,7 +202,7 @@ public final class DiagramDao {
             diagram = new Diagram();
             diagram.setName(name);
             diagram.setVersion(version);
-            Map<Long, ArrowTargetableDiagramElement<?>> connectableIds = new HashMap<>();
+            Map<Long, ConnectableDiagramElement> connectableIds = new HashMap<>();
             loadConnectables(diagramId, diagram, connectableIds);
             loadArrows(diagramId, diagram, connectableIds);
         } finally {
@@ -213,7 +213,7 @@ public final class DiagramDao {
         return diagram;
     }
 
-    private void loadArrows(long diagramId, Diagram diagram, Map<Long, ArrowTargetableDiagramElement<?>> connectableIds) {
+    private void loadArrows(long diagramId, Diagram diagram, Map<Long, ConnectableDiagramElement> connectableIds) {
         Cursor query = null;
         try {
             // select distinct
@@ -224,7 +224,7 @@ public final class DiagramDao {
                 while (!query.isAfterLast()) {
                     Long src = query.getLong(query.getColumnIndex(ARROWS_SRC));
                     Long dest = query.getLong(query.getColumnIndex(ARROWS_TARGET));
-                    Condition condition = Condition.fromInt(query.getInt(query.getColumnIndex(ARROWS_CONDITION)));
+                    ArrowCondition condition = ArrowCondition.fromInt(query.getInt(query.getColumnIndex(ARROWS_CONDITION)));
                     ArrowUiElement arrow = new ArrowUiElement(diagram);
                     arrow.setStartPoint(connectableIds.get(src));
                     arrow.setEndPoint(connectableIds.get(dest));
@@ -240,7 +240,7 @@ public final class DiagramDao {
         }
     }
 
-    private void loadConnectables(long diagramId, Diagram diagram, Map<Long, ArrowTargetableDiagramElement<?>> connectableIds) {
+    private void loadConnectables(long diagramId, Diagram diagram, Map<Long, ConnectableDiagramElement> connectableIds) {
         Cursor query = null;
         try {
             // select distinct
@@ -255,7 +255,7 @@ public final class DiagramDao {
                     float xPos = query.getFloat(query.getColumnIndex(CONNECT_XPOS));
                     float yPos = query.getFloat(query.getColumnIndex(CONNECT_YPOS));
                     int pinned = query.getInt(query.getColumnIndex(CONNECT_PINNED));
-                    ArrowTargetableDiagramElement<?> connectable = createConnectableFromType(diagram, type);
+                    ConnectableDiagramElement connectable = createConnectableFromType(diagram, type);
                     diagram.addConnectable(connectable);
                     if (connectable instanceof StartUiElement) {
                         diagram.setEntryElement((StartUiElement) connectable);
@@ -274,7 +274,7 @@ public final class DiagramDao {
 
     }
 
-    private ArrowTargetableDiagramElement<?> createConnectableFromType(Diagram diagram, String type) {
+    private ConnectableDiagramElement createConnectableFromType(Diagram diagram, String type) {
         switch (type) {
             case LogicBlockUiElement.TYPE_TOKEN:
                 return new LogicBlockUiElement(diagram);

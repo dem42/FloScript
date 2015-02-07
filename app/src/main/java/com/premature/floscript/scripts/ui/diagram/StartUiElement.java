@@ -20,7 +20,7 @@ import java.util.List;
  * </p>
  * This element has no functionality and is merely a marker of the entrypoint into the flowscript
  */
-public final class StartUiElement extends ArrowTargetableDiagramElement<StartUiElement> {
+public final class StartUiElement extends ConnectableDiagramElement {
 
     public static final String TYPE_TOKEN = "ENTRY_ELEM";
     private ShapeDrawable outsideCircle;

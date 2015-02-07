@@ -19,23 +19,23 @@ import java.util.List;
  * <p/>
  * The mDiamond element encapsulates the view logic for floscript if-else code elements
  */
-public final class DiamondUiElement extends ArrowTargetableDiagramElement<DiamondUiElement> {
+public final class DiamondUiElement extends ConnectableDiagramElement {
     public static final String TYPE_TOKEN = "DIAMOND";
 
     private static final int DEFAULT_WIDTH = 70;
     private static final int DEFAULT_HEIGHT = 90;
-    private final List<ArrowTargetableDiagramElement.ArrowAnchorPoint> mAnchorPoints;
+    private final List<ConnectableDiagramElement.ArrowAnchorPoint> mAnchorPoints;
     private Path diamondPath;
     private PathShape diamondShape;
     private ShapeDrawable mDiamond;
 
     public DiamondUiElement(Diagram diagram, int width, int height) {
         super(diagram, 0f, 0f, width, height);
-        ArrayList<ArrowTargetableDiagramElement.ArrowAnchorPoint> list = new ArrayList<>();
-        list.add(new ArrowTargetableDiagramElement.ArrowAnchorPoint(width / 2, 0, this));
-        list.add(new ArrowTargetableDiagramElement.ArrowAnchorPoint(0, height / 2, this));
-        list.add(new ArrowTargetableDiagramElement.ArrowAnchorPoint(width / 2, height, this));
-        list.add(new ArrowTargetableDiagramElement.ArrowAnchorPoint(width, height / 2, this));
+        ArrayList<ConnectableDiagramElement.ArrowAnchorPoint> list = new ArrayList<>();
+        list.add(new ConnectableDiagramElement.ArrowAnchorPoint(width / 2, 0, this));
+        list.add(new ConnectableDiagramElement.ArrowAnchorPoint(0, height / 2, this));
+        list.add(new ConnectableDiagramElement.ArrowAnchorPoint(width / 2, height, this));
+        list.add(new ConnectableDiagramElement.ArrowAnchorPoint(width, height / 2, this));
         this.mAnchorPoints = Collections.unmodifiableList(list);
         initShape();
     }

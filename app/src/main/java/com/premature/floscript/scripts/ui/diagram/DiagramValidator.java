@@ -25,7 +25,7 @@ public final class DiagramValidator {
         this.mEditorView = editorView;
     }
 
-    public boolean validateArrowAddition(ArrowTargetableDiagramElement<?> startPoint, @Nullable ArrowTargetableDiagramElement<?> endPoint) {
+    public boolean validateArrowAddition(ConnectableDiagramElement startPoint, @Nullable ConnectableDiagramElement endPoint) {
         if (endPoint == null) {
             return checkAndNotify(!startPoint.hasAllArrowsConnected(), CompilationErrorCode.MAX_CHILDREN_REACHED);
         } else {
@@ -38,9 +38,9 @@ public final class DiagramValidator {
     }
 
     public boolean allReachable() {
-        Set<ArrowTargetableDiagramElement<?>> visited = new HashSet<>();
+        Set<ConnectableDiagramElement> visited = new HashSet<>();
         searchReachable(mEditorView.getDiagram().getEntryElement(), visited, false);
-        for (ArrowTargetableDiagramElement<?> connectable : mEditorView.getDiagram().getConnectables()) {
+        for (ConnectableDiagramElement connectable : mEditorView.getDiagram().getConnectables()) {
             if (!visited.contains(connectable)) {
                 return checkAndNotify(false, CompilationErrorCode.NOT_ALL_DIAGRAM_ELEMENTS_ARE_REACHABLE);
             }
@@ -49,7 +49,7 @@ public final class DiagramValidator {
     }
 
     public boolean allHaveScripts() {
-        for (ArrowTargetableDiagramElement<?> elem : mEditorView.getDiagram().getConnectables()) {
+        for (ConnectableDiagramElement elem : mEditorView.getDiagram().getConnectables()) {
             if (elem.getScript() == null) {
                 return checkAndNotify(false, CompilationErrorCode.UNSCRIPTED_ELEMENTS);
             }
@@ -65,20 +65,20 @@ public final class DiagramValidator {
         return true;
     }
 
-    private boolean hasAlwaysTrueLoop(ArrowTargetableDiagramElement<?> startPoint, ArrowTargetableDiagramElement<?> endPoint) {
+    private boolean hasAlwaysTrueLoop(ConnectableDiagramElement startPoint, ConnectableDiagramElement endPoint) {
         if (!(startPoint instanceof LogicBlockUiElement) || !(endPoint instanceof LogicBlockUiElement)) {
             return false;
         }
-        Set<ArrowTargetableDiagramElement<?>> visited = new HashSet<>();
+        Set<ConnectableDiagramElement> visited = new HashSet<>();
         searchReachable(endPoint, visited, true);
         return visited.contains(startPoint);
     }
 
-    private void searchReachable(ArrowTargetableDiagramElement<?> startPoint,
-                                 Set<ArrowTargetableDiagramElement<?>> visited, boolean onlyCheckLogicBlocks) {
+    private void searchReachable(ConnectableDiagramElement startPoint,
+                                 Set<ConnectableDiagramElement> visited, boolean onlyCheckLogicBlocks) {
         Log.d(TAG, "For startPoint " + startPoint + " visited are " + visited);
         visited.add(startPoint);
-        for (Pair<ArrowTargetableDiagramElement<?>, ?> connected : startPoint.getConnectedElements()) {
+        for (Pair<ConnectableDiagramElement, ?> connected : startPoint.getConnectedElements()) {
             if (onlyCheckLogicBlocks && !(connected.first instanceof LogicBlockUiElement))
                 continue;
             if (visited.contains(connected.first)) {

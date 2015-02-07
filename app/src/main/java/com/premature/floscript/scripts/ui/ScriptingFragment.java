@@ -403,7 +403,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         private Button mPinUButton;
 
         @Override
-        public void onElementSelected(DiagramElement<?> element) {
+        public void onElementSelected(DiagramElement element) {
             if (mPinUButton != null) {
                 mPinUButton.setText(element.isPinned() ? PINNED_TEXT : UNPINNED_TEXT);
             }

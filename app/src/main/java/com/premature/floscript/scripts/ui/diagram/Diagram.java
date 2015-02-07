@@ -17,9 +17,9 @@ import java.util.List;
 public final class Diagram {
     // there should be only one and it will also be inside the elements and connectables list
     private StartUiElement mEntryElement;
-    private List<DiagramElement<?>> elements = new ArrayList<>();
+    private List<DiagramElement> elements = new ArrayList<>();
     private List<ArrowUiElement> arrows = new ArrayList<>();
-    private List<ArrowTargetableDiagramElement<?>> connectables = new ArrayList<>();
+    private List<ConnectableDiagramElement> connectables = new ArrayList<>();
 
     @Nullable
     private Script compiledDiagram; // the diagram may not have been compiled yet
@@ -52,11 +52,11 @@ public final class Diagram {
         return mEntryElement;
     }
 
-    public List<ArrowTargetableDiagramElement<?>> getConnectables() {
+    public List<ConnectableDiagramElement> getConnectables() {
         return connectables;
     }
 
-    public void addConnectable(ArrowTargetableDiagramElement<?> connectable) {
+    public void addConnectable(ConnectableDiagramElement connectable) {
         connectables.add(connectable);
         elements.add(connectable);
     }
@@ -66,7 +66,7 @@ public final class Diagram {
         elements.add(arrow);
     }
 
-    public List<DiagramElement<?>> getElements() {
+    public List<DiagramElement> getElements() {
         return elements;
     }
 

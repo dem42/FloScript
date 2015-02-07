@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by martin on 21/01/15.
  */
-public class DiagramPopupMenu {
+public class DiagramPopupMenu<T extends DiagramElement> {
 
     private static final Comparator<? super String> STRING_LENGTH_COMP = new Comparator<String>() {
         @Override
@@ -36,11 +36,11 @@ public class DiagramPopupMenu {
     private final int width;
     private final int height;
     private final int btnHeight;
-    private final List<MyButton> buttons;
+    private final List<PopupMenuButton> buttons;
     // singleton text bounds
     private final static Rect TEXT_BOUNDS = new Rect(); //don't new this up in a draw method
     @Nullable
-    private ArrowTargetableDiagramElement<?> touchedElement;
+    private T touchedElement;
 
     public DiagramPopupMenu(List<String> buttons, OnDiagramMenuClickListener listener) {
         String longest = Collections.max(buttons, STRING_LENGTH_COMP).toUpperCase();
@@ -58,7 +58,7 @@ public class DiagramPopupMenu {
         int cnt = 0;
         int sofar = 0;
         for (String btnTxt : buttons) {
-            this.buttons.add(new MyButton(btnTxt, Color.LTGRAY, cnt++,
+            this.buttons.add(new PopupMenuButton(btnTxt, Color.LTGRAY, cnt++,
                     new Rect(0, sofar, width, sofar + btnHeight)));
             sofar += btnHeight;
         }
@@ -82,7 +82,7 @@ public class DiagramPopupMenu {
         canvas.save();
         canvas.translate(xPos, yPos);
         canvas.drawRect(rectangle, borderPaint);
-        for (MyButton btn : buttons) {
+        for (PopupMenuButton btn : buttons) {
             btn.draw(canvas, btn, textPaint, innerPaint);
         }
         canvas.restore();
@@ -95,7 +95,7 @@ public class DiagramPopupMenu {
                 && touchEvent.getYPosDips() >= y && touchEvent.getYPosDips() <= y + height) {
             int adjustedX = touchEvent.getXPosDips() - x;
             int adjustedY = touchEvent.getYPosDips() - y;
-            for (MyButton btn : buttons) {
+            for (PopupMenuButton btn : buttons) {
                 if (btn.contains(adjustedX, adjustedY)) {
                     listener.onDiagramMenuItemClick(btn.getName());
                     // let the caller take care of deactivating the menu
@@ -114,18 +114,18 @@ public class DiagramPopupMenu {
     public static void drawTextCentredVertically(Canvas canvas, Paint paint, String text,
                                                  float starty, float cy) {
         paint.getTextBounds(text, 0, text.length(), TEXT_BOUNDS);
-        canvas.drawText(text, 2 * cy - TEXT_BOUNDS.height(), starty + cy - TEXT_BOUNDS.exactCenterY(), paint);
+        canvas.drawText(text, cy - TEXT_BOUNDS.exactCenterY(), starty + cy - TEXT_BOUNDS.exactCenterY(), paint);
     }
 
     public boolean isActive() {
         return touchedElement != null;
     }
 
-    public void setTouchedElement(@Nullable ArrowTargetableDiagramElement<?> touchedElement) {
+    public void setTouchedElement(@Nullable T touchedElement) {
         this.touchedElement = touchedElement;
     }
 
-    public ArrowTargetableDiagramElement<?> getTouchedElement() {
+    public T getTouchedElement() {
         return touchedElement;
     }
 
@@ -135,13 +135,13 @@ public class DiagramPopupMenu {
         void onDiagramMenuDeactivated();
     }
 
-    private static class MyButton {
+    private static class PopupMenuButton {
         String name;
         int btnColor;
         int btnIdx;
         Rect rectangle;
 
-        private MyButton(String name, int btnColor, int btnIdx, Rect rect) {
+        private PopupMenuButton(String name, int btnColor, int btnIdx, Rect rect) {
             this.name = name;
             this.btnColor = btnColor;
             this.btnIdx = btnIdx;
@@ -176,7 +176,7 @@ public class DiagramPopupMenu {
             return rectangle.contains(adjustedX, adjustedY);
         }
 
-        public void draw(Canvas canvas, MyButton btn, Paint textPaint, Paint innerPaint) {
+        public void draw(Canvas canvas, PopupMenuButton btn, Paint textPaint, Paint innerPaint) {
             innerPaint.setColor(btnColor);
             canvas.drawRect(rectangle, innerPaint);
             drawTextCentredVertically(canvas, textPaint, btn.getName(),

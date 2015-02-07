@@ -5,8 +5,8 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.premature.floscript.R;
-import com.premature.floscript.scripts.ui.diagram.ArrowTargetableDiagramElement;
 import com.premature.floscript.scripts.ui.diagram.ArrowUiElement;
+import com.premature.floscript.scripts.ui.diagram.ConnectableDiagramElement;
 import com.premature.floscript.scripts.ui.diagram.Diagram;
 import com.premature.floscript.scripts.ui.diagram.StartUiElement;
 import com.premature.floscript.util.ResourceAndFileUtils;
@@ -32,14 +32,14 @@ public final class DiagramToScriptCompiler {
     public Script compile(Diagram diagram) throws ScriptCompilationException {
         StringBuilder code = new StringBuilder("function runScript (env) {\n");
 
-        Map<ArrowTargetableDiagramElement<?>, String> generatedFunNames = generateFunNames(diagram.getConnectables());
+        Map<ConnectableDiagramElement, String> generatedFunNames = generateFunNames(diagram.getConnectables());
 
         StartUiElement entryElement = diagram.getEntryElement();
         if (entryElement == null) {
             throw new ScriptCompilationException(CompilationErrorCode.DIAGRAM_MUST_HAVE_ENTRY_ELEM);
         }
 
-        List<Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement>> connectedElements = entryElement.getConnectedElements();
+        List<Pair<ConnectableDiagramElement, ArrowUiElement>> connectedElements = entryElement.getConnectedElements();
         if (connectedElements.size() > 1) {
             Log.d(TAG, "connected to start are " + connectedElements);
             throw new ScriptCompilationException(CompilationErrorCode.ENTRY_MUST_HAVE_SINGLE_CHILD);
@@ -51,11 +51,11 @@ public final class DiagramToScriptCompiler {
         return new Script(code.toString(), diagram.getName(), Script.Type.FUNCTION);
     }
 
-    private Map<ArrowTargetableDiagramElement<?>, String> generateFunNames(List<ArrowTargetableDiagramElement<?>> connectables) {
-        Map<ArrowTargetableDiagramElement<?>, String> result = new HashMap<>();
+    private Map<ConnectableDiagramElement, String> generateFunNames(List<ConnectableDiagramElement> connectables) {
+        Map<ConnectableDiagramElement, String> result = new HashMap<>();
         int counter = 0;
         String base = "function";
-        for (ArrowTargetableDiagramElement<?> elem : connectables) {
+        for (ConnectableDiagramElement elem : connectables) {
             if (elem.getTypeDesc() == StartUiElement.TYPE_TOKEN) {
                 result.put(elem, Scripts.ENTRY_POINT_SCRIPT.getName());
             } else {
@@ -65,24 +65,24 @@ public final class DiagramToScriptCompiler {
         return result;
     }
 
-    private void depthFirstCompile(ArrowTargetableDiagramElement<?> elem,
-                                   List<Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement>> connectedElements,
+    private void depthFirstCompile(ConnectableDiagramElement elem,
+                                   List<Pair<ConnectableDiagramElement, ArrowUiElement>> connectedElements,
                                    StringBuilder code,
-                                   Map<ArrowTargetableDiagramElement<?>, String> generatedFunNames) throws ScriptCompilationException {
+                                   Map<ConnectableDiagramElement, String> generatedFunNames) throws ScriptCompilationException {
         if (connectedElements.size() == 0) {
             // empty script
             code.append(Scripts.createFunctionWrapper(elem.getScript(), generatedFunNames.get(elem), null, null));
         } else if (connectedElements.size() == 1) {
-            Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement> connectedElement = connectedElements.get(0);
+            Pair<ConnectableDiagramElement, ArrowUiElement> connectedElement = connectedElements.get(0);
             // we wrap and append the entryFunction which the code shell uses as the entry point
             code.append(Scripts.createFunctionWrapper(elem.getScript(), generatedFunNames.get(elem), generatedFunNames.get(connectedElement.first), null));
             depthFirstCompile(connectedElement.first, connectedElement.first.getConnectedElements(), code, generatedFunNames);
         } else {
-            Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement> connectedElement1 = connectedElements.get(0);
-            Pair<ArrowTargetableDiagramElement<?>, ArrowUiElement> connectedElement2 = connectedElements.get(1);
+            Pair<ConnectableDiagramElement, ArrowUiElement> connectedElement1 = connectedElements.get(0);
+            Pair<ConnectableDiagramElement, ArrowUiElement> connectedElement2 = connectedElements.get(1);
 
-            ArrowTargetableDiagramElement<?> yes = (connectedElement1.second.getCondition() == Condition.YES) ? connectedElement1.first : connectedElement2.first;
-            ArrowTargetableDiagramElement<?> no = (connectedElement1.second.getCondition() == Condition.NO) ? connectedElement1.first : connectedElement2.first;
+            ConnectableDiagramElement yes = (connectedElement1.second.getCondition() == ArrowCondition.YES) ? connectedElement1.first : connectedElement2.first;
+            ConnectableDiagramElement no = (connectedElement1.second.getCondition() == ArrowCondition.NO) ? connectedElement1.first : connectedElement2.first;
             code.append(Scripts.createFunctionWrapper(elem.getScript(), generatedFunNames.get(elem), generatedFunNames.get(yes), generatedFunNames.get(no)));
             depthFirstCompile(yes, yes.getConnectedElements(), code, generatedFunNames);
             depthFirstCompile(no, no.getConnectedElements(), code, generatedFunNames);
