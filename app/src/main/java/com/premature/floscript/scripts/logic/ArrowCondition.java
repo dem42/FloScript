@@ -11,19 +11,20 @@ public enum ArrowCondition {
     public static Integer convertToInt(ArrowCondition condition) {
         switch (condition) {
             case NONE:
-                return null;
-            case NO:
                 return 0;
-            case YES:
+            case NO:
                 return 1;
+            case YES:
+                return 2;
             default:
                 throw new IllegalArgumentException("unknown condition " + condition);
         }
     }
 
     public static ArrowCondition fromInt(Integer i) {
-        if (i == null) return NONE;
-        if (i == 0) return NO;
-        else return YES;
+        if (i == 0) return NONE;
+        if (i == 1) return NO;
+        if (i == 2) return YES;
+        else return null;
     }
 }

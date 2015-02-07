@@ -7,8 +7,8 @@ DIAMOND_TEMPLATE
 /* Var Types Section */
 {'startHour':'INT','startMinute':'INT','endHour':'INT','endMinute':'INT'}
 /* Code Section */
-var now = Date.now();
-var result = now.getHour() > vars.startHour || (now.getHour() == vars.startHour && now.getMinute() > vars.startMinute)
-result = result && (now.getHour() < vars.endHour || (now.getHour() == vars.endHour && now.getMinute() < vars.endMinute))
+var now = new Date();
+var result = now.getHours() > vars.startHour || (now.getHours() == vars.startHour && now.getMinutes() > vars.startMinute)
+result = result && (now.getHours() < vars.endHour || (now.getHours() == vars.endHour && now.getMinutes() < vars.endMinute))
 /* Comment Section */
 now >= ${startHour}:${startMinute} and now <= ${endHour}:${endMinute}

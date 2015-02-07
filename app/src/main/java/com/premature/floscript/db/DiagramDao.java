@@ -251,11 +251,14 @@ public final class DiagramDao {
                 while (!query.isAfterLast()) {
                     Long id = query.getLong(query.getColumnIndex(CONNECT_ID));
                     String type = query.getString(query.getColumnIndex(CONNECT_TYPE));
-
+                    Long scriptId = query.getLong(query.getColumnIndex(CONNECT_SCRIPT));
                     float xPos = query.getFloat(query.getColumnIndex(CONNECT_XPOS));
                     float yPos = query.getFloat(query.getColumnIndex(CONNECT_YPOS));
                     int pinned = query.getInt(query.getColumnIndex(CONNECT_PINNED));
                     ConnectableDiagramElement connectable = createConnectableFromType(diagram, type);
+                    if (scriptId != null) {
+                        connectable.setScript(mScriptsDao.getScriptById(scriptId));
+                    }
                     diagram.addConnectable(connectable);
                     if (connectable instanceof StartUiElement) {
                         diagram.setEntryElement((StartUiElement) connectable);

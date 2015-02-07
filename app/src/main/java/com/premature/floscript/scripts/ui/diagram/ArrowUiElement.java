@@ -197,13 +197,18 @@ public final class ArrowUiElement extends DiagramElement {
         mArrowBody.draw(canvas);
         canvas.restoreToCount(saveCount1);
 
+        if (mCondition != ArrowCondition.NONE) {
+            int saveCount2 = canvas.save();
+            canvas.translate(mArrowScalingFac * mWidth / 2f, -(mArrowHeadHeight - mHeight) / 2.0f);
+            if (mArrowAngleDegs > 90 && mArrowAngleDegs < 270) {
+                canvas.rotate(180);
+            }
+            canvas.drawText(mCondition.toString(), 0f, 0f, mArrowTextPaint);
+            canvas.restoreToCount(saveCount2);
+        }
         // now draw the arrow head
         canvas.translate(mArrowScalingFac * mWidth, -(mArrowHeadHeight - mHeight) / 2.0f);
         mArrowHead.draw(canvas);
-
-        if (mCondition != ArrowCondition.NONE) {
-            canvas.drawText(mCondition.toString(), -mArrowScalingFac * mWidth / 2f, 0f, mArrowTextPaint);
-        }
 
         canvas.restoreToCount(saveCount);
     }

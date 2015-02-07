@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 public class FloDbHelper extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "floscript_db";
-    public static final int VERSION = 17;
+    public static final int VERSION = 18;
     private static final String TAG = "DB_HELPER";
 
     // singleton db helper
@@ -97,5 +97,11 @@ public class FloDbHelper extends SQLiteOpenHelper {
         mDbHelper.getWritableDatabase().delete(DiagramDao.ARROWS_TABLE, null, new String[]{});
         mDbHelper.getWritableDatabase().delete(DiagramDao.CONNECT_TABLE, null, new String[]{});
         mDbHelper.getWritableDatabase().delete(DiagramDao.DIAGRAMS_TABLE, null, new String[]{});
+
+        List<Script> preinstalledScripts = Scripts.getPreinstalledScripts(mContext);
+        // save some basic scripts
+        for (Script script : preinstalledScripts) {
+            ScriptsDao.saveScript(script, mDbHelper.getWritableDatabase());
+        }
     }
 }
