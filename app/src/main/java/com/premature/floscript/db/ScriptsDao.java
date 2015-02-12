@@ -98,11 +98,11 @@ public final class ScriptsDao {
         }
     }
 
-    public List<Script> getScripts() {
+    public List<Script> getScripts(String selection, String[] selectionArgs) {
         Cursor query = null;
         List<Script> scripts = new ArrayList<>();
         try {
-            query = mDb.getReadableDatabase().query(SCRIPTS_TABLE, SCRIPTS_COLUMNS, null, new String[]{}, null, null, "created desc");
+            query = mDb.getReadableDatabase().query(SCRIPTS_TABLE, SCRIPTS_COLUMNS, selection, selectionArgs, null, null, "created desc");
             if (query.moveToFirst()) {
                 while (!query.isAfterLast()) {
                     String code = query.getString(query.getColumnIndex(SCRIPTS_CODE));

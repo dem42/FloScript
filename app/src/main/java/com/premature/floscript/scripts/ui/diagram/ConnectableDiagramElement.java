@@ -215,6 +215,9 @@ public abstract class ConnectableDiagramElement extends DiagramElement {
     }
 
     private void updateComments(String text) {
+        if (text == null) {
+            return;
+        }
         final Rect bounds = new Rect();
         mTextPaint.getTextBounds(text, 0, text.length(), bounds);
         final float length = bounds.width();

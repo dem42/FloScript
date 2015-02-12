@@ -15,7 +15,7 @@ public class Script implements Parcelable {
     private final String mSourceCode;
     private final String mName;
     private Long mId;
-    private final Type mType;
+    private Type mType;
     // the below is a json object that describes the values
     private String mVariables;
     // var types is a json array of type metadata needed by javacode to write into mVariables
@@ -119,9 +119,8 @@ public class Script implements Parcelable {
         return mVarTypes;
     }
 
-    public void setVariables(String variables) {
+    private void setVariables(String variables) {
         this.mVariables = variables;
-        populateDescriptionFromVariables();
     }
 
     @Nullable
@@ -134,6 +133,17 @@ public class Script implements Parcelable {
         for (Map.Entry<String, String> varToVal : varValueMap.entrySet()) {
             String varKey = "${" + varToVal.getKey() + "}";
             mDescription = mDescription.replace(varKey, varToVal.getValue());
+        }
+    }
+
+    public void upgradeFromTemplateType(String variables) {
+        setVariables(variables);
+        populateDescriptionFromVariables();
+        setId(null);
+        if (getType() == Type.DIAMOND_TEMPLATE) {
+            mType = Type.DIAMOND;
+        } else if (getType() == Type.BLOCK_TEMPLATE) {
+            mType = Type.BLOCK;
         }
     }
 
@@ -155,6 +165,10 @@ public class Script implements Parcelable {
 
         public int getCode() {
             return code;
+        }
+
+        public String getCodeStr() {
+            return Integer.toString(code);
         }
 
         public static Type fromCode(int code) {

@@ -103,8 +103,7 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
     @Override
     public void variablesParsed(String variables) {
         Script script = mScriptCollectionAdapter.getItem(selectedPosition);
-        script.setVariables(variables);
-        script.setId(null);
+        script.upgradeFromTemplateType(variables);
         Log.d(TAG, "After parsed finished the picked script is " + script.getName());
         Intent data = new Intent(getApplicationContext(), MainActivity.class);
         data.putExtra(SCRIPT_PARAM, script);
@@ -123,7 +122,8 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
 
         @Override
         public List<Script> runQuery() {
-            return new ScriptsDao(getContext()).getScripts();
+            return new ScriptsDao(getContext()).getScripts(ScriptsDao.SCRIPTS_TYPE + " in (?,?,?)",
+                    new String[]{Script.Type.FUNCTION.getCodeStr(), Script.Type.BLOCK_TEMPLATE.getCodeStr(), Script.Type.DIAMOND_TEMPLATE.getCodeStr()});
         }
     }
 
