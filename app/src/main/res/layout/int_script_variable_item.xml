@@ -15,6 +15,6 @@
         android:layout_height="wrap_content"
         android:id="@+id/variable_item_int_in"
         android:inputType="number"
-        android:ems="10"
+        android:ems="2"
         android:layout_gravity="center_horizontal" />
 </LinearLayout>

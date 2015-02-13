@@ -123,14 +123,17 @@ public class VariablesDialog extends DialogFragment {
         View view;
         switch (varType) {
             case STRING:
-                view = getActivity().getLayoutInflater().inflate(R.layout.string_script_variable_item, layout, true);
+                //specifying false means that the root of the layout xml is returned instead of our param layout object
+                view = getActivity().getLayoutInflater().inflate(R.layout.string_script_variable_item, layout, false);
                 lbl = (TextView) view.findViewById(R.id.variable_item_string);
                 lbl.setText(label);
+                layout.addView(view);
                 return view.findViewById(R.id.variable_item_string_in);
             case INT:
-                view = getActivity().getLayoutInflater().inflate(R.layout.int_script_variable_item, layout, true);
+                view = getActivity().getLayoutInflater().inflate(R.layout.int_script_variable_item, layout, false);
                 lbl = (TextView) view.findViewById(R.id.variable_item_int);
                 lbl.setText(label);
+                layout.addView(view);
                 return view.findViewById(R.id.variable_item_int_in);
         }
         return null;
