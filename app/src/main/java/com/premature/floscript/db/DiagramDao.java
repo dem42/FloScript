@@ -35,9 +35,10 @@ public final class DiagramDao {
     public static final String DIAGRAMS_ID = "_id";
     public static final String DIAGRAMS_VERSION = "version";
     public static final String DIAGRAMS_NAME = "name";
+    public static final String DIAGRAMS_DESCRIPTION = "description";
     public static final String DIAGRAMS_CREATED = "created";
     public static final String DIAGRAMS_SCRIPT = "script_id";
-    public static final String[] DIAGRAMS_COLUMNS = {DIAGRAMS_ID, DIAGRAMS_NAME, DIAGRAMS_VERSION,
+    public static final String[] DIAGRAMS_COLUMNS = {DIAGRAMS_ID, DIAGRAMS_NAME, DIAGRAMS_DESCRIPTION, DIAGRAMS_VERSION,
             DIAGRAMS_CREATED,};
 
     // connectables table
@@ -85,6 +86,7 @@ public final class DiagramDao {
             }
             ContentValues columnToValue = new ContentValues();
             columnToValue.put(DIAGRAMS_NAME, diagram.getName());
+            columnToValue.put(DIAGRAMS_DESCRIPTION, diagram.getDescription());
             columnToValue.put(DIAGRAMS_VERSION, diagram.getVersion());
             columnToValue.put(DIAGRAMS_CREATED, new Date().getTime());
             columnToValue.put(DIAGRAMS_SCRIPT, scriptId);
@@ -194,6 +196,7 @@ public final class DiagramDao {
             if (!query.moveToFirst()) {
                 return null;
             }
+            String desc = query.getString(query.getColumnIndex(DIAGRAMS_DESCRIPTION));
             long diagramId = query.getLong(query.getColumnIndex(DIAGRAMS_ID));
             int version = query.getInt(query.getColumnIndex(DIAGRAMS_VERSION));
             Date created = new Date(query.getLong(query.getColumnIndex(DIAGRAMS_CREATED)));
@@ -201,6 +204,7 @@ public final class DiagramDao {
 
             diagram = new Diagram();
             diagram.setName(name);
+            diagram.setDescription(desc);
             diagram.setVersion(version);
             Map<Long, ConnectableDiagramElement> connectableIds = new HashMap<>();
             loadConnectables(diagramId, diagram, connectableIds);

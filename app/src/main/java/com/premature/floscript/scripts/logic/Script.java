@@ -23,11 +23,11 @@ public class Script implements Parcelable {
     private String mDescription;
 
     public Script(String sourceCode, String name) {
-        this(sourceCode, name, Type.BLOCK);
+        this(sourceCode, name, Type.BLOCK, name);
     }
 
-    public Script(String sourceCode, String name, Type type) {
-        this(sourceCode, name, type, null, null, null);
+    public Script(String sourceCode, String name, Type type, String desc) {
+        this(sourceCode, name, type, null, null, desc);
     }
 
     public Script(String sourceCode, String name, Type type, String variables, String varTypes, String desc) {

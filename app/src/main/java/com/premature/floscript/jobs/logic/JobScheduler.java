@@ -120,12 +120,14 @@ public final class JobScheduler {
         }
         if (job.getEventTrigger() != null) {
             String eventAction = eventActionToCodes.get(job.getEventTrigger());
-            Log.d(TAG, "Event action trigger is " + eventAction);
+            Log.d(TAG, "Event action trigger is " + eventAction + " for event trigger " + job.getEventTrigger());
             Class<?> receiver = eventToReceiver.get(eventAction);
-            Log.d(TAG, "Event action trigger is " + eventAction + " recever is " + receiver.getSimpleName());
-            ComponentName componentName = new ComponentName(context.getApplicationContext(), receiver);
-            PackageManager packageManager = context.getApplicationContext().getPackageManager();
-            packageManager.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+            if (receiver != null) {
+                Log.d(TAG, "Event action trigger is " + eventAction + " recever is " + receiver.getSimpleName());
+                ComponentName componentName = new ComponentName(context.getApplicationContext(), receiver);
+                PackageManager packageManager = context.getApplicationContext().getPackageManager();
+                packageManager.setComponentEnabledSetting(componentName, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+            }
         }
     }
 

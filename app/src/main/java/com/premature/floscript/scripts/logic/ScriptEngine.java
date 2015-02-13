@@ -65,7 +65,7 @@ public class ScriptEngine {
         Script s5 = new Script("var z = true; z === false;", "test5");
         System.out.println(runScript(s5));
 
-        Script s6 = new Script("function hmm() { var i = 1; i++; java.lang.System.out.println(i);}", "test6", Script.Type.FUNCTION);
+        Script s6 = new Script("function hmm() { var i = 1; i++; java.lang.System.out.println(i);}", "test6", Script.Type.FUNCTION, "test6");
         System.out.println(runScript(s6));
     }
 }

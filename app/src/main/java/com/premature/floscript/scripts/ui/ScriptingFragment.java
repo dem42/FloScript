@@ -217,9 +217,10 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     }
 
     @Override
-    public void saveClicked(String name) {
+    public void saveClicked(String name, String description) {
         final Diagram diagram = mDiagramEditorView.getDiagram();
         diagram.setName(name);
+        diagram.setDescription(description);
         try {
             Script compiledDiagram = mCompiler.compile(diagram);
             diagram.setCompiledDiagram(compiledDiagram);

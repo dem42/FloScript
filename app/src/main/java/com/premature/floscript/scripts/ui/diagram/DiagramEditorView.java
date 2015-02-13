@@ -54,7 +54,17 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     }
 
     private enum EditingState {
-        ELEMENT_EDITING, ARROW_PLACING, ARROW_PLACED, ARROW_DRAGGING;
+        ELEMENT_EDITING {
+            @Override
+            public boolean isNonArrowState() {
+                return true;
+            }
+        },
+        ARROW_PLACING, ARROW_PLACED, ARROW_DRAGGING;
+
+        public boolean isNonArrowState() {
+            return false;
+        }
     }
 
     private ElementMover mElementMover;
@@ -192,7 +202,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
     @Override
     public void onArrowClicked() {
-        if (mEditingState != EditingState.ARROW_PLACING) {
+        if (mEditingState.isNonArrowState()) {
             mEditingState = EditingState.ARROW_PLACING;
             mFloatingArrow = new ArrowUiElement(mDiagram);
         } else {
