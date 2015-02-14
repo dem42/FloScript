@@ -215,13 +215,28 @@ public final class ArrowUiElement extends DiagramElement {
 
     @Override
     public Drawable getDrawable() {
-        LayerDrawable arrow = new LayerDrawable(new Drawable[]{mArrowBody, mArrowHead});
+        mArrowHead.getPaint().setColor(Color.WHITE);
+        mArrowBody.getPaint().setColor(Color.WHITE);
         mArrowBody.setBounds(0, (mArrowHeadHeight - getHeight()) / 2, getWidth() - mArrowHeadWidth, (mArrowHeadHeight + getHeight()) / 2);
         mArrowHead.setBounds(getWidth() - mArrowHeadWidth, 0, getWidth(), mArrowHeadHeight);
+        return new LayerDrawable(new Drawable[]{mArrowBody, mArrowHead}) {
+            @Override
+            public void draw(final Canvas canvas) {
+                canvas.save();
+                canvas.translate(0, getHeight() / 3f);
+                canvas.rotate(-35, 0, 0);
+                super.draw(canvas);
+                canvas.restore();
+            }
+        };
         //arrow.setBounds(0, 0, getWidth(), mArrowHeadHeight);
-        return arrow;
     }
 
+
+    public void anchorEndPoint(@Nullable ConnectableDiagramElement end, TouchEvent touchEvent) {
+        setEndPoint(end);
+        Log.d(TAG, "arrow end anchoring  ");
+    }
 
     @Override
     public String toString() {
@@ -231,11 +246,6 @@ public final class ArrowUiElement extends DiagramElement {
                 ", mArrowHeadXPos=" + mArrowHeadXPos +
                 ", mArrowHeadYPos=" + mArrowHeadYPos +
                 '}';
-    }
-
-    public void anchorEndPoint(@Nullable ConnectableDiagramElement end, TouchEvent touchEvent) {
-        setEndPoint(end);
-        Log.d(TAG, "arrow end anchoring  ");
     }
 
     public void anchorStartPoint(@Nullable ConnectableDiagramElement start, TouchEvent touchEvent) {

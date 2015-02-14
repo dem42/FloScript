@@ -1,6 +1,7 @@
 package com.premature.floscript.scripts.ui;
 
 import android.app.Activity;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -283,7 +284,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         };
         mArrowElemBtn.setOnTouchListener(arrowListener);
         mBtnCoordinator.registerElementButtonListener(arrowListener);
-
+        mPinUnpinBtn.setTextColor(Color.WHITE);
         mPinUnpinBtn.setText(UNPINNED_TEXT);
         StickyButtonOnTouchListener pinUnpinListener = new StickyButtonOnTouchListener(mPinUnpinBtn,
                 mDiagramEditorView, mBtnCoordinator) {
