@@ -243,7 +243,7 @@ public abstract class ConnectableDiagramElement extends DiagramElement {
             // no eols so we have to find the closest space
             int nSpc = text.lastIndexOf(" ", pos);
             int nextPos = nSpc == -1 ? Integer.MAX_VALUE : nSpc;
-            if (nextPos <= pos) {
+            if (nextPos <= pos && nextPos >= last_pos) {
                 sb.replace(nextPos + inserted, nextPos + inserted + 1, "\n");
                 last_pos = nextPos + 1;
             } else {

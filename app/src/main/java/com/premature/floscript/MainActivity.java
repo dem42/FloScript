@@ -48,10 +48,19 @@ public class MainActivity extends ActionBarActivity implements JobsFragment.OnJo
         actionBar.addTab(actionBar.newTab()
                 .setText(R.string.jobs_fragment)
                 .setTabListener(new TabListener<>(this, JobsFragment.class)));
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
         FloBus.getInstance().register(this);
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        FloBus.getInstance().unregister(this);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

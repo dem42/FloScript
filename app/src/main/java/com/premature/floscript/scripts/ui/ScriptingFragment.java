@@ -112,8 +112,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         }
         init();
 
-        FloBus.getInstance().register(this);
-
         // need to call this if we want to manipulate the options menu
         setHasOptionsMenu(true);
     }
@@ -125,7 +123,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         this.mLogicBlockElement = new LogicBlockUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
         this.mDiamondElement = new DiamondUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
         this.mArrowElement = new ArrowUiElement(null, (int) (40 * mDensity), (int) (6 * mDensity));
-
     }
 
     @Override
@@ -236,10 +233,22 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        super.onCreateView(inflater, container, savedInstanceState);
         final View view = inflater.inflate(R.layout.fragment_scripting, container, false);
         ButterKnife.inject(this, view);
         initButtons();
+
+        FloBus.getInstance().register(this);
+        mDiagramEditorView.busRegister(true);
+
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        FloBus.getInstance().unregister(this);
+        mDiagramEditorView.busRegister(false);
     }
 
     private void initButtons() {

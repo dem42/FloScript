@@ -9,4 +9,4 @@ BLOCK_TEMPLATE
 /* Code Section */
 com.premature.floscript.scripts.logic.FloJsApi.logMessage(vars.msg);
 /* Comment Section */
-print ${msg}
+print "${msg}"

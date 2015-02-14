@@ -126,8 +126,15 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
         mDetector = new GestureDetector(getContext(), new DiagramGestureListener(this));
         mDiagramValidator = new DiagramValidator(this);
+    }
 
-        FloBus.getInstance().register(this);
+
+    public void busRegister(boolean activate) {
+        if (activate) {
+            FloBus.getInstance().register(this);
+        } else {
+            FloBus.getInstance().unregister(this);
+        }
     }
 
     private DiagramPopupMenu.OnDiagramMenuClickListener mConnectableMenuListener = new DiagramPopupMenu.OnDiagramMenuClickListener() {
