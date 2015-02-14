@@ -101,4 +101,9 @@ public final class Diagram {
                 ", version=" + version +
                 '}';
     }
+
+    public void removeArrow(ArrowUiElement arrowUiElement) {
+        arrows.remove(arrowUiElement);
+        elements.remove(arrowUiElement);
+    }
 }

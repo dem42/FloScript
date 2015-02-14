@@ -32,6 +32,8 @@ import java.util.List;
 public final class DiagramEditorView extends View implements OnElementSelectorListener {
 
     private static final String TAG = "DIAGRAM_EDITOR";
+    public static final String[] ARROW_CMDS = new String[]{"Yes", "No", "Delete"};
+    public static final String[] ELEM_CMDS = new String[]{"Set code", "Toggle pinned"};
 
     private int mBgColor;
     private float mDensityScale;
@@ -118,10 +120,10 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         mDensityScale = getResources().getDisplayMetrics().density;
         mElementMover = new ElementMover(this);
 
-        mMenuButtons = Arrays.asList(new String[]{"Set code", "Toggle pinned"});
+        mMenuButtons = Arrays.asList(ELEM_CMDS);
         mElemPopupMenu = new DiagramPopupMenu(mMenuButtons, mConnectableMenuListener);
 
-        mArrowMenuButtons = Arrays.asList(new String[]{"Yes", "No"});
+        mArrowMenuButtons = Arrays.asList(ARROW_CMDS);
         mArrowPopupMenu = new DiagramPopupMenu(mArrowMenuButtons, mArrowMenuListener);
 
         mDetector = new GestureDetector(getContext(), new DiagramGestureListener(this));
@@ -153,9 +155,13 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private DiagramPopupMenu.OnDiagramMenuClickListener mArrowMenuListener = new DiagramPopupMenu.OnDiagramMenuClickListener() {
         @Override
         public void onDiagramMenuItemClick(String buttonClicked) {
-            mArrowPopupMenu.getTouchedElement().setCondition(ArrowCondition.valueOf(buttonClicked.toUpperCase()));
-            mArrowPopupMenu.setTouchedElement(null);
             Log.d(TAG, "Clicked on button" + buttonClicked);
+            if (ARROW_CMDS[2].equals(buttonClicked)) {
+                mDiagram.removeArrow(mArrowPopupMenu.getTouchedElement());
+            } else {
+                mArrowPopupMenu.getTouchedElement().setCondition(ArrowCondition.valueOf(buttonClicked.toUpperCase()));
+            }
+            mArrowPopupMenu.setTouchedElement(null);
             invalidate();
         }
 
