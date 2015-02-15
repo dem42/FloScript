@@ -2,7 +2,6 @@ package com.premature.floscript;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -30,7 +29,7 @@ import static com.premature.floscript.scripts.ui.ScriptCollectionActivity.Script
  * The top level class of the floscript app. All it does is contain two fragments a {@link com.premature.floscript.jobs.ui.JobsFragment}
  * and a {@link com.premature.floscript.scripts.ui.ScriptingFragment}
  */
-public class MainActivity extends ActionBarActivity implements JobsFragment.OnJobsFragmentInteractionListener, ScriptingFragment.OnScriptingFragmentInteractionListener {
+public class MainActivity extends ActionBarActivity {
 
     private static final String TAG = "MAIN_ACT";
     private static final String SELECTED_IDX = "Selected_Tab_Idx";
@@ -96,16 +95,6 @@ public class MainActivity extends ActionBarActivity implements JobsFragment.OnJo
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onJobsFragmentInteraction(String id) {
-
-    }
-
-    @Override
-    public void onScriptingFragmentInteraction(Uri uri) {
-
     }
 
     @Subscribe

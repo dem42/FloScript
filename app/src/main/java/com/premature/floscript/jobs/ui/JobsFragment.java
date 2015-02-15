@@ -1,6 +1,5 @@
 package com.premature.floscript.jobs.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -41,8 +40,6 @@ import butterknife.ButterKnife;
  * <p/>
  * Large screen devices (such as tablets) are supported by replacing the ListView
  * with a GridView.
- * <p/>
- * Activities containing this fragment MUST implement the {@link JobsFragment.OnJobsFragmentInteractionListener}
  * interface.
  */
 public class JobsFragment extends Fragment implements AbsListView.OnItemClickListener,
@@ -52,7 +49,6 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
 
     private static final int JOB_LOADER = 1;
     private static final String TAG = "JOB_FRAG";
-    private OnJobsFragmentInteractionListener mListener;
     private ScriptsDao mScriptsDao;
 
     /**
@@ -67,6 +63,13 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     private ArrayAdapter<JobContent> mAdapter;
     private JobScheduler mJobScheduler;
 
+    /**
+     * Mandatory empty constructor for the fragment manager to instantiate the
+     * fragment (e.g. upon screen orientation changes).
+     */
+    public JobsFragment() {
+    }
+
     public static JobsFragment newInstance() {
         JobsFragment fragment = new JobsFragment();
         Bundle args = new Bundle();
@@ -74,11 +77,9 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         return fragment;
     }
 
-    /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
-     */
-    public JobsFragment() {
+    public static void toggleEnabledIcon(View view, boolean isEnabled) {
+        ImageView icon = (ImageView) view.findViewById(R.id.job_item_job_icon);
+        icon.setImageResource(isEnabled ? R.drawable.job_icon_enabled : R.drawable.job_icon_disabled);
     }
 
     @Override
@@ -143,57 +144,35 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListener = (OnJobsFragmentInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-
-    @Override
     public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
-        if (null != mListener) {
-            final JobContent jobContent = mAdapter.getItem(position);
-            final Job job = jobContent.getJob();
-            PopupMenu popupMenu = new PopupMenu(this.getActivity(), view);
-            popupMenu.inflate(R.menu.menu_job_item_popup);
-            MenuItem item = popupMenu.getMenu().findItem(R.id.action_job_toggle_enabled);
-            item.setTitle(job.isEnabled() ? "Disable" : "Enable");
-            popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                @Override
-                public boolean onMenuItemClick(MenuItem item) {
-                    int id = item.getItemId();
-                    if (id == R.id.action_job_edit) {
-                        editJob(job);
-                        return true;
-                    } else if (id == R.id.action_job_execute) {
-                        executeJob(job);
-                        return true;
-                    }
-                    else if (id == R.id.action_job_toggle_enabled) {
-                        toggleEnabled(job, view);
-                        return true;
-                    }
-                    return false;
+        final JobContent jobContent = mAdapter.getItem(position);
+        final Job job = jobContent.getJob();
+        PopupMenu popupMenu = new PopupMenu(this.getActivity(), view);
+        popupMenu.inflate(R.menu.menu_job_item_popup);
+        MenuItem item = popupMenu.getMenu().findItem(R.id.action_job_toggle_enabled);
+        item.setTitle(job.isEnabled() ? "Disable" : "Enable");
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int id = item.getItemId();
+                if (id == R.id.action_job_edit) {
+                    editJob(job);
+                    return true;
+                } else if (id == R.id.action_job_execute) {
+                    executeJob(job);
+                    return true;
+                } else if (id == R.id.action_job_toggle_enabled) {
+                    toggleEnabled(job, view);
+                    return true;
                 }
-            });
-            popupMenu.show();
-            
-            // Notify the active callbacks interface (the activity, if the
-            // fragment is attached to one) that an item has been selected.
-            Log.d(TAG, "clicked on jobContent " + jobContent);
-            mListener.onJobsFragmentInteraction(job.toString());
-        }
+                return false;
+            }
+        });
+        popupMenu.show();
+
+        // Notify the active callbacks interface (the activity, if the
+        // fragment is attached to one) that an item has been selected.
+        Log.d(TAG, "clicked on jobContent " + jobContent);
     }
 
     private void executeJob(Job job) {
@@ -204,11 +183,6 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         job.setEnabled(!job.isEnabled());
         toggleEnabledIcon(viewOfJob, job.isEnabled());
         new JobUpdateTask(getActivity(), mJobScheduler).execute(job);
-    }
-
-    public static void toggleEnabledIcon(View view, boolean isEnabled) {
-        ImageView icon = (ImageView) view.findViewById(R.id.job_item_job_icon);
-        icon.setImageResource(isEnabled ? R.drawable.job_icon_enabled : R.drawable.job_icon_disabled);
     }
 
     /**
@@ -223,14 +197,6 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
             ((TextView) emptyView).setText(emptyText);
         }
     }
-
-    /**
-     * This interface must be implemented by any activity that contains the JobsFragment
-     */
-    public static interface OnJobsFragmentInteractionListener {
-        void onJobsFragmentInteraction(String id);
-    }
-
 
     /* *************** */
     /* LOADER METHODS */
@@ -277,29 +243,6 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     /**
-     * Our custom view adapter that lets the {@link android.widget.ArrayAdapter} take
-     * care of manipulating the data and recycling views
-     */
-    private class JobArrayAdapter extends ArrayAdapter<JobContent> {
-        public JobArrayAdapter(Context context, ArrayList<JobContent> jobContents) {
-            super(context, R.layout.job_item, R.id.job_item_job_name, jobContents);
-        }
-
-        //TODO: consider using the ViewHolder pattern from commons-ware (in android_list_view.pdf)
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View view = super.getView(position, convertView, parent);
-
-            JobContent item = getItem(position);
-            TextView comments = (TextView) view.findViewById(R.id.job_item_job_comments);
-            Job job = item.getJob();
-            comments.setText(job.getComment());
-            toggleEnabledIcon(view, job.isEnabled());
-            return view;
-        }
-    }
-
-    /**
      * A task to update the enabled state of a job and possibly trigger it if it has just
      * been enabled
      */
@@ -323,6 +266,29 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
                 }
             }
             return result;
+        }
+    }
+
+    /**
+     * Our custom view adapter that lets the {@link android.widget.ArrayAdapter} take
+     * care of manipulating the data and recycling views
+     */
+    private class JobArrayAdapter extends ArrayAdapter<JobContent> {
+        public JobArrayAdapter(Context context, ArrayList<JobContent> jobContents) {
+            super(context, R.layout.job_item, R.id.job_item_job_name, jobContents);
+        }
+
+        //TODO: consider using the ViewHolder pattern from commons-ware (in android_list_view.pdf)
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = super.getView(position, convertView, parent);
+
+            JobContent item = getItem(position);
+            TextView comments = (TextView) view.findViewById(R.id.job_item_job_comments);
+            Job job = item.getJob();
+            comments.setText(job.getComment());
+            toggleEnabledIcon(view, job.isEnabled());
+            return view;
         }
     }
 }

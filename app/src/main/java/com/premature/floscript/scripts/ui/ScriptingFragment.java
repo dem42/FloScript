@@ -1,8 +1,6 @@
 package com.premature.floscript.scripts.ui;
 
-import android.app.Activity;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -45,9 +43,6 @@ import static com.premature.floscript.scripts.ui.diagram.DiagramValidator.Diagra
 
 /**
  * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ScriptingFragment.OnScriptingFragmentInteractionListener} interface
- * to handle interaction events.
  * Use the {@link ScriptingFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
@@ -62,7 +57,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     private DiamondUiElement mDiamondElement;
     private ArrowUiElement mArrowElement;
 
-    private OnScriptingFragmentInteractionListener mListener;
 
     @InjectView(R.id.script_editor)
     DiagramEditorView mDiagramEditorView;
@@ -310,31 +304,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         mBtnCoordinator.setPinUnpinListener(pinUnpinListener);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onScriptingFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mListener = (OnScriptingFragmentInteractionListener) activity;
-
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
     // these methods are for the interaction with nested async task (dont want inner class asyncs)
     DiagramDao getDiagramDao() {
         return mDiagramDao;
@@ -343,21 +312,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     // these methods are for the interaction with nested async task (dont want inner class asyncs)
     void showDiagram(Diagram diagram) {
         mDiagramEditorView.setDiagram(diagram);
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnScriptingFragmentInteractionListener {
-        // TODO: Update argument type and name
-        public void onScriptingFragmentInteraction(Uri uri);
     }
 
     /**
