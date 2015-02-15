@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -31,6 +33,7 @@ import static com.premature.floscript.scripts.ui.ScriptCollectionActivity.Script
 public class MainActivity extends ActionBarActivity implements JobsFragment.OnJobsFragmentInteractionListener, ScriptingFragment.OnScriptingFragmentInteractionListener {
 
     private static final String TAG = "MAIN_ACT";
+    private static final String SELECTED_IDX = "Selected_Tab_Idx";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +43,6 @@ public class MainActivity extends ActionBarActivity implements JobsFragment.OnJo
         final ActionBar actionBar = getSupportActionBar();
         // setting the navigation mode makes the tabs visible
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
         // add the tabs to the view
         actionBar.addTab(actionBar.newTab()
                 .setText(R.string.scripting_fragment)
@@ -60,6 +62,18 @@ public class MainActivity extends ActionBarActivity implements JobsFragment.OnJo
     public void onStop() {
         super.onStop();
         FloBus.getInstance().unregister(this);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(SELECTED_IDX, getSupportActionBar().getSelectedNavigationIndex());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt(SELECTED_IDX, 0));
     }
 
     @Override
@@ -121,21 +135,25 @@ public class MainActivity extends ActionBarActivity implements JobsFragment.OnJo
      */
     private static class TabListener<F extends Fragment> implements ActionBar.TabListener {
 
+        private FragmentManager mFragManager;
         private Fragment mFragment;
         private final Activity mActivity;
         private final Class<F> mFragmentClass; // needed for instantiation
+        private String tag;
 
-        private TabListener(Activity activity, Class<F> fragmentClass) {
+        private TabListener(FragmentActivity activity, Class<F> fragmentClass) {
             this.mActivity = activity;
             this.mFragmentClass = fragmentClass;
+            this.tag = mFragmentClass.getName();
+            this.mFragManager = activity.getSupportFragmentManager();
         }
 
         @Override
         public void onTabSelected(Tab tab, FragmentTransaction fragmentTransaction) {
-            if (mFragment == null) {
+            if (mFragment == null && (mFragment = mFragManager.findFragmentByTag(tag)) == null) {
                 mFragment = Fragment.instantiate(mActivity, mFragmentClass.getName());
                 // add the mFragment to the holder
-                fragmentTransaction.add(R.id.tab_holder, mFragment, mFragmentClass.getName());
+                fragmentTransaction.add(R.id.tab_holder, mFragment, tag);
             } else {
                 fragmentTransaction.attach(mFragment);
             }

@@ -199,9 +199,11 @@ public final class ArrowUiElement extends DiagramElement {
 
         if (mCondition != ArrowCondition.NONE) {
             int saveCount2 = canvas.save();
-            canvas.translate(mArrowScalingFac * mWidth / 2f, -(mArrowHeadHeight - mHeight) / 2.0f);
-            if (mArrowAngleDegs > 90 && mArrowAngleDegs < 270) {
+            if (Math.abs(mArrowAngleDegs) > 90) {
+                canvas.translate(mArrowScalingFac * mWidth / 2f, -mArrowTextPaint.ascent());
                 canvas.rotate(180);
+            } else {
+                canvas.translate(mArrowScalingFac * mWidth / 2f, mArrowTextPaint.ascent());
             }
             canvas.drawText(mCondition.toString(), 0f, 0f, mArrowTextPaint);
             canvas.restoreToCount(saveCount2);

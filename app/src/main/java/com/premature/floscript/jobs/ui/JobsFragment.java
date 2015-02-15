@@ -91,6 +91,8 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         mJobScheduler = new JobScheduler(getActivity());
 
         setHasOptionsMenu(true);
+
+        setRetainInstance(true);
     }
 
     @Override

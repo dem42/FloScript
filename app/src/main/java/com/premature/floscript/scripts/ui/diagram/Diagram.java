@@ -103,6 +103,14 @@ public final class Diagram {
     }
 
     public void removeArrow(ArrowUiElement arrowUiElement) {
+        ConnectableDiagramElement startPoint = arrowUiElement.getStartPoint();
+        if (startPoint != null) {
+            startPoint.unanchor(arrowUiElement);
+        }
+        ConnectableDiagramElement endPoint = arrowUiElement.getEndPoint();
+        if (endPoint != null) {
+            endPoint.unanchor(arrowUiElement);
+        }
         arrows.remove(arrowUiElement);
         elements.remove(arrowUiElement);
     }

@@ -114,6 +114,8 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
         // need to call this if we want to manipulate the options menu
         setHasOptionsMenu(true);
+
+        setRetainInstance(true);
     }
 
     private void init() {
