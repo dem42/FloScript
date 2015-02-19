@@ -1,102 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Job name"
-        android:id="@+id/job_add_name_lbl"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/job_add_name_in"
-        android:layout_below="@id/job_add_name_lbl"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:width="200dp" />
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Description"
-        android:id="@+id/job_add_desc_lbl"
-        android:layout_below="@+id/job_add_name_in"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+            <TextView
+                android:id="@+id/job_add_name_lbl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:text="Job name"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/job_add_desc_in"
-        android:layout_below="@+id/job_add_desc_lbl"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:width="500dp" />
+            <EditText
+                android:id="@+id/job_add_name_in"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@id/job_add_name_lbl"
+                android:width="200dp" />
 
+            <TextView
+                android:id="@+id/job_add_desc_lbl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/job_add_name_in"
+                android:text="Description"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Select script"
-        android:id="@+id/job_add_title"
-        android:layout_below="@+id/job_add_desc_in"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
-    <Spinner
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/job_add_spinner"
-        android:layout_below="@+id/job_add_title"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+            <EditText
+                android:id="@+id/job_add_desc_in"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/job_add_desc_lbl"
+                android:width="500dp" />
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Execution time"
-        android:id="@+id/job_add_time_lbl"
-        android:layout_below="@+id/job_add_spinner"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+            <TextView
+                android:id="@+id/job_add_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/job_add_desc_in"
+                android:text="Select script"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <TimePicker
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/job_add_time_picker"
-        android:layout_below="@+id/job_add_time_lbl"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:timePickerMode="clock" />
+            <Spinner
+                android:id="@+id/job_add_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/job_add_title" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Event Trigger"
-        android:id="@+id/job_add_event_lbl"
-        android:layout_below="@+id/job_add_time_picker"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
 
-    <Spinner
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/job_add_event_spin"
-        android:layout_below="@+id/job_add_event_lbl"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+            <TextView
+                android:id="@+id/job_add_time_lbl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/job_add_spinner"
+                android:text="Execution time"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
-</RelativeLayout>
+            <com.premature.floscript.jobs.ui.TimePickerThatCanBeInAScroll
+                android:id="@+id/job_add_time_picker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/job_add_time_lbl"
+                android:timePickerMode="clock" />
+
+            <TextView
+                android:id="@+id/job_add_event_lbl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/job_add_time_picker"
+                android:text="Event Trigger"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <Spinner
+                android:id="@+id/job_add_event_spin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/job_add_event_lbl" />
+
+        </RelativeLayout>
+    </ScrollView>
+</FrameLayout>

@@ -33,7 +33,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
     private static final String TAG = "DIAGRAM_EDITOR";
     public static final String[] ARROW_CMDS = new String[]{"Yes", "No", "Delete"};
-    public static final String[] ELEM_CMDS = new String[]{"Set code", "Toggle pinned"};
+    public static final String[] ELEM_CMDS = new String[]{"Set code", "Toggle pinned", "Delete"};
 
     private int mBgColor;
     private float mDensityScale;
@@ -142,7 +142,15 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private DiagramPopupMenu.OnDiagramMenuClickListener mConnectableMenuListener = new DiagramPopupMenu.OnDiagramMenuClickListener() {
         @Override
         public void onDiagramMenuItemClick(String buttonClicked) {
-            FloBus.getInstance().post(new ScriptCollectionActivity.ScriptCollectionRequestEvent(getDiagram().getName()));
+            if (ELEM_CMDS[0].equals(buttonClicked)) {
+                FloBus.getInstance().post(new ScriptCollectionActivity.ScriptCollectionRequestEvent(getDiagram().getName()));
+            } else if (ELEM_CMDS[2].equals(buttonClicked)) {
+                if (!(mElemPopupMenu.getTouchedElement() instanceof StartUiElement)) {
+                    mDiagram.remove(mElemPopupMenu.getTouchedElement());
+                    mElemPopupMenu.setTouchedElement(null);
+                    invalidate();
+                }
+            }
             Log.d(TAG, "Clicked on button" + buttonClicked);
         }
 

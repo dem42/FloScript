@@ -272,6 +272,10 @@ public abstract class ConnectableDiagramElement extends DiagramElement {
         }
     }
 
+    public Iterable<ArrowUiElement> getAnchoredArrows() {
+        return mArrowToAnchor.keySet();
+    }
+
     /**
      * This class represents a point on the diagram element where an arrow can
      * be connected

@@ -114,4 +114,12 @@ public final class Diagram {
         arrows.remove(arrowUiElement);
         elements.remove(arrowUiElement);
     }
+
+    public void remove(ConnectableDiagramElement touchedElement) {
+        connectables.remove(touchedElement);
+        elements.remove(touchedElement);
+        for (ArrowUiElement arrow : touchedElement.getAnchoredArrows()) {
+            removeArrow(arrow);
+        }
+    }
 }

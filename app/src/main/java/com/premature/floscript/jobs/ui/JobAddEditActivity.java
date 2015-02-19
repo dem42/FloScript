@@ -51,6 +51,7 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
     private static final int JOB_ADD = 2;
     private ArrayAdapter<DbUtils.NameAndId> mArrayAdapter;
     private Map<String, Integer> mDiagramNameToPos;
+    private String mActiveName;
     private ArrayAdapter<String> mEventTrigAdapter;
 
     private enum JobActivityMode {
@@ -120,13 +121,8 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
     private void initializeFromJob(Job jobParcel) {
         mJobName.setText(jobParcel.getJobName());
         mJobDesc.setText(jobParcel.getComment());
+        mActiveName = jobParcel.getScript().getName();
 
-        Integer position = mDiagramNameToPos.get(jobParcel.getScript());
-        if (position != null) {
-            mDiagramNameSpinner.setSelection(position);
-        } else {
-            Log.e(TAG, "Couldn't locate a position in spinner for job " + jobParcel);
-        }
         if (jobParcel.getTimeTrigger() != null) {
             mJobTime.setCurrentHour(jobParcel.getTimeTrigger().hour);
             mJobTime.setCurrentMinute(jobParcel.getTimeTrigger().minute);
@@ -225,6 +221,12 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
             int pos = 0;
             for (DbUtils.NameAndId nameAndId : data) {
                 mDiagramNameToPos.put(nameAndId.name, pos++);
+            }
+            Integer position = mDiagramNameToPos.get(mActiveName);
+            if (position != null) {
+                mDiagramNameSpinner.setSelection(position);
+            } else {
+                Log.e(TAG, "Couldn't locate a position in spinner for job " + mActiveName);
             }
         }
     }
