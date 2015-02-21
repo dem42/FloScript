@@ -330,12 +330,19 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     }
 
     static <T extends DiagramElement> T findTouchedElement(Iterable<T> elements, int xPosDips, int yPosDips) {
+        DiagramElement.ContainsResult smallestContainsResult = DiagramElement.NOT_CONTAINED;
+        T closestElement = null;
         for (T element : elements) {
-            if (element.contains(xPosDips, yPosDips)) {
-                return element;
+            DiagramElement.ContainsResult containsResult = element.contains(xPosDips, yPosDips);
+            if (containsResult.compareTo(smallestContainsResult) < 0) {
+                smallestContainsResult = containsResult;
+                closestElement = element;
             }
         }
-        return null;
+        if (smallestContainsResult == DiagramElement.NOT_CONTAINED) {
+            return null;
+        }
+        return closestElement;
     }
 
     /**

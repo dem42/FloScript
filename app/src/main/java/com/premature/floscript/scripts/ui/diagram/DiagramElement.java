@@ -3,6 +3,8 @@ package com.premature.floscript.scripts.ui.diagram;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 
+import com.premature.floscript.util.FloDrawableUtils;
+
 /**
  * Created by martin on 05/01/15.
  * <p/>
@@ -48,9 +50,12 @@ public abstract class DiagramElement {
         }
     }
 
-    public boolean contains(int xPosDps, int yPosDps) {
-        return mXPos <= xPosDps && xPosDps <= mXPos + mWidth
-                && mYPos <= yPosDps && yPosDps <= mYPos + mHeight;
+    public ContainsResult contains(int xPosDps, int yPosDps) {
+        if (mXPos <= xPosDps && xPosDps <= mXPos + mWidth
+                && mYPos <= yPosDps && yPosDps <= mYPos + mHeight) {
+            return new ContainsResult((float) FloDrawableUtils.distance(mXPos, mYPos, xPosDps, yPosDps));
+        }
+        return NOT_CONTAINED;
     }
 
     public float getXPos() {
@@ -103,4 +108,23 @@ public abstract class DiagramElement {
     }
 
     public abstract boolean isShowingPopupButton(DiagramEditorPopupButtonType buttonType);
+
+    public static final ContainsResult NOT_CONTAINED = new ContainsResult(Float.MAX_VALUE);
+
+    public static final class ContainsResult implements Comparable<ContainsResult> {
+        public final float distance;
+
+        public ContainsResult(float distance) {
+            this.distance = distance;
+        }
+
+        /**
+         * This method compares the contains results and returns the one for the element that has a smaller
+         * distance.
+         */
+        @Override
+        public int compareTo(ContainsResult another) {
+            return Float.compare(distance, another.distance);
+        }
+    }
 }

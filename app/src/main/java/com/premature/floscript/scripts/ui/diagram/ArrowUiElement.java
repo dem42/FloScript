@@ -110,6 +110,8 @@ public final class ArrowUiElement extends DiagramElement {
         this.mYPos = startA.getYPosDip();
         ConnectableDiagramElement.ArrowAnchorPoint endA = startEndAnchors.second;
         setDistanceAngAngle(startA.getXPosDip(), startA.getYPosDip(), endA.getXPosDip(), endA.getYPosDip());
+        this.mArrowHeadXPos = endA.getXPosDip();
+        this.mArrowHeadYPos = endA.getYPosDip();
     }
 
     private void setDistanceAngAngle(double x1, double y1, double x2, double y2) {
@@ -131,9 +133,9 @@ public final class ArrowUiElement extends DiagramElement {
     }
 
     @Override
-    public boolean contains(int xPosDps, int yPosDps) {
+    public ContainsResult contains(int xPosDps, int yPosDps) {
         Log.d(TAG, "Contains: " + mXPos + "," + mYPos + ":" + mArrowHeadXPos + "," + mArrowHeadYPos + ":" + xPosDps + "," + yPosDps);
-        float max_dist = 50;
+        float max_dist = 50; // about a finger width in dps
         float vx = mArrowHeadXPos - mXPos;
         float vy = mArrowHeadYPos - mYPos;
         float dist = (float) FloDrawableUtils.distance(vx, vy, 0, 0);
@@ -142,17 +144,21 @@ public final class ArrowUiElement extends DiagramElement {
         float proj = (xCoT * vx + yCoT * vy) / dist;
         if (proj <= -max_dist) {
             Log.d(TAG, "projection too far behind " + proj);
-            return false;
+            return NOT_CONTAINED;
         }
         if (proj >= dist + max_dist) {
             Log.d(TAG, "projection too far ahead " + proj);
-            return false;
+            return NOT_CONTAINED;
         }
         float px = proj * (vx / dist);
         float py = proj * (vy / dist);
         float dist_to_pt = (float) FloDrawableUtils.distance(xCoT, yCoT, px, py);
         Log.d(TAG, "projection" + proj + " " + dist_to_pt + " px,py: " + px + ":" + py);
-        return dist_to_pt <= max_dist;
+        if (dist_to_pt <= max_dist) {
+            return new ContainsResult(dist_to_pt);
+        } else {
+            return NOT_CONTAINED;
+        }
     }
 
     public ConnectableDiagramElement getStartPoint() {
