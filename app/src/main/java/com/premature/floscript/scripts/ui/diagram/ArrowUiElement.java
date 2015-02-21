@@ -269,4 +269,12 @@ public final class ArrowUiElement extends DiagramElement {
     public void setCondition(ArrowCondition condition) {
         this.mCondition = condition;
     }
+
+    @Override
+    public boolean isShowingPopupButton(DiagramEditorPopupButtonType buttonType) {
+        boolean isFromADiamond = getStartPoint() != null && getStartPoint() instanceof DiamondUiElement;
+        return buttonType == DiagramEditorPopupButtonType.DELETE_BTN ||
+                (isFromADiamond && buttonType == DiagramEditorPopupButtonType.YES_BTN) ||
+                (isFromADiamond && buttonType == DiagramEditorPopupButtonType.NO_BTN);
+    }
 }

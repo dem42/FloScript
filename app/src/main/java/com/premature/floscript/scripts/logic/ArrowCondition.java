@@ -1,5 +1,7 @@
 package com.premature.floscript.scripts.logic;
 
+import com.premature.floscript.scripts.ui.diagram.DiagramEditorPopupButtonType;
+
 /**
  * Created by martin on 16/01/15.
  * <p/>
@@ -26,5 +28,16 @@ public enum ArrowCondition {
         if (i == 1) return NO;
         if (i == 2) return YES;
         else return null;
+    }
+
+    public static ArrowCondition from(DiagramEditorPopupButtonType buttonClicked) {
+        switch (buttonClicked) {
+            case YES_BTN:
+                return ArrowCondition.YES;
+            case NO_BTN:
+                return ArrowCondition.NO;
+            default:
+                return NONE;
+        }
     }
 }

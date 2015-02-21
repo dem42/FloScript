@@ -127,7 +127,6 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
         }
     }
 
-
     /**
      * Our custom view adapter that lets the {@link android.widget.ArrayAdapter} take
      * care of manipulating the data and recycling views

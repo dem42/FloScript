@@ -32,8 +32,10 @@ import java.util.List;
 public final class DiagramEditorView extends View implements OnElementSelectorListener {
 
     private static final String TAG = "DIAGRAM_EDITOR";
-    public static final String[] ARROW_CMDS = new String[]{"Yes", "No", "Delete"};
-    public static final String[] ELEM_CMDS = new String[]{"Set code", "Toggle pinned", "Delete"};
+    public static final DiagramEditorPopupButtonType[] ARROW_CMDS = {DiagramEditorPopupButtonType.YES_BTN,
+            DiagramEditorPopupButtonType.NO_BTN, DiagramEditorPopupButtonType.DELETE_BTN};
+    public static final DiagramEditorPopupButtonType[] ELEM_CMDS = {DiagramEditorPopupButtonType.SET_CODE_BTN,
+            DiagramEditorPopupButtonType.TOGGLE_PIN_BTN, DiagramEditorPopupButtonType.DELETE_BTN};
 
     private int mBgColor;
     private float mDensityScale;
@@ -41,7 +43,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private DiagramPopupMenu<ConnectableDiagramElement> mElemPopupMenu;
     private DiagramPopupMenu<ArrowUiElement> mArrowPopupMenu;
     private GestureDetector mDetector;
-    private List<String> mMenuButtons;
+    private List<DiagramEditorPopupButtonType> mMenuButtons;
     // the below members are responsible for the editing state
     @Nullable
     private ConnectableDiagramElement mFloatingConnectable;
@@ -49,7 +51,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private ArrowUiElement mFloatingArrow;
     private EditingState mEditingState = EditingState.ELEMENT_EDITING;
     private DiagramValidator mDiagramValidator;
-    private List<String> mArrowMenuButtons;
+    private List<DiagramEditorPopupButtonType> mArrowMenuButtons;
 
     public boolean isDiagramValid() {
         return mDiagramValidator.allReachable() && mDiagramValidator.allHaveScripts();
@@ -141,10 +143,10 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
     private DiagramPopupMenu.OnDiagramMenuClickListener mConnectableMenuListener = new DiagramPopupMenu.OnDiagramMenuClickListener() {
         @Override
-        public void onDiagramMenuItemClick(String buttonClicked) {
-            if (ELEM_CMDS[0].equals(buttonClicked)) {
+        public void onDiagramMenuItemClick(DiagramEditorPopupButtonType buttonClicked) {
+            if (DiagramEditorPopupButtonType.SET_CODE_BTN == buttonClicked) {
                 FloBus.getInstance().post(new ScriptCollectionActivity.ScriptCollectionRequestEvent(getDiagram().getName()));
-            } else if (ELEM_CMDS[2].equals(buttonClicked)) {
+            } else if (DiagramEditorPopupButtonType.DELETE_BTN == buttonClicked) {
                 if (!(mElemPopupMenu.getTouchedElement() instanceof StartUiElement)) {
                     mDiagram.remove(mElemPopupMenu.getTouchedElement());
                     mElemPopupMenu.setTouchedElement(null);
@@ -162,12 +164,12 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
     private DiagramPopupMenu.OnDiagramMenuClickListener mArrowMenuListener = new DiagramPopupMenu.OnDiagramMenuClickListener() {
         @Override
-        public void onDiagramMenuItemClick(String buttonClicked) {
+        public void onDiagramMenuItemClick(DiagramEditorPopupButtonType buttonClicked) {
             Log.d(TAG, "Clicked on button" + buttonClicked);
-            if (ARROW_CMDS[2].equals(buttonClicked)) {
+            if (DiagramEditorPopupButtonType.DELETE_BTN == buttonClicked) {
                 mDiagram.removeArrow(mArrowPopupMenu.getTouchedElement());
             } else {
-                mArrowPopupMenu.getTouchedElement().setCondition(ArrowCondition.valueOf(buttonClicked.toUpperCase()));
+                mArrowPopupMenu.getTouchedElement().setCondition(ArrowCondition.from(buttonClicked));
             }
             mArrowPopupMenu.setTouchedElement(null);
             invalidate();

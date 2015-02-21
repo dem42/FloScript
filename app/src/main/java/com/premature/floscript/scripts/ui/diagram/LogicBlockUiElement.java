@@ -90,4 +90,11 @@ public class LogicBlockUiElement extends ConnectableDiagramElement {
     public String getTypeDesc() {
         return TYPE_TOKEN;
     }
+
+    @Override
+    public boolean isShowingPopupButton(DiagramEditorPopupButtonType buttonType) {
+        return buttonType == DiagramEditorPopupButtonType.DELETE_BTN ||
+                buttonType == DiagramEditorPopupButtonType.TOGGLE_PIN_BTN ||
+                buttonType == DiagramEditorPopupButtonType.SET_CODE_BTN;
+    }
 }

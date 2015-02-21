@@ -5,12 +5,11 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -18,58 +17,71 @@ import java.util.List;
  */
 public class DiagramPopupMenu<T extends DiagramElement> {
 
-    private static final Comparator<? super String> STRING_LENGTH_COMP = new Comparator<String>() {
-        @Override
-        public int compare(String lhs, String rhs) {
-            return lhs.length() - rhs.length();
-        }
-    };
-    private final Rect rectangle;
+    private static final String TAG = "DIAG_POPUP";
     private final Paint borderPaint;
     private final Paint innerPaint;
     private final Paint textPaint;
     private final OnDiagramMenuClickListener listener;
+    private final List<DiagramEditorPopupButtonType> buttonTypes;
+
+    // the below change dynamically based on which element was selected
     private int textXMargin = 10;
     private int textYMargin = 40;
+    private int width;
+    private int btnHeight;
     private float xPos;
     private float yPos;
-    private final int width;
-    private final int height;
-    private final int btnHeight;
-    private final List<PopupMenuButton> buttons;
+    private int height;
+    private Rect rectangle;
+    private List<PopupMenuButton> buttons;
     // singleton text bounds
     private final static Rect TEXT_BOUNDS = new Rect(); //don't new this up in a draw method
     @Nullable
     private T touchedElement;
 
-    public DiagramPopupMenu(List<String> buttons, OnDiagramMenuClickListener listener) {
-        String longest = Collections.max(buttons, STRING_LENGTH_COMP).toUpperCase();
+    public DiagramPopupMenu(List<DiagramEditorPopupButtonType> buttonsTypes, OnDiagramMenuClickListener listener) {
+        this.listener = listener;
+
         textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textPaint.setColor(Color.BLACK);
         textPaint.setTextSize(15);
-        textPaint.getTextBounds(longest, 0, longest.length(), TEXT_BOUNDS);
-        btnHeight = (int) Math.abs(TEXT_BOUNDS.height() * 3.618);
-        width = (int) Math.abs(TEXT_BOUNDS.width() * 1.618);
-        height = buttons.size() * btnHeight;
-        this.listener = listener;
 
-
-        this.buttons = new ArrayList<>();
-        int cnt = 0;
-        int sofar = 0;
-        for (String btnTxt : buttons) {
-            this.buttons.add(new PopupMenuButton(btnTxt, Color.LTGRAY, cnt++,
-                    new Rect(0, sofar, width, sofar + btnHeight)));
-            sofar += btnHeight;
-        }
-
-        rectangle = new Rect(0, 0, width, height);
+        innerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        innerPaint.setAlpha(120);
         borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         borderPaint.setColor(Color.LTGRAY);
         borderPaint.setShadowLayer(4.0f, 1.0f, 3.0f, Color.BLACK);
 
-        innerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        innerPaint.setAlpha(120);
+        this.buttonTypes = buttonsTypes;
+        this.buttons = new ArrayList<>();
+        rectangle = new Rect(0, 0, 0, 0);
+    }
+
+    private void initViewFromButtons(T selectedElement) {
+        this.buttons = new ArrayList<>();
+
+        List<DiagramEditorPopupButtonType> shownBtns = new ArrayList<>();
+        for (DiagramEditorPopupButtonType btnType : this.buttonTypes) {
+            if (selectedElement.isShowingPopupButton(btnType)) {
+                shownBtns.add(btnType);
+            }
+        }
+
+        String longest = DiagramEditorPopupButtonType.longest(shownBtns);
+        textPaint.getTextBounds(longest, 0, longest.length(), TEXT_BOUNDS);
+        this.btnHeight = (int) Math.abs(TEXT_BOUNDS.height() * 3.618);
+        this.width = (int) Math.abs(TEXT_BOUNDS.width() * 1.618);
+
+        int cnt = 0;
+        int sofar = 0;
+        for (DiagramEditorPopupButtonType buttonType : shownBtns) {
+            this.buttons.add(new PopupMenuButton(buttonType, Color.LTGRAY,
+                    new Rect(0, sofar, width, sofar + btnHeight)));
+            cnt++;
+            sofar += btnHeight;
+        }
+        height = cnt * btnHeight;
+        rectangle = new Rect(0, 0, width, height);
     }
 
     public DiagramPopupMenu at(float xPos, float yPos) {
@@ -91,13 +103,16 @@ public class DiagramPopupMenu<T extends DiagramElement> {
     public void handleClick(TouchEvent touchEvent) {
         int x = (int) Math.floor(xPos);
         int y = (int) Math.floor(yPos);
+        Log.d(TAG, "Checking click for at " + touchEvent + " for " + x + " " + y + " " + width + " " + height);
         if (touchEvent.getXPosDips() >= x && touchEvent.getXPosDips() <= x + width
                 && touchEvent.getYPosDips() >= y && touchEvent.getYPosDips() <= y + height) {
             int adjustedX = touchEvent.getXPosDips() - x;
             int adjustedY = touchEvent.getYPosDips() - y;
             for (PopupMenuButton btn : buttons) {
+                Log.d(TAG, "Checking click for " + btn.btnType + " at " + touchEvent);
                 if (btn.contains(adjustedX, adjustedY)) {
-                    listener.onDiagramMenuItemClick(btn.getName());
+                    Log.d(TAG, "contained in click");
+                    listener.onDiagramMenuItemClick(btn.getBtnType());
                     // let the caller take care of deactivating the menu
                     return;
                 }
@@ -123,6 +138,9 @@ public class DiagramPopupMenu<T extends DiagramElement> {
 
     public void setTouchedElement(@Nullable T touchedElement) {
         this.touchedElement = touchedElement;
+        if (touchedElement != null) {
+            initViewFromButtons(touchedElement);
+        }
     }
 
     public T getTouchedElement() {
@@ -130,30 +148,19 @@ public class DiagramPopupMenu<T extends DiagramElement> {
     }
 
     public interface OnDiagramMenuClickListener {
-        void onDiagramMenuItemClick(String buttonClicked);
-
+        void onDiagramMenuItemClick(DiagramEditorPopupButtonType buttonClicked);
         void onDiagramMenuDeactivated();
     }
 
     private static class PopupMenuButton {
-        String name;
         int btnColor;
-        int btnIdx;
         Rect rectangle;
+        DiagramEditorPopupButtonType btnType;
 
-        private PopupMenuButton(String name, int btnColor, int btnIdx, Rect rect) {
-            this.name = name;
+        private PopupMenuButton(DiagramEditorPopupButtonType btnType, int btnColor, Rect rect) {
+            this.btnType = btnType;
             this.btnColor = btnColor;
-            this.btnIdx = btnIdx;
             this.rectangle = rect;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
         }
 
         public int getBtnColor() {
@@ -164,14 +171,6 @@ public class DiagramPopupMenu<T extends DiagramElement> {
             this.btnColor = btnColor;
         }
 
-        public int getBtnIdx() {
-            return btnIdx;
-        }
-
-        public void setBtnIdx(int btnIdx) {
-            this.btnIdx = btnIdx;
-        }
-
         public boolean contains(int adjustedX, int adjustedY) {
             return rectangle.contains(adjustedX, adjustedY);
         }
@@ -179,8 +178,16 @@ public class DiagramPopupMenu<T extends DiagramElement> {
         public void draw(Canvas canvas, PopupMenuButton btn, Paint textPaint, Paint innerPaint) {
             innerPaint.setColor(btnColor);
             canvas.drawRect(rectangle, innerPaint);
-            drawTextCentredVertically(canvas, textPaint, btn.getName(),
+            drawTextCentredVertically(canvas, textPaint, btnType.getText(),
                     rectangle.top, rectangle.height() / 2f);
+        }
+
+        public DiagramEditorPopupButtonType getBtnType() {
+            return btnType;
+        }
+
+        public void setBtnType(DiagramEditorPopupButtonType btnType) {
+            this.btnType = btnType;
         }
     }
 }

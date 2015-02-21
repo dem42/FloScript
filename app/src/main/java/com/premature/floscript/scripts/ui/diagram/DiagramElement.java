@@ -101,4 +101,6 @@ public abstract class DiagramElement {
                 ", mPinned=" + mPinned +
                 '}';
     }
+
+    public abstract boolean isShowingPopupButton(DiagramEditorPopupButtonType buttonType);
 }

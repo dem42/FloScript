@@ -82,4 +82,9 @@ public final class StartUiElement extends ConnectableDiagramElement {
     public Script getScript() {
         return Scripts.ENTRY_POINT_SCRIPT;
     }
+
+    @Override
+    public boolean isShowingPopupButton(DiagramEditorPopupButtonType buttonType) {
+        return buttonType == DiagramEditorPopupButtonType.TOGGLE_PIN_BTN;
+    }
 }
