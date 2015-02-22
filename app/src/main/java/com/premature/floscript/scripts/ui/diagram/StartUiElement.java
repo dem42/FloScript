@@ -1,7 +1,6 @@
 package com.premature.floscript.scripts.ui.diagram;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
@@ -10,6 +9,7 @@ import android.graphics.drawable.shapes.OvalShape;
 
 import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.logic.Scripts;
+import com.premature.floscript.util.FloColors;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,11 +41,11 @@ public final class StartUiElement extends ConnectableDiagramElement {
     private void init() {
         outsideCircle = new ShapeDrawable(new OvalShape());
         innerCircle = new ShapeDrawable(new OvalShape());
-        outsideCircle.getPaint().setColor(Color.WHITE);
+        outsideCircle.getPaint().setColor(FloColors.elemColor);
         outsideCircle.getPaint().setAntiAlias(true);
         outsideCircle.getPaint().setStyle(Paint.Style.FILL);
 
-        innerCircle.getPaint().setColor(Color.BLACK);
+        innerCircle.getPaint().setColor(FloColors.textColor);
         innerCircle.getPaint().setAntiAlias(true);
         innerCircle.getPaint().setStyle(Paint.Style.FILL);
 

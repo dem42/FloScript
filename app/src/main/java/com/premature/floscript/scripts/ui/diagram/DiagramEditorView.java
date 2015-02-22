@@ -3,7 +3,6 @@ package com.premature.floscript.scripts.ui.diagram;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -17,6 +16,7 @@ import com.premature.floscript.scripts.ui.OnElementSelectorListener;
 import com.premature.floscript.scripts.ui.ScriptCollectionActivity;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
 import com.premature.floscript.util.FloBus;
+import com.premature.floscript.util.FloColors;
 import com.squareup.otto.Subscribe;
 
 import java.util.Arrays;
@@ -184,7 +184,8 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private void loadAttributes(AttributeSet attrs, int defStyle) {
         final TypedArray a = getContext().obtainStyledAttributes(
                 attrs, R.styleable.DiagramEditorView, defStyle, 0);
-        this.mBgColor = a.getColor(R.styleable.DiagramEditorView_backgroundColor, Color.WHITE);
+
+        this.mBgColor = FloColors.backgroundColor;//a.getColor(R.styleable.DiagramEditorView_backgroundColor, Color.WHITE);
         a.recycle();
     }
 

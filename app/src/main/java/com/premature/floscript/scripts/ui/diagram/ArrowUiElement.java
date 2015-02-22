@@ -16,6 +16,7 @@ import android.util.Pair;
 
 import com.premature.floscript.scripts.logic.ArrowCondition;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
+import com.premature.floscript.util.FloColors;
 import com.premature.floscript.util.FloDrawableUtils;
 
 /**
@@ -223,15 +224,15 @@ public final class ArrowUiElement extends DiagramElement {
 
     @Override
     public Drawable getDrawable() {
-        mArrowHead.getPaint().setColor(Color.WHITE);
-        mArrowBody.getPaint().setColor(Color.WHITE);
+        mArrowHead.getPaint().setColor(FloColors.elemColor);
+        mArrowBody.getPaint().setColor(FloColors.elemColor);
         mArrowBody.setBounds(0, (mArrowHeadHeight - getHeight()) / 2, getWidth() - mArrowHeadWidth, (mArrowHeadHeight + getHeight()) / 2);
         mArrowHead.setBounds(getWidth() - mArrowHeadWidth, 0, getWidth(), mArrowHeadHeight);
         return new LayerDrawable(new Drawable[]{mArrowBody, mArrowHead}) {
             @Override
             public void draw(final Canvas canvas) {
                 canvas.save();
-                canvas.translate(0, getHeight() / 3f);
+                canvas.translate(getXPos(), getYPos() + getHeight() / 2f);
                 canvas.rotate(-35, 0, 0);
                 super.draw(canvas);
                 canvas.restore();

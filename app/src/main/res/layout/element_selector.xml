@@ -11,12 +11,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/logic_elem_btn"
-        android:layout_marginLeft="10dp"
+    android:layout_marginLeft="2dp"
         android:background="?android:attr/selectableItemBackground"/>
 
     <View style="@style/Divider"
         android:layout_marginLeft="2dp"
-        android:layout_marginRight="10dp" />
+        android:layout_marginRight="2dp" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -27,24 +27,13 @@
 
     <View style="@style/Divider"
         android:layout_marginLeft="2dp"
-        android:layout_marginRight="10dp" />
+        android:layout_marginRight="2dp" />
 
     <Button
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/arrow_elem_btn"
-        android:background="?android:attr/selectableItemBackground"/>
-
-    <View style="@style/Divider"
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="0dp" />
-
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/pin_btn"
         android:background="?android:attr/selectableItemBackground"/>
 
 </LinearLayout>

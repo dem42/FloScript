@@ -1,6 +1,5 @@
 package com.premature.floscript.scripts.ui;
 
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -49,8 +48,6 @@ import static com.premature.floscript.scripts.ui.diagram.DiagramValidator.Diagra
 public final class ScriptingFragment extends Fragment implements SaveDialog.OnSaveDialogListener,
         LoadDialog.OnLoadDialogListener {
     private static final String TAG = "SCRIPT_FRAG";
-    private static final String PINNED_TEXT = "Unpin";
-    private static final String UNPINNED_TEXT = "Pin";
 
 
     private LogicBlockUiElement mLogicBlockElement;
@@ -66,8 +63,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     Button mDiamondElemBtn;
     @InjectView(R.id.arrow_elem_btn)
     Button mArrowElemBtn;
-    @InjectView(R.id.pin_btn)
-    Button mPinUnpinBtn;
 
     private float mDensity;
     private StickyButtonCoordinator mBtnCoordinator;
@@ -119,6 +114,9 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         this.mLogicBlockElement = new LogicBlockUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
         this.mDiamondElement = new DiamondUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
         this.mArrowElement = new ArrowUiElement(null, (int) (40 * mDensity), (int) (6 * mDensity));
+
+        // align the elements inside the buttons
+        mArrowElement.advanceBy(8, 10);
     }
 
     @Override
@@ -253,6 +251,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
         mLogicElemBtn.setLayerType(LAYER_TYPE_SOFTWARE, null);
         mLogicElemBtn.setCompoundDrawables(mLogicBlockElement.getDrawable(), null, null, null);
+        mLogicElemBtn.setPadding(8, 0, 0, 0);
         StickyButtonOnTouchListener logicListener = new StickyButtonOnTouchListener(mLogicElemBtn,
                 mDiagramEditorView, mBtnCoordinator) {
             @Override
@@ -266,6 +265,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
         mDiamondElemBtn.setLayerType(LAYER_TYPE_SOFTWARE, null);
         mDiamondElemBtn.setCompoundDrawables(mDiamondElement.getDrawable(), null, null, null);
+        mDiamondElemBtn.setPadding(8, 0, 0, 0);
         StickyButtonOnTouchListener diamondListener = new StickyButtonOnTouchListener(mDiamondElemBtn,
                 mDiagramEditorView, mBtnCoordinator) {
             @Override
@@ -289,19 +289,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         };
         mArrowElemBtn.setOnTouchListener(arrowListener);
         mBtnCoordinator.registerElementButtonListener(arrowListener);
-        mPinUnpinBtn.setTextColor(Color.WHITE);
-        mPinUnpinBtn.setText(UNPINNED_TEXT);
-        StickyButtonOnTouchListener pinUnpinListener = new StickyButtonOnTouchListener(mPinUnpinBtn,
-                mDiagramEditorView, mBtnCoordinator) {
-            @Override
-            public void doOnClick() {
-                super.doOnClick();
-                this.mOnElementSelectorListener.pinningStateToggled();
-            }
-        };
-        mPinUnpinBtn.setOnTouchListener(pinUnpinListener);
-        mBtnCoordinator.setPinUButton(mPinUnpinBtn);
-        mBtnCoordinator.setPinUnpinListener(pinUnpinListener);
     }
 
     // these methods are for the interaction with nested async task (dont want inner class asyncs)
@@ -371,9 +358,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
         @Override
         public void onElementSelected(DiagramElement element) {
-            if (mPinUButton != null) {
-                mPinUButton.setText(element.isPinned() ? PINNED_TEXT : UNPINNED_TEXT);
-            }
         }
 
         @Override
@@ -385,14 +369,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
         public void registerElementButtonListener(StickyButtonOnTouchListener elementBtnListener) {
             mElementButtons.add(elementBtnListener);
-        }
-
-        public void setPinUnpinListener(StickyButtonOnTouchListener PinUnpinListener) {
-            this.mPinUnpinListener = PinUnpinListener;
-        }
-
-        public void setPinUButton(Button PinUButton) {
-            this.mPinUButton = PinUButton;
         }
 
         public boolean isAllowedToToggle(StickyButtonOnTouchListener stickyButtonOnTouchListener) {

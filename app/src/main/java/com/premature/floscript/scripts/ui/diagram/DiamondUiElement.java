@@ -1,7 +1,6 @@
 package com.premature.floscript.scripts.ui.diagram;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.CornerPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -9,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 
+import com.premature.floscript.util.FloColors;
 import com.premature.floscript.util.FloDrawableUtils;
 
 import java.util.ArrayList;
@@ -56,7 +56,7 @@ public final class DiamondUiElement extends ConnectableDiagramElement {
         diamondShape = new PathShape(diamondPath, 2, 6f);
         mDiamond = new ShapeDrawable(diamondShape);
 
-        mDiamond.getPaint().setColor(Color.WHITE);
+        mDiamond.getPaint().setColor(FloColors.elemColor);
         mDiamond.getPaint().setStyle(Paint.Style.FILL);
         // this value is in pixels, but canvas conversions apply to it too
         mDiamond.getPaint().setStrokeWidth(0.05f);

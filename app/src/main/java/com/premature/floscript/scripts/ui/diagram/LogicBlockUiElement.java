@@ -10,6 +10,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 
+import com.premature.floscript.util.FloColors;
 import com.premature.floscript.util.FloDrawableUtils;
 
 import java.util.ArrayList;
@@ -65,7 +66,7 @@ public class LogicBlockUiElement extends ConnectableDiagramElement {
         mLogicBlockRect.getPaint().setAntiAlias(true);
         mLogicBlockRect.getPaint().setStyle(Paint.Style.FILL);
         mLogicBlockRect.getPaint().setStrokeWidth(0.05f);
-        mLogicBlockRect.getPaint().setColor(Color.WHITE);
+        mLogicBlockRect.getPaint().setColor(FloColors.elemColor);
         mLogicBlockRect.getPaint().setDither(true);                    // set the dither to true
         mLogicBlockRect.getPaint().setPathEffect(new CornerPathEffect(0.1f));   // set the path effect when they join.
 
@@ -78,7 +79,7 @@ public class LogicBlockUiElement extends ConnectableDiagramElement {
         mLogicBlockLeafOver = new ShapeDrawable(logicBlockLeafShape);
         mLogicBlockLeafOver.getPaint().setAntiAlias(true);
         mLogicBlockLeafOver.getPaint().setStyle(Paint.Style.FILL);
-        mLogicBlockLeafOver.getPaint().setColor(Color.WHITE);
+        mLogicBlockLeafOver.getPaint().setColor(FloColors.elemColor);
         //mLogicBlockLeafOver.getPaint().setPathEffect(new CornerPathEffect(0.1f));   // set the path effect when they join.
 
         Path logicBlockLeafOverShdw = new Path();
@@ -86,7 +87,7 @@ public class LogicBlockUiElement extends ConnectableDiagramElement {
         logicBlockLeafOverShdw.lineTo(2f, .45f);
         logicBlockLeafOverShdw.lineTo(2f, .48f);
         logicBlockLeafOverShdw.lineTo(1.52f, .48f);
-        logicBlockLeafOverShdw.lineTo(1.52f, .45f);
+        logicBlockLeafOverShdw.lineTo(1.52f, 0f);
         logicBlockLeafOverShdw.lineTo(1.55f, 0f);
         logicBlockLeafOverShdw.close();
         PathShape logicBlockLeafShapeShdw = new PathShape(logicBlockLeafOverShdw, 2f, 2f);

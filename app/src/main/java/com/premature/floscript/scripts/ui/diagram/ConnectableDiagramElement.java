@@ -1,6 +1,5 @@
 package com.premature.floscript.scripts.ui.diagram;
 
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
@@ -9,6 +8,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.premature.floscript.scripts.logic.Script;
+import com.premature.floscript.util.FloColors;
 import com.premature.floscript.util.FloDrawableUtils;
 
 import java.util.ArrayList;
@@ -44,7 +44,7 @@ public abstract class ConnectableDiagramElement extends DiagramElement {
 
         mTextPaint = new Paint();
         mTextPaint.setStyle(Paint.Style.FILL);
-        mTextPaint.setColor(Color.BLACK);
+        mTextPaint.setColor(FloColors.textColor);
         mTextPaint.setTextSize(10);
         mTextPaint.setTypeface(Typeface.MONOSPACE);
     }
