@@ -2,9 +2,11 @@ package com.premature.floscript.scripts.ui.diagram;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.CornerPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.PathShape;
 
@@ -28,7 +30,10 @@ public class LogicBlockUiElement extends ConnectableDiagramElement {
     private final List<ArrowAnchorPoint> mAnchorPoints;
     private Path logicBlockPath;
     private PathShape logicBlockShape;
-    private ShapeDrawable mLogicBlock;
+    private ShapeDrawable mLogicBlockRect;
+    private ShapeDrawable mLogicBlockLeafOver;
+    private LayerDrawable mLogicBlock;
+    private ShapeDrawable mLogicBlockLeafOverShdw;
 
     public LogicBlockUiElement(Diagram diagram, int width, int height) {
         super(diagram, 0f, 0f, width, height);
@@ -50,18 +55,51 @@ public class LogicBlockUiElement extends ConnectableDiagramElement {
         logicBlockPath.moveTo(0f, 0f);
         logicBlockPath.lineTo(0f, 2f);
         logicBlockPath.lineTo(2f, 2f);
-        logicBlockPath.lineTo(2f, .25f);
-        logicBlockPath.lineTo(1.75f, .25f);
-        logicBlockPath.lineTo(1.75f, 0f);
-        logicBlockPath.lineTo(2f, .25f);
-        logicBlockPath.lineTo(1.75f, 0f);
+        logicBlockPath.lineTo(2f, .45f);
+        logicBlockPath.lineTo(1.55f, .45f);
+        logicBlockPath.lineTo(1.55f, 0f);
         logicBlockPath.close();
         logicBlockShape = new PathShape(logicBlockPath, 2f, 2f);
-        mLogicBlock = new ShapeDrawable(logicBlockShape);
-        mLogicBlock.getPaint().setAntiAlias(true);
-        mLogicBlock.getPaint().setStyle(Paint.Style.FILL);
-        mLogicBlock.getPaint().setStrokeWidth(0.05f);
-        mLogicBlock.getPaint().setColor(Color.WHITE);
+        mLogicBlockRect = new ShapeDrawable(logicBlockShape);
+
+        mLogicBlockRect.getPaint().setAntiAlias(true);
+        mLogicBlockRect.getPaint().setStyle(Paint.Style.FILL);
+        mLogicBlockRect.getPaint().setStrokeWidth(0.05f);
+        mLogicBlockRect.getPaint().setColor(Color.WHITE);
+        mLogicBlockRect.getPaint().setDither(true);                    // set the dither to true
+        mLogicBlockRect.getPaint().setPathEffect(new CornerPathEffect(0.1f));   // set the path effect when they join.
+
+        Path logicBlockLeafOver = new Path();
+        logicBlockLeafOver.moveTo(1.55f, 0f);
+        logicBlockLeafOver.lineTo(2f, .45f);
+        logicBlockLeafOver.lineTo(1.55f, .45f);
+        logicBlockLeafOver.close();
+        PathShape logicBlockLeafShape = new PathShape(logicBlockLeafOver, 2f, 2f);
+        mLogicBlockLeafOver = new ShapeDrawable(logicBlockLeafShape);
+        mLogicBlockLeafOver.getPaint().setAntiAlias(true);
+        mLogicBlockLeafOver.getPaint().setStyle(Paint.Style.FILL);
+        mLogicBlockLeafOver.getPaint().setColor(Color.WHITE);
+        //mLogicBlockLeafOver.getPaint().setPathEffect(new CornerPathEffect(0.1f));   // set the path effect when they join.
+
+        Path logicBlockLeafOverShdw = new Path();
+        logicBlockLeafOverShdw.moveTo(1.55f, 0f);
+        logicBlockLeafOverShdw.lineTo(2f, .45f);
+        logicBlockLeafOverShdw.lineTo(2f, .48f);
+        logicBlockLeafOverShdw.lineTo(1.52f, .48f);
+        logicBlockLeafOverShdw.lineTo(1.52f, .45f);
+        logicBlockLeafOverShdw.lineTo(1.55f, 0f);
+        logicBlockLeafOverShdw.close();
+        PathShape logicBlockLeafShapeShdw = new PathShape(logicBlockLeafOverShdw, 2f, 2f);
+        mLogicBlockLeafOverShdw = new ShapeDrawable(logicBlockLeafShapeShdw);
+        mLogicBlockLeafOverShdw.getPaint().setAntiAlias(true);
+        mLogicBlockLeafOverShdw.getPaint().setStyle(Paint.Style.FILL);
+        mLogicBlockLeafOverShdw.getPaint().setColor(Color.parseColor("#88000000"));
+        mLogicBlockLeafOverShdw.getPaint().setPathEffect(new CornerPathEffect(0.1f));   // set the path effect when they join.
+//
+        mLogicBlockRect.setBounds(0, 0, mWidth, mHeight);
+        mLogicBlockLeafOver.setBounds(0, 0, mWidth, mHeight);
+        mLogicBlockLeafOverShdw.setBounds(0, 0, mWidth, mHeight);
+        mLogicBlock = new LayerDrawable(new Drawable[]{mLogicBlockRect, mLogicBlockLeafOverShdw, mLogicBlockLeafOver});
         mLogicBlock.setBounds(0, 0, mWidth, mHeight);
     }
 
@@ -69,7 +107,9 @@ public class LogicBlockUiElement extends ConnectableDiagramElement {
     public void draw(Canvas canvas) {
         int saveCount = canvas.save();
         canvas.translate(mXPos, mYPos);
-        mLogicBlock.draw(canvas);
+        mLogicBlockRect.draw(canvas);
+        mLogicBlockLeafOverShdw.draw(canvas);
+        mLogicBlockLeafOver.draw(canvas);
         if (getScript() != null) {
             FloDrawableUtils.drawMultilineText(canvas, mTextPaint, wrappedComments, getTextXOffset(), getTextYOffset(), lineHeight);
         }

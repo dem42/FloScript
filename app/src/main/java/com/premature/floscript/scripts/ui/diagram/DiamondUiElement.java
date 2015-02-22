@@ -2,6 +2,7 @@ package com.premature.floscript.scripts.ui.diagram;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.CornerPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.Drawable;
@@ -60,6 +61,11 @@ public final class DiamondUiElement extends ConnectableDiagramElement {
         // this value is in pixels, but canvas conversions apply to it too
         mDiamond.getPaint().setStrokeWidth(0.05f);
         mDiamond.getPaint().setAntiAlias(true);
+        mDiamond.getPaint().setDither(true);                    // set the dither to true
+        //mDiamond.getPaint().setStrokeJoin(Paint.Join.ROUND);    // set the join to round you want
+        //mDiamond.getPaint().setStrokeCap(Paint.Cap.ROUND);      // set the paint cap to round too
+        mDiamond.getPaint().setPathEffect(new CornerPathEffect(0.1f));   // set the path effect when they join.
+
         mDiamond.setBounds(0, 0, mWidth, mHeight);
     }
 
