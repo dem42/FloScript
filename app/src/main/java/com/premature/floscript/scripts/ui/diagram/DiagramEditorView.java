@@ -110,6 +110,8 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     }
 
     private void init(AttributeSet attrs, int defStyle) {
+        Log.d(TAG, "init called");
+        setBackgroundResource(R.drawable.wallpaper_repeat);
         /* we turn of hardware acceleration for view drawing here because
         it doesn't play nice with scaling complex shapes
         see http://developer.android.com/guide/topics/graphics/hardware-accel.html#unsupported}*/
@@ -214,14 +216,22 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
     @Override
     public void onLogicElementClicked() {
-        LogicBlockUiElement newLogicBlock = new LogicBlockUiElement(mDiagram);
-        mFloatingConnectable = newLogicBlock;
+        if (mFloatingConnectable == null) {
+            LogicBlockUiElement newLogicBlock = new LogicBlockUiElement(mDiagram);
+            mFloatingConnectable = newLogicBlock;
+        } else {
+            mFloatingConnectable = null;
+        }
     }
 
     @Override
     public void onDiamondElementClicked() {
-        DiamondUiElement newDiamond = new DiamondUiElement(mDiagram);
-        mFloatingConnectable = newDiamond;
+        if (mFloatingConnectable == null) {
+            DiamondUiElement newDiamond = new DiamondUiElement(mDiagram);
+            mFloatingConnectable = newDiamond;
+        } else {
+            mFloatingConnectable = null;
+        }
     }
 
     @Override
@@ -305,7 +315,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.save();
-        canvas.drawColor(mBgColor);
+        //canvas.drawColor(mBgColor);
         // we will draw everything in mdpi coords so that we can use a physical coord system
         // this means that we need to scale up to the size of our device
         // and then everything will have the same physical size on all devices

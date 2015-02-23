@@ -322,7 +322,8 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-            if (mBtnCoordinator.isAllowedToToggle(this) && event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                mBtnCoordinator.unpressOtherButtons(this);
                 isPressed = !isPressed;
                 mPressableElement.setPressed(isPressed);
                 doOnClick();
@@ -371,21 +372,13 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
             mElementButtons.add(elementBtnListener);
         }
 
-        public boolean isAllowedToToggle(StickyButtonOnTouchListener stickyButtonOnTouchListener) {
-            if (stickyButtonOnTouchListener == mPinUnpinListener) {
-                // we do identity comparison here
-                return true;
-            }
-            if (!stickyButtonOnTouchListener.isPressed()) {
-                for (StickyButtonOnTouchListener listener : mElementButtons) {
-                    if (listener.isPressed()) {
-                        return false;
-                    }
+        public void unpressOtherButtons(StickyButtonOnTouchListener stickyButtonOnTouchListener) {
+            for (StickyButtonOnTouchListener listener : mElementButtons) {
+                if (stickyButtonOnTouchListener != listener && listener.isPressed()) {
+                    listener.doOnClick();
+                    listener.setPressed(false);
                 }
             }
-            // we are always allowed to release a pressed button
-            // or we are allowed to press if no other element button is currently pressed
-            return true;
         }
     }
 
