@@ -4,9 +4,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.premature.floscript.scripts.logic.Script;
+import com.premature.floscript.scripts.logic.Scripts;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -33,6 +35,8 @@ public final class ScriptsDao {
             SCRIPTS_DESCRIPTION, SCRIPTS_CREATED, SCRIPTS_CODE,
             SCRIPTS_VARIABLES, SCRIPTS_VAR_TYPES, SCRIPTS_TYPE};
     private final FloDbHelper mDb;
+    @Nullable
+    static volatile transient Long startScriptId = null;
 
     public ScriptsDao(Context ctx) {
         this.mDb = FloDbHelper.getInstance(ctx);
@@ -46,6 +50,9 @@ public final class ScriptsDao {
         if (script.getId() != null) {
             throw new IllegalArgumentException("The script " + script.getName() + " has already been saved");
         }
+        if (script == Scripts.ENTRY_POINT_SCRIPT && startScriptId != null) {
+            return startScriptId;
+        }
         ContentValues columnToValue = new ContentValues();
         columnToValue.put(SCRIPTS_NAME, script.getName());
         columnToValue.put(SCRIPTS_CREATED, new Date().getTime());
@@ -56,6 +63,10 @@ public final class ScriptsDao {
         columnToValue.put(SCRIPTS_TYPE, script.getType().getCode());
         long id = db.insert(SCRIPTS_TABLE, null, columnToValue);
         script.setId((id != -1) ? id : null);
+
+        if (script == Scripts.ENTRY_POINT_SCRIPT) {
+            startScriptId = id;
+        }
         return id;
     }
 

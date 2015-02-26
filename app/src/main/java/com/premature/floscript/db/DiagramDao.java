@@ -263,9 +263,10 @@ public final class DiagramDao {
                     if (scriptId != null) {
                         connectable.setScript(mScriptsDao.getScriptById(scriptId));
                     }
-                    diagram.addConnectable(connectable);
                     if (connectable instanceof StartUiElement) {
                         diagram.setEntryElement((StartUiElement) connectable);
+                    } else {
+                        diagram.addConnectable(connectable);
                     }
                     connectable.moveTo(xPos, yPos);
                     connectable.setPinned(pinned == 0 ? false : true);

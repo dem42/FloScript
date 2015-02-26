@@ -103,5 +103,7 @@ public class FloDbHelper extends SQLiteOpenHelper {
         for (Script script : preinstalledScripts) {
             ScriptsDao.saveScript(script, mDbHelper.getWritableDatabase());
         }
+
+        ScriptsDao.startScriptId = null;
     }
 }

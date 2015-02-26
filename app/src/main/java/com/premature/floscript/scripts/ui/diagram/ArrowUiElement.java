@@ -269,6 +269,17 @@ public final class ArrowUiElement extends DiagramElement {
         setStartPoint(start);
     }
 
+    public void unanchor() {
+        ConnectableDiagramElement startPoint = getStartPoint();
+        if (startPoint != null) {
+            startPoint.unanchor(this);
+        }
+        ConnectableDiagramElement endPoint = getEndPoint();
+        if (endPoint != null) {
+            endPoint.unanchor(this);
+        }
+    }
+
     public ArrowCondition getCondition() {
         return mCondition;
     }

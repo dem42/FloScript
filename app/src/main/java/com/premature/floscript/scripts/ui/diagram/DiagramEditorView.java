@@ -241,6 +241,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
             mFloatingArrow = new ArrowUiElement(mDiagram);
         } else {
             mEditingState = EditingState.ELEMENT_EDITING;
+            mDiagram.removeArrow(mFloatingArrow);
             mFloatingArrow = null;
         }
     }

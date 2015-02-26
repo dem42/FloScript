@@ -209,7 +209,10 @@ public abstract class ConnectableDiagramElement extends DiagramElement {
     }
 
     private void refreshConnectedArrows() {
-        for (ArrowUiElement connectedArrow : mArrowToAnchor.keySet()) {
+        // we make a copy of the keyset .. we do this because we will be modifying the map inside
+        // the loop and this can cause problems (eternal loops!!)
+        List<ArrowUiElement> affectedArrows = new ArrayList<>(mArrowToAnchor.keySet());
+        for (ArrowUiElement connectedArrow : affectedArrows) {
             connectedArrow.onDiagramElementEndpointChange();
         }
     }
