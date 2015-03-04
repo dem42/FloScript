@@ -113,6 +113,12 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         initOrRestartTheLoader();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getSupportActionBar().setTitle((mMode == JobActivityMode.ADD ? "Create" : "Edit") + " Job");
+    }
+
     private List<String> withEmptyItem(List<String> availableEventTriggers) {
         availableEventTriggers.add(" ");
         return availableEventTriggers;

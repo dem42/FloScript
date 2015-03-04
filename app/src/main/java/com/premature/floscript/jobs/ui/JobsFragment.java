@@ -50,6 +50,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     private static final int JOB_LOADER = 1;
     private static final String TAG = "JOB_FRAG";
     private ScriptsDao mScriptsDao;
+    private ScriptEngine mScriptEngine;
 
     /**
      * The fragment's ListView/GridView.
@@ -90,6 +91,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         mAdapter = new JobArrayAdapter(getActivity(), new ArrayList<JobContent>());
         mScriptsDao = new ScriptsDao(getActivity());
         mJobScheduler = new JobScheduler(getActivity());
+        mScriptEngine = new ScriptEngine(getActivity().getApplicationContext());
 
         setHasOptionsMenu(true);
 
@@ -176,7 +178,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     private void executeJob(Job job) {
-        ScriptEngine.runScript(job.getScript());
+        mScriptEngine.runScript(job.getScript());
     }
 
     private void toggleEnabled(Job job, View viewOfJob) {

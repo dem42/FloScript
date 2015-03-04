@@ -3,16 +3,15 @@ package com.premature.floscript.scripts.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.premature.floscript.MainActivity;
@@ -34,7 +33,7 @@ import butterknife.InjectView;
  * <p/>
  * This activity presents a selection of scripts for the user to choose from.
  */
-public class ScriptCollectionActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<List<Script>>,
+public class ScriptCollectionActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<List<Script>>,
         AdapterView.OnItemClickListener, VariablesDialog.OnVariablesListener {
 
     public static final String DIAGRAM_NAME_PARAM = "DIAGRAM_NAME_PARAM";
@@ -65,6 +64,12 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
         DbUtils.initOrRestartTheLoader(this, getSupportLoaderManager(), LOADER_ID);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getSupportActionBar().setTitle("Script Library");
+    }
+
     /* *************** */
     /* LOADER METHODS */
     /* ************* */
@@ -91,7 +96,7 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
         Log.d(TAG, "Picked script " + script.getName());
         if (script.getType() == Script.Type.DIAMOND_TEMPLATE || script.getType() == Script.Type.BLOCK_TEMPLATE) {
             // a template script needs its variables populated
-            VariablesDialog.showPopup(getSupportFragmentManager(), VariablesParser.createVarTypesMap(script));
+            VariablesDialog.showPopup(getSupportFragmentManager(), VariablesParser.createVarTypesTuples(script));
         } else {
             Intent data = new Intent(getApplicationContext(), MainActivity.class);
             data.putExtra(SCRIPT_PARAM, script);
@@ -147,9 +152,6 @@ public class ScriptCollectionActivity extends FragmentActivity implements Loader
 
             TextView scriptComments = (TextView) view.findViewById(R.id.script_col_comment);
             scriptComments.setText(script.getDescription());
-
-            ImageView scriptImg = (ImageView) view.findViewById(R.id.scripts_col_icon);
-            scriptImg.setImageResource(R.drawable.job_icon_enabled);
 
             return view;
         }

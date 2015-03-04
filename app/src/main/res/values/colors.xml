@@ -9,5 +9,7 @@
 
     <!-- @android:color/darker_gray -->
     <item name="divider" type="color">#ffffff</item>
+    <item name="horizontal_rule" type="color">#E40078</item>
     <item name="text_color" type="color">#ffffff</item>
+    <item name="script_item_background" type="color">#ffffff</item>
 </resources>

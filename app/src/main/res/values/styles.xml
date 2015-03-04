@@ -25,4 +25,10 @@
         <item name="android:background">@color/divider</item>
     </style>
 
+    <style name="HorizontalRule">
+        <item name="android:layout_height">2dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@color/horizontal_rule</item>
+    </style>
+
 </resources>

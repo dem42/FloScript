@@ -24,6 +24,7 @@ import com.premature.floscript.scripts.logic.Script;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -38,14 +39,14 @@ public class VariablesDialog extends DialogFragment {
     private WeakHashMap<String, Pair<View, Script.VarType>> vars;
     private OnVariablesListener mOnVariablesListener;
 
-    public static VariablesDialog newInstance(Map<String, Script.VarType> vars) {
+    public static VariablesDialog newInstance(List<Pair<String, Script.VarType>> vars) {
         VariablesDialog dialog = new VariablesDialog();
         Bundle args = new Bundle();
         ArrayList<String> names = new ArrayList<>();
         ArrayList<Integer> types = new ArrayList<>();
-        for (Map.Entry<String, Script.VarType> nameType : vars.entrySet()) {
-            names.add(nameType.getKey());
-            types.add(nameType.getValue().getCode());
+        for (Pair<String, Script.VarType> nameType : vars) {
+            names.add(nameType.first);
+            types.add(nameType.second.getCode());
         }
         args.putStringArrayList(VAR_NAMES_KEY, names);
         args.putIntegerArrayList(VAR_TYPES_KEY, types);
@@ -139,7 +140,7 @@ public class VariablesDialog extends DialogFragment {
         return null;
     }
 
-    public static void showPopup(FragmentManager supportFragmentManager, Map<String, Script.VarType> vars) {
+    public static void showPopup(FragmentManager supportFragmentManager, List<Pair<String, Script.VarType>> vars) {
         VariablesDialog popup = VariablesDialog.newInstance(vars);
         popup.show(supportFragmentManager, null);
     }

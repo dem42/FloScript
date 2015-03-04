@@ -1,8 +1,10 @@
 package com.premature.floscript.scripts.logic;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 
 import java.io.StringWriter;
 
@@ -15,12 +17,16 @@ public class ScriptEngine {
 
     private static final String TAG = "SCRIPT_ENGINE";
     private final StringWriter writer;
+    private final Context ctx;
+    private final FloJsApi floJsApi;
 
-    public ScriptEngine() {
+    public ScriptEngine(Context ctx) {
         this.writer = new StringWriter();
+        this.floJsApi = new FloJsApi(ctx);
+        this.ctx = ctx;
     }
 
-    public static String runScript(com.premature.floscript.scripts.logic.Script script) {
+    public String runScript(com.premature.floscript.scripts.logic.Script script) {
         // Creates and enters a Context. The Context stores information
         // about the execution environment of a script.
         org.mozilla.javascript.Context cx = org.mozilla.javascript.Context.enter();
@@ -30,7 +36,7 @@ public class ScriptEngine {
             // This must be done before scripts can be executed. Returns
             // a scope object that we use in later calls.
             Scriptable scope = cx.initStandardObjects();
-
+            ScriptableObject.putProperty(scope, "floApi", org.mozilla.javascript.Context.javaToJS(floJsApi, scope));
             // Now evaluate the string we've collected.
             String code = script.getSourceCode();
             if (Script.Type.FUNCTION == script.getType()) {
@@ -48,24 +54,5 @@ public class ScriptEngine {
             org.mozilla.javascript.Context.exit();
         }
         return "";
-    }
-
-    public static void main(String... args) throws ScriptCompilationException {
-        Script s1 = new Script("java.lang.System.out.println(\"HELLO1\")", "test1");
-        Script s2 = new Script("java.lang.System.out.println(\"HELLO2\")", "test2");
-        Script s3 = new Script("java.lang.System.out.println(\"HELLO3\")", "test3");
-        runScript(s1);
-
-        System.out.println(Scripts.createFunctionWrapper(s1, "test1", null, null));
-        System.out.println(Scripts.createFunctionWrapper(s1, "test1", "test3", null));
-        System.out.println(Scripts.createFunctionWrapper(s1, "test1", "yesfun", "nofun"));
-
-        Script s4 = new Script("var z = true; z === true;", "test4");
-        System.out.println(runScript(s4));
-        Script s5 = new Script("var z = true; z === false;", "test5");
-        System.out.println(runScript(s5));
-
-        Script s6 = new Script("function hmm() { var i = 1; i++; java.lang.System.out.println(i);}", "test6", Script.Type.FUNCTION, "test6");
-        System.out.println(runScript(s6));
     }
 }

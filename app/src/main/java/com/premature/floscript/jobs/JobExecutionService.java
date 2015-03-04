@@ -48,7 +48,7 @@ public class JobExecutionService extends IntentService {
         super.onCreate();
         // unlike with activities we aren't required to call the super callbacks
         this.mJobDao = new JobsDao(getApplicationContext());
-        this.mScriptEngine = new ScriptEngine();
+        this.mScriptEngine = new ScriptEngine(getApplicationContext());
     }
 
     @Override

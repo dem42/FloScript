@@ -167,7 +167,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     private void compileAndRunDiagram() {
         try {
             Script script = mCompiler.compile(mDiagramEditorView.getDiagram());
-            String result = ScriptEngine.runScript(script);
+            String result = new ScriptEngine(getActivity().getApplicationContext()).runScript(script);
             TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), script.getSourceCode() +
                     "\n\nWith result: " + result);
         } catch (ScriptCompilationException e) {

@@ -1,13 +1,16 @@
 package com.premature.floscript.scripts.logic;
 
 import android.util.Log;
+import android.util.Pair;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,13 +25,13 @@ public class VariablesParser {
     /**
      * Create a variable name to variable type map
      */
-    public static Map<String, Script.VarType> createVarTypesMap(Script script) {
+    public static List<Pair<String, Script.VarType>> createVarTypesTuples(Script script) {
         Gson gson = new Gson();
         JsonParser parser = new JsonParser();
         JsonObject varTypes = parser.parse(script.getVarTypes()).getAsJsonObject();
-        Map<String, Script.VarType> namesTypes = new HashMap<>();
+        List<Pair<String, Script.VarType>> namesTypes = new ArrayList<>();
         for (Map.Entry<String, JsonElement> entry : varTypes.entrySet()) {
-            namesTypes.put(entry.getKey(), gson.fromJson(varTypes.get(entry.getKey()), Script.VarType.class));
+            namesTypes.add(Pair.create(entry.getKey(), gson.fromJson(varTypes.get(entry.getKey()), Script.VarType.class)));
         }
         Log.d(TAG, "Parsed variables for script " + script.getName() + " = " + namesTypes);
         return namesTypes;

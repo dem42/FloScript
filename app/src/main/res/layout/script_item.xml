@@ -1,28 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    android:background="@drawable/script_item_background"
+    android:layout_margin="2dp">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <!--  <ScrollView
+          android:layout_width="match_parent"
+          android:layout_height="match_parent">
+  -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
-        android:id="@+id/script_col_name"
-        android:layout_gravity="center_horizontal"
-        />
+        android:orientation="vertical">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/scripts_col_icon"
-        android:layout_gravity="center_horizontal" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Script Name:"
+            android:id="@+id/script_col_name_lbl"
+            android:layout_gravity="left"
+            android:textStyle="bold"
+            android:padding="1px" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/script_col_comment"
-        android:layout_gravity="center_horizontal" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="dynamic"
+            android:id="@+id/script_col_name"
+            android:layout_gravity="left"
+            android:padding="1px" />
 
+
+        <View style="@style/HorizontalRule" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Description:"
+            android:id="@+id/script_col_comment_lbl"
+            android:layout_gravity="left"
+            android:padding="1px"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New Text"
+            android:id="@+id/script_col_comment"
+            android:layout_gravity="left"
+            android:padding="1px" />
+
+    </LinearLayout>
 </LinearLayout>

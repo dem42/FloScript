@@ -52,6 +52,12 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        getSupportActionBar().setTitle("FloScript");
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         FloBus.getInstance().register(this);
