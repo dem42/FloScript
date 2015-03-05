@@ -98,7 +98,7 @@ public final class JobScheduler {
         if (job.getEventTrigger() != null) {
             String eventAction = codesToEventActions.get(job.getEventTrigger());
             Log.d(TAG, "Event action trigger is " + eventAction + " " + eventToReceiver);
-            Class<?> receiver = eventToReceiver.get(eventAction);
+            Class<? extends BroadcastReceiver> receiver = eventToReceiver.get(eventAction);
             if (receiver != null) {
                 Log.d(TAG, "Event action trigger is " + eventAction + " recever is " + receiver.getSimpleName());
                 ComponentName componentName = new ComponentName(context.getApplicationContext(), receiver);
@@ -119,9 +119,9 @@ public final class JobScheduler {
             wrapAsIntent(job).cancel();
         }
         if (job.getEventTrigger() != null) {
-            String eventAction = eventActionToCodes.get(job.getEventTrigger());
+            String eventAction = codesToEventActions.get(job.getEventTrigger());
             Log.d(TAG, "Event action trigger is " + eventAction + " for event trigger " + job.getEventTrigger());
-            Class<?> receiver = eventToReceiver.get(eventAction);
+            Class<? extends BroadcastReceiver> receiver = eventToReceiver.get(eventAction);
             if (receiver != null) {
                 Log.d(TAG, "Event action trigger is " + eventAction + " recever is " + receiver.getSimpleName());
                 ComponentName componentName = new ComponentName(context.getApplicationContext(), receiver);
@@ -159,5 +159,9 @@ public final class JobScheduler {
         eventActionToCodes.put(androidTriggerString, triggerAlias);
         codesToEventActions.put(triggerAlias, androidTriggerString);
         eventToReceiver.put(androidTriggerString, triggerReciever);
+    }
+
+    public static String getEventAlias(String action) {
+        return eventActionToCodes.get(action);
     }
 }

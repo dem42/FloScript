@@ -21,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.premature.floscript.db.DbUtils.q;
+
 /**
  * Created by martin on 15/01/15.
  * <p/>
@@ -182,7 +184,7 @@ public final class DiagramDao {
      */
     public Cursor getDiagramNamesAsCursor(boolean executable) {
         return mDb.getReadableDatabase().query(true, DIAGRAMS_TABLE, new String[]{DIAGRAMS_ID, DIAGRAMS_NAME, DIAGRAMS_SCRIPT},
-                (executable ? "script_id is not null" : null), new String[]{},
+                (executable ? q("{} is not null", DIAGRAMS_SCRIPT) : null), new String[]{},
                 null, null, "created desc", null);
     }
 
@@ -191,8 +193,8 @@ public final class DiagramDao {
         Cursor query = null;
         Diagram diagram = null;
         try {
-            query = mDb.getReadableDatabase().query(DIAGRAMS_TABLE, DIAGRAMS_COLUMNS, "name=?", new String[]{name},
-                    null, null, "version desc", "1");
+            query = mDb.getReadableDatabase().query(DIAGRAMS_TABLE, DIAGRAMS_COLUMNS, q("{}=?", DIAGRAMS_NAME), new String[]{name},
+                    null, null, q("{} desc", DIAGRAMS_VERSION), "1");
             if (!query.moveToFirst()) {
                 return null;
             }
@@ -222,7 +224,7 @@ public final class DiagramDao {
         try {
             // select distinct
             query = mDb.getReadableDatabase().query(true, ARROWS_TABLE, ARROWS_COLUMNS,
-                    "diagram_id=?", new String[]{Long.toString(diagramId)},
+                    q("{}=?", ARROWS_DIAGRAM), new String[]{Long.toString(diagramId)},
                     null, null, null, null);
             if (query.moveToFirst()) {
                 while (!query.isAfterLast()) {
@@ -249,7 +251,7 @@ public final class DiagramDao {
         try {
             // select distinct
             query = mDb.getReadableDatabase().query(true, CONNECT_TABLE, CONNECT_COLUMNS,
-                    "diagram_id=?", new String[]{Long.toString(diagramId)},
+                    q("{}=?", CONNECT_DIAGRAM), new String[]{Long.toString(diagramId)},
                     null, null, null, null);
             if (query.moveToFirst()) {
                 while (!query.isAfterLast()) {

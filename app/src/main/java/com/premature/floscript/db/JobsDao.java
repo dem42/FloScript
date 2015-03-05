@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.premature.floscript.db.DbUtils.SaveMode;
+import static com.premature.floscript.db.DbUtils.q;
 
 /**
  * Created by martin on 17/01/15.
@@ -74,7 +75,7 @@ public class JobsDao {
                 jobId = db.insert(JOBS_TABLE, null, values);
             }
             else {
-                jobId = db.update(JOBS_TABLE, values, "name=?", new String[]{job.getJobName()});
+                jobId = db.update(JOBS_TABLE, values, q("{}=?", JOBS_NAME), new String[]{job.getJobName()});
             }
             if (jobId == -1) {
                 Log.e(TAG, "Failed to insert job " + job);
@@ -124,7 +125,7 @@ public class JobsDao {
         Cursor query = null;
         try {
             // select distinct
-            query = mDb.getReadableDatabase().query(JOBS_TABLE, new String[]{JOBS_SCRIPT}, "name=?", new String[]{jobName}, null, null, null);
+            query = mDb.getReadableDatabase().query(JOBS_TABLE, new String[]{JOBS_SCRIPT}, q("{}=?", JOBS_NAME), new String[]{jobName}, null, null, null);
             if (query.moveToFirst()) {
                 Long scriptId = query.getLong(query.getColumnIndex(JOBS_SCRIPT));
                 return mScriptsDao.getScriptById(scriptId);
@@ -137,5 +138,34 @@ public class JobsDao {
                 query.close();
             }
         }
+    }
+
+    public Iterable<Job> getEnabledJobsForEventTrigger(String eventAlias) {
+        Cursor query = null;
+        List<Job> jobs = new ArrayList<>();
+        try {
+            // select distinct
+            query = mDb.getReadableDatabase().query(JOBS_TABLE, JOBS_COLUMNS, q("{}=1 and {}=?", JOBS_ENABLED, JOBS_EVENT_TRIGGER), new String[]{eventAlias}, null, null, null);
+            if (query.moveToFirst()) {
+                do {
+                    Long scriptId = query.getLong(query.getColumnIndex(JOBS_SCRIPT));
+                    Script script = mScriptsDao.getScriptById(scriptId);
+                    String jobName = query.getString(query.getColumnIndex(JOBS_NAME));
+                    String jobComment = query.getString(query.getColumnIndex(JOBS_COMMENTS));
+                    String eventTrigger = query.getString(query.getColumnIndex(JOBS_EVENT_TRIGGER));
+                    TimeTrigger timeTrigger = TimeTrigger.parseString(query.getString(query.getColumnIndex(JOBS_TIME_TRIGGER)));
+                    jobs.add(Job.builder()
+                            .fromScript(script).withName(jobName)
+                            .withComment(jobComment)
+                            .triggerWhen(eventTrigger).triggerWhen(timeTrigger)
+                            .build());
+                } while (query.moveToNext());
+            }
+        } finally {
+            if (query != null) {
+                query.close();
+            }
+        }
+        return jobs;
     }
 }

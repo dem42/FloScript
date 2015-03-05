@@ -127,7 +127,7 @@ public class ScriptCollectionActivity extends ActionBarActivity implements Loade
 
         @Override
         public List<Script> runQuery() {
-            return new ScriptsDao(getContext()).getScripts(ScriptsDao.SCRIPTS_TYPE + " in (?,?,?)",
+            return new ScriptsDao(getContext()).getScripts(DbUtils.q("{} in (?,?,?)", ScriptsDao.SCRIPTS_TYPE),
                     new String[]{Script.Type.FUNCTION.getCodeStr(), Script.Type.BLOCK_TEMPLATE.getCodeStr(), Script.Type.DIAMOND_TEMPLATE.getCodeStr()});
         }
     }

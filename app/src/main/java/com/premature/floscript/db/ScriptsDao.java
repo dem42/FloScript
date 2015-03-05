@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.premature.floscript.db.DbUtils.q;
+
 /**
  * Created by martin on 15/01/15.
  * <p/>
@@ -73,7 +75,7 @@ public final class ScriptsDao {
     public Long getScriptId(Script script) {
         Cursor query = null;
         try {
-            query = mDb.getReadableDatabase().query(SCRIPTS_TABLE, new String[]{SCRIPTS_ID}, "name=?", new String[]{script.getName()}, null, null, null);
+            query = mDb.getReadableDatabase().query(SCRIPTS_TABLE, new String[]{SCRIPTS_ID}, q("{}=?", SCRIPTS_NAME), new String[]{script.getName()}, null, null, null);
             if (query.moveToFirst()) {
                 return query.getLong(query.getColumnIndex(SCRIPTS_ID));
             }
@@ -88,7 +90,7 @@ public final class ScriptsDao {
     public Script getScriptById(Long scriptId) {
         Cursor query = null;
         try {
-            query = mDb.getReadableDatabase().query(SCRIPTS_TABLE, SCRIPTS_COLUMNS, "_id=?", new String[]{Long.toString(scriptId)}, null, null, null);
+            query = mDb.getReadableDatabase().query(SCRIPTS_TABLE, SCRIPTS_COLUMNS, q("{}=?", SCRIPTS_ID), new String[]{Long.toString(scriptId)}, null, null, null);
             if (query.moveToFirst()) {
                 String code = query.getString(query.getColumnIndex(SCRIPTS_CODE));
                 String name = query.getString(query.getColumnIndex(SCRIPTS_NAME));
