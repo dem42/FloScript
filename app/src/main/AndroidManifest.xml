@@ -31,13 +31,15 @@
         </service>
 
         <!-- the bcast receiver starts disabled and gets enabled
-         when there are jobs that require it -->
+         when there are jobs that require it
+         these jobs should be wired up to the job creation activity in JobScheduler-->
         <receiver
             android:name=".jobs.EventTriggerReceiver"
             android:enabled="false"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
     </application>

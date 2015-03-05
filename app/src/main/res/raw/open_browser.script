@@ -1,0 +1,12 @@
+/* Name Section */
+Open Browser Template
+/* Type Section */
+BLOCK_TEMPLATE
+/* Var Section */
+{'address':'undefined'}
+/* Var Types Section */
+{'address':'STRING'}
+/* Code Section */
+floApi.openBrowser(vars.address);
+/* Comment Section */
+browser open "${address}"

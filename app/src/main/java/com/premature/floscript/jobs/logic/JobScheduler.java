@@ -44,10 +44,10 @@ public final class JobScheduler {
     private static Map<String, String> eventActionToCodes = new HashMap<>();
     private static Map<String, String> codesToEventActions = new HashMap<>();
 
+    // this is where we wire up events that floscript can handle .. don't forget to also add them in the manifest
     static {
-        eventActionToCodes.put("android.net.conn.CONNECTIVITY_CHANGE", "CONNECTIVITY_CHANGE");
-        codesToEventActions.put("CONNECTIVITY_CHANGE", "android.net.conn.CONNECTIVITY_CHANGE");
-        eventToReceiver.put("android.net.conn.CONNECTIVITY_CHANGE", EventTriggerReceiver.class);
+        addEventTrigger("Internet Connectivity Change", "android.net.conn.CONNECTIVITY_CHANGE", EventTriggerReceiver.class);
+        addEventTrigger("Phone Unlocked", "android.intent.action.USER_PRESENT", EventTriggerReceiver.class);
     }
 
     /**
@@ -153,5 +153,11 @@ public final class JobScheduler {
                 "text/plain");
         jobExecutionIntent.putExtra(JobExecutionService.JOB_NAME, job.getJobName());
         return PendingIntent.getService(context, 0, jobExecutionIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
+    private static void addEventTrigger(String triggerAlias, String androidTriggerString, Class<? extends BroadcastReceiver> triggerReciever) {
+        eventActionToCodes.put(androidTriggerString, triggerAlias);
+        codesToEventActions.put(triggerAlias, androidTriggerString);
+        eventToReceiver.put(androidTriggerString, triggerReciever);
     }
 }

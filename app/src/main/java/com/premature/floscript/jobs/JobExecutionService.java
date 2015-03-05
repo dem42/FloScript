@@ -33,6 +33,7 @@ public class JobExecutionService extends IntentService {
      * @see IntentService
      */
     public static void startActionJob(Context context, String eventActionName) {
+        Log.d(TAG, "Received a start action from event trigger for action = " + eventActionName);
         Intent intent = new Intent(context, JobExecutionService.class);
         intent.setAction(ACTION_EVENT);
         intent.putExtra(EVENT_NAME, eventActionName);

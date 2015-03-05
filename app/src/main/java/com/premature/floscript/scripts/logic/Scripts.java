@@ -88,6 +88,7 @@ public final class Scripts {
         List<Script> scripts = new ArrayList<>();
         scripts.add(getScriptFromFile(ctx, R.raw.output_msg));
         scripts.add(getScriptFromFile(ctx, R.raw.between_test));
+        scripts.add(getScriptFromFile(ctx, R.raw.open_browser));
         return scripts;
     }
 }
