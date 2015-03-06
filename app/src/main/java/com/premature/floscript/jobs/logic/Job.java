@@ -2,7 +2,7 @@ package com.premature.floscript.jobs.logic;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
+import android.support.annotation.Nullable;
 
 import com.premature.floscript.scripts.logic.Script;
 
@@ -46,6 +46,7 @@ public class Job implements Parcelable {
     public int describeContents() {
         return 0;
     }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mJobName);
@@ -55,11 +56,13 @@ public class Job implements Parcelable {
         dest.writeString(mEventTrigger);
         dest.writeParcelable(mTimeTrigger, flags);
     }
+
     public static final Parcelable.Creator<Job> CREATOR = new Parcelable.Creator<Job>() {
         @Override
         public Job createFromParcel(Parcel source) {
             return new Job(source);
         }
+
         @Override
         public Job[] newArray(int size) {
             return new Job[size];
@@ -125,7 +128,7 @@ public class Job implements Parcelable {
      * Usage:
      * <br />
      * <code>
-     *     Job j = new Job.Builder().withName(..).fromScript(..).triggerWhen(..).orWhen(..).builder();
+     * Job j = new Job.Builder().withName(..).fromScript(..).triggerWhen(..).orWhen(..).builder();
      * </code>
      */
     public static class Builder {
@@ -138,42 +141,46 @@ public class Job implements Parcelable {
         private String eventTrigger;
         private TimeTrigger timeTrigger;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         public Builder withName(String jobName) {
             mJobName = jobName;
             return this;
         }
+
         public Builder fromScript(Script script) {
             mScript = script;
             return this;
 
         }
+
         public Builder withComment(String comment) {
             mComment = comment;
             return this;
         }
+
         public Builder createdAt(Date created) {
             mCreated = created;
             return this;
         }
-       public Builder triggerWhen(TimeTrigger time) {
+
+        public Builder triggerWhen(@Nullable TimeTrigger time) {
             timeTrigger = time;
             return this;
-       }
-        public Builder triggerWhen(String event) {
+        }
+
+        public Builder triggerWhen(@Nullable String event) {
             eventTrigger = event;
             return this;
         }
+
         public Job build() {
             if (mJobName == null) {
                 throw new IllegalArgumentException("Job must have a name");
             }
             if (mScript == null) {
                 throw new IllegalArgumentException("Job must have a script attached");
-            }
-            if (eventTrigger == null && timeTrigger == null) {
-                throw new IllegalArgumentException("Job must have a trigger");
             }
             return new Job(mJobName, mScript, mCreated, mComment, eventTrigger, timeTrigger);
         }

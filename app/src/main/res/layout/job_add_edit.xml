@@ -9,7 +9,10 @@
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingTop="10dp">
 
             <TextView
                 android:id="@+id/job_add_name_lbl"
@@ -30,15 +33,21 @@
                 android:layout_below="@id/job_add_name_lbl"
                 android:width="200dp" />
 
+            <View
+                android:layout_below="@id/job_add_name_in"
+                android:id="@+id/job_add_rule0"
+                style="@style/PaddedHorizontalRule" />
+
             <TextView
                 android:id="@+id/job_add_desc_lbl"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/job_add_name_in"
+                android:layout_below="@+id/job_add_rule0"
                 android:text="Description"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:enabled="true" />
 
             <EditText
                 android:id="@+id/job_add_desc_in"
@@ -49,6 +58,10 @@
                 android:layout_below="@+id/job_add_desc_lbl"
                 android:width="500dp" />
 
+            <View
+                android:layout_below="@id/job_add_desc_in"
+                android:id="@+id/job_add_rule1"
+                style="@style/PaddedHorizontalRule" />
 
             <TextView
                 android:id="@+id/job_add_title"
@@ -56,7 +69,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/job_add_desc_in"
+                android:layout_below="@+id/job_add_rule1"
                 android:text="Select script"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -66,8 +79,13 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/job_add_title" />
+                android:layout_below="@+id/job_add_title"
+                android:spinnerMode="dialog" />
 
+            <View
+                android:layout_below="@id/job_add_spinner"
+                android:id="@+id/job_add_rule2"
+                style="@style/PaddedHorizontalRule" />
 
             <TextView
                 android:id="@+id/job_add_time_lbl"
@@ -75,18 +93,44 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/job_add_spinner"
+                android:layout_below="@id/job_add_rule2"
                 android:text="Execution time"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
-            <com.premature.floscript.jobs.ui.TimePickerThatCanBeInAScroll
-                android:id="@+id/job_add_time_picker"
+
+            <com.premature.floscript.jobs.ui.TimeTriggerView
+                android:id="@+id/job_add_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/job_add_time_lbl"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/job_add_time_lbl"
-                android:timePickerMode="clock" />
+                android:clickable="true"
+                android:elegantTextHeight="false"
+                android:textSize="50sp"
+                android:textIsSelectable="false"
+                android:paddingLeft="30dp"
+                android:paddingTop="5dp"
+                android:paddingRight="30dp"
+                android:paddingBottom="5dp"
+                android:text="20:30"
+                android:enabled="false"
+                android:background="@drawable/time_trigger_background"
+                android:textColor="@color/time_trigger_text" />
+
+            <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/job_add_time_trig"
+                android:layout_below="@id/job_add_rule2"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:checked="false" />
+
+            <View
+                android:layout_below="@id/job_add_time"
+                android:id="@+id/job_add_rule3"
+                style="@style/PaddedHorizontalRule" />
 
             <TextView
                 android:id="@+id/job_add_event_lbl"
@@ -94,7 +138,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/job_add_time_picker"
+                android:layout_below="@id/job_add_rule3"
                 android:text="Event Trigger"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -104,7 +148,19 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_below="@+id/job_add_event_lbl" />
+                android:layout_below="@+id/job_add_event_lbl"
+                android:spinnerMode="dialog"
+                android:enabled="false" />
+
+            <Switch
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/job_add_evt_trig"
+                android:layout_below="@+id/job_add_rule3"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:checked="false" />
+
 
         </RelativeLayout>
     </ScrollView>

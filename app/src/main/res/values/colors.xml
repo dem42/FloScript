@@ -12,4 +12,5 @@
     <item name="horizontal_rule" type="color">#E40078</item>
     <item name="text_color" type="color">#ffffff</item>
     <item name="script_item_background" type="color">#ffffff</item>
+    <color name="highlight_disabled">#ff76525b</color>
 </resources>

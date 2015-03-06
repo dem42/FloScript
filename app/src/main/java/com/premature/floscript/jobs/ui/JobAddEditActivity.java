@@ -13,9 +13,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TimePicker;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.premature.floscript.R;
@@ -28,6 +29,8 @@ import com.premature.floscript.jobs.logic.Job;
 import com.premature.floscript.jobs.logic.JobScheduler;
 import com.premature.floscript.jobs.logic.TimeTrigger;
 import com.premature.floscript.scripts.logic.Script;
+import com.premature.floscript.util.FloBus;
+import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -39,6 +42,8 @@ import java.util.Map;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
+import static com.premature.floscript.jobs.ui.JobEditDialogs.TimeTriggerDialog;
+
 /**
  * This activity is responsible for allowing the user to create/edit a new job from
  * an existing script. It then persists the new job which can then be enabled/disabled
@@ -49,10 +54,12 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
 
     private static final String TAG = "JOB_ADD_ACTIVITY";
     private static final int JOB_ADD = 2;
+    private static final String TIME_TRIG_DIALOG = "TIME_TRIG_DIAG";
     private ArrayAdapter<DbUtils.NameAndId> mArrayAdapter;
     private Map<String, Integer> mDiagramNameToPos;
-    private String mActiveName;
+    private String mActiveScriptName;
     private ArrayAdapter<String> mEventTrigAdapter;
+    private List<String> mAvailableEventTriggers;
 
     private enum JobActivityMode {
         ADD, EDIT;
@@ -67,10 +74,14 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
     EditText mJobDesc;
     @InjectView(R.id.job_add_name_in)
     EditText mJobName;
-    @InjectView(R.id.job_add_time_picker)
-    TimePicker mJobTime;
+    @InjectView(R.id.job_add_time)
+    TimeTriggerView mJobTime;
     @InjectView(R.id.job_add_event_spin)
     Spinner mEventTriggerSpin;
+    @InjectView(R.id.job_add_evt_trig)
+    Switch mEventTrigSwitch;
+    @InjectView(R.id.job_add_time_trig)
+    Switch mTimeTrigSwitch;
 
 
     /* ******************** */
@@ -91,12 +102,31 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
 
         mDiagramNameSpinner.setAdapter(mArrayAdapter);
         mDiagramNameSpinner.setOnItemSelectedListener(this);
-        mJobTime.setIs24HourView(true);
 
-        mEventTrigAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, android.R.id.text1,
-                new ArrayList<>(withEmptyItem(JobScheduler.getAvailableEventTriggers())));
+        mEventTrigSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mEventTriggerSpin.setEnabled(isChecked);
+            }
+        });
+        mAvailableEventTriggers = JobScheduler.getAvailableEventTriggers();
+        mEventTrigAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, android.R.id.text1, mAvailableEventTriggers);
         mEventTrigAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mEventTriggerSpin.setAdapter(mEventTrigAdapter);
+
+        mTimeTrigSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mJobTime.setEnabled(isChecked);
+            }
+        });
+        mJobTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TimeTriggerDialog timeTriggerDialog = TimeTriggerDialog.newInstance(mJobTime.getTrigger());
+                timeTriggerDialog.show(getSupportFragmentManager(), TIME_TRIG_DIALOG);
+            }
+        });
 
         mMode = JobActivityMode.ADD; // the default is ADD
         Intent startingIntent = getIntent();
@@ -113,25 +143,49 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         initOrRestartTheLoader();
     }
 
+    @Subscribe
+    public void timeTriggerResult(TimeTriggerResultEvent ttre) {
+        mJobTime.setTime(ttre.trigger);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         getSupportActionBar().setTitle((mMode == JobActivityMode.ADD ? "Create" : "Edit") + " Job");
     }
 
-    private List<String> withEmptyItem(List<String> availableEventTriggers) {
-        availableEventTriggers.add(" ");
-        return availableEventTriggers;
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FloBus.getInstance().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onPause();
+        FloBus.getInstance().unregister(this);
     }
 
     private void initializeFromJob(Job jobParcel) {
         mJobName.setText(jobParcel.getJobName());
         mJobDesc.setText(jobParcel.getComment());
-        mActiveName = jobParcel.getScript().getName();
+        mActiveScriptName = jobParcel.getScript().getName();
+        if (jobParcel.getEventTrigger() != null) {
+            mEventTriggerSpin.setEnabled(true);
+            mEventTrigSwitch.setChecked(true);
+            String activeEventTriggerName = jobParcel.getEventTrigger();
+            int pos = mAvailableEventTriggers.indexOf(activeEventTriggerName);
+            if (pos != -1) {
+                mEventTriggerSpin.setSelection(pos);
+            } else {
+                Log.d(TAG, "Unknown event trigger " + activeEventTriggerName);
+            }
+        }
 
         if (jobParcel.getTimeTrigger() != null) {
-            mJobTime.setCurrentHour(jobParcel.getTimeTrigger().hour);
-            mJobTime.setCurrentMinute(jobParcel.getTimeTrigger().minute);
+            mJobTime.setEnabled(true);
+            mTimeTrigSwitch.setChecked(true);
+            mJobTime.setTime(jobParcel.getTimeTrigger());
         }
         mJobEnabled = jobParcel.isEnabled();
     }
@@ -159,15 +213,20 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
 
         String jobName = mJobName.getText().toString();
         String comment = mJobDesc.getText().toString();
-
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date());
-        cal.set(Calendar.HOUR_OF_DAY, mJobTime.getCurrentHour());
-        cal.set(Calendar.MINUTE, mJobTime.getCurrentMinute());
-
-        TimeTrigger timeTrigger = new TimeTrigger(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
-
-        String eventTrigger = mEventTrigAdapter.getItem(mEventTriggerSpin.getSelectedItemPosition());
+        //setup the time trigger if enabled .. the builder accepts nulls
+        TimeTrigger timeTrigger = null;
+        if (mJobTime.isEnabled()) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(new Date());
+            cal.set(Calendar.HOUR_OF_DAY, mJobTime.getHour());
+            cal.set(Calendar.MINUTE, mJobTime.getMinute());
+            timeTrigger = new TimeTrigger(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE));
+        }
+        // setup event trigger if available .. the builder accepts null for nonexistent triggers
+        String eventTrigger = null;
+        if (mEventTriggerSpin.isEnabled()) {
+            eventTrigger = mEventTrigAdapter.getItem(mEventTriggerSpin.getSelectedItemPosition());
+        }
 
         Job job = Job.builder().withName(jobName).fromScript(script).withComment(comment)
                 .triggerWhen(timeTrigger).triggerWhen(eventTrigger).build();
@@ -228,11 +287,11 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
             for (DbUtils.NameAndId nameAndId : data) {
                 mDiagramNameToPos.put(nameAndId.name, pos++);
             }
-            Integer position = mDiagramNameToPos.get(mActiveName);
+            Integer position = mDiagramNameToPos.get(mActiveScriptName);
             if (position != null) {
                 mDiagramNameSpinner.setSelection(position);
             } else {
-                Log.e(TAG, "Couldn't locate a position in spinner for job " + mActiveName);
+                Log.e(TAG, "Couldn't locate a position in spinner for job " + mActiveScriptName);
             }
         }
     }
@@ -296,4 +355,11 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         }
     }
 
+    public static class TimeTriggerResultEvent {
+        private final TimeTrigger trigger;
+
+        public TimeTriggerResultEvent(TimeTrigger trigger) {
+            this.trigger = trigger;
+        }
+    }
 }
