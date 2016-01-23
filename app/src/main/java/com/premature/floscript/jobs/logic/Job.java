@@ -40,6 +40,7 @@ public class Job implements Parcelable {
         this.mComment = in.readString();
         this.mEventTrigger = in.readString();
         this.mTimeTrigger = in.readParcelable(TimeTrigger.class.getClassLoader());
+        this.mEnabled = in.readInt() == 0 ? false : true;
     }
 
     @Override
@@ -55,6 +56,7 @@ public class Job implements Parcelable {
         dest.writeString(mComment);
         dest.writeString(mEventTrigger);
         dest.writeParcelable(mTimeTrigger, flags);
+        dest.writeInt(mEnabled ? 1 : 0);
     }
 
     public static final Parcelable.Creator<Job> CREATOR = new Parcelable.Creator<Job>() {

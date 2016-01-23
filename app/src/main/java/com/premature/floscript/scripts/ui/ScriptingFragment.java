@@ -12,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.premature.floscript.R;
@@ -54,6 +55,9 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     private DiamondUiElement mDiamondElement;
     private ArrowUiElement mArrowElement;
 
+
+    @InjectView(R.id.preview)
+    ImageView preview;
 
     @InjectView(R.id.script_editor)
     DiagramEditorView mDiagramEditorView;
@@ -148,8 +152,23 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
                 Log.d(TAG, "admin code");
                 adminCode();
                 return true;
+            case R.id.action_thumb:
+                Log.d(TAG, "preview");
+                thumbnail();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void thumbnail() {
+        if (preview.getVisibility() == View.INVISIBLE) {
+            preview.setVisibility(View.VISIBLE);
+            preview.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+            preview.setImageDrawable(mDiagramEditorView.getDrawable());
+        }
+        else {
+            preview.setVisibility(View.INVISIBLE);
         }
     }
 

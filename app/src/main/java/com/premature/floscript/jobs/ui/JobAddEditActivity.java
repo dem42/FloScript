@@ -113,6 +113,7 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         mEventTrigAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, android.R.id.text1, mAvailableEventTriggers);
         mEventTrigAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mEventTriggerSpin.setAdapter(mEventTrigAdapter);
+        mEventTriggerSpin.setEnabled(false);
 
         mTimeTrigSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

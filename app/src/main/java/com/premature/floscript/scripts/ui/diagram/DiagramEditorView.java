@@ -2,11 +2,16 @@ package com.premature.floscript.scripts.ui.diagram;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ScaleDrawable;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -339,6 +344,15 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
             mArrowPopupMenu.draw(canvas);
         }
         canvas.restore();
+    }
+
+    public Drawable getDrawable() {
+        Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        draw(canvas);
+        float aspectRatio = (1.0f * getWidth()) / getHeight();
+        Drawable diagram = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, (int)(100*aspectRatio), 100, false));
+        return diagram;
     }
 
     static <T extends DiagramElement> T findTouchedElement(Iterable<T> elements, int xPosDips, int yPosDips) {
