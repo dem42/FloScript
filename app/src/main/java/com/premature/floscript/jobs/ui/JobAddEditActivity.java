@@ -163,7 +163,7 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
 
     @Override
     protected void onStop() {
-        super.onPause();
+        super.onStop();
         FloBus.getInstance().unregister(this);
     }
 

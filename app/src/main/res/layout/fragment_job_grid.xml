@@ -1,13 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.premature.floscript.jobs.ui.JobsFragment">
 
+    <ImageView
+        android:id="@+id/job_control_icon"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/jobs"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"/>
+
     <GridView android:id="@android:id/list" android:layout_width="match_parent"
-        android:layout_height="match_parent" android:numColumns="2" />
+        android:layout_height="match_parent" android:numColumns="2"
+        android:horizontalSpacing="16dp"
+        android:verticalSpacing="16dp"
+        android:clickable="false"/>
 
     <TextView android:id="@android:id/empty" android:layout_width="match_parent"
-        android:layout_height="match_parent" android:gravity="center" />
+        android:layout_height="match_parent" android:gravity="center"
+        android:text="Welcome to the Job Control Center. Here you will see your active jobs once you've added them using the '+' button in the menu."/>
 
-</FrameLayout>
+</LinearLayout>

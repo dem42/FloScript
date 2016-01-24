@@ -1,12 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fdfdfd"
+    android:paddingLeft="?android:attr/expandableListPreferredChildPaddingLeft">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/job_item_job_comments" />
+        android:text="Description:"
+        android:id="@+id/job_item_job_comments_label"/>
 
-</LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="xoxoxox"
+        android:id="@+id/job_item_job_comments"
+        android:layout_below="@id/job_item_job_comments_label"
+
+        android:textStyle="italic"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/job_item_job_comments"
+        android:weightSum="1">
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="85dp"
+            android:layout_height="wrap_content"
+            android:text="Edit"
+            android:id="@+id/job_button_edit"/>
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="85dp"
+            android:layout_height="wrap_content"
+            android:text="Execute"
+            android:id="@+id/job_button_execute" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="85dp"
+            android:layout_height="wrap_content"
+            android:text="Delete"
+            android:id="@+id/job_button_delete" />
+
+    </LinearLayout>
+
+</RelativeLayout>

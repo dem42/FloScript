@@ -17,9 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -44,8 +42,7 @@ import butterknife.ButterKnife;
  * with a GridView.
  * interface.
  */
-public class JobsFragment extends Fragment implements AbsListView.OnItemClickListener,
-        LoaderManager.LoaderCallbacks<List<JobContent>> {
+public class JobsFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<JobContent>> {
 
     public static final String JOB_PARCEL = "JOB_PARCEL";
 
@@ -63,7 +60,7 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private ArrayAdapter<JobContent> mAdapterForGrids;
+    private JobArrayAdapter mAdapterForGrids;
     private ExpandableJobAdapter mAdapterForLists;
     private JobScheduler mJobScheduler;
 
@@ -81,11 +78,6 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         return fragment;
     }
 
-    public static void toggleEnabledIcon(View view, boolean isEnabled) {
-//        ImageView icon = (ImageView) view.findViewById(R.id.job_item_job_icon);
-//        icon.setImageResource(isEnabled ? R.drawable.job_icon_enabled : R.drawable.job_icon_disabled);
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         // called after onAttach in the lifecycle so it's safe to use getActivity here
@@ -97,8 +89,10 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         mJobScheduler = new JobScheduler(getActivity());
         mScriptEngine = new ScriptEngine(getActivity().getApplicationContext());
 
-        setHasOptionsMenu(true);
+        mAdapterForLists.setJobsFragment(this);
+        mAdapterForGrids.setJobsFragment(this);
 
+        setHasOptionsMenu(true);
         setRetainInstance(true);
     }
 
@@ -108,18 +102,26 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         View view = inflater.inflate(R.layout.fragment_job, container, false);
         ButterKnife.inject(this, view);
         mListView = (AbsListView) view.findViewById(android.R.id.list);
-
+        mListView.setEmptyView(view.findViewById(android.R.id.empty));
         /* dirty hack -- we have a refs.xml to be able to pick the jobs layout automatically based on screen size
          * however, we want to use an expandable list view for small screens and a grid view for
          * large screens. These views need different adapters so we keep two adapters and wiring them in as needed
          */
         if(view.findViewById(R.id.has_expandable_lview) != null) {
             ((ExpandableListView) mListView).setAdapter(mAdapterForLists);
+            mAdapterForGrids = null;
         }
         else {
+            mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Log.d(TAG, "item in view clicked");
+                }
+            });
             mListView.setAdapter(mAdapterForGrids);
+            mAdapterForLists = null;
         }
-        mListView.setOnItemClickListener(this);
+
         return view;
     }
 
@@ -132,6 +134,8 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     @Override
     public void onResume() {
         super.onResume();
+        if (mAdapterForLists != null) mAdapterForLists.setJobsFragment(this);
+        if (mAdapterForGrids != null) mAdapterForGrids.setJobsFragment(this);
         DbUtils.initOrRestartTheLoader(this, getLoaderManager(), JOB_LOADER);
     }
 
@@ -151,7 +155,8 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         startActivity(new Intent(getActivity().getApplicationContext(), JobAddEditActivity.class));
     }
 
-    private void editJob(Job jobToEdit) {
+    void editJob(Job jobToEdit) {
+        Log.d(TAG, "Editing job " + jobToEdit);
         Bundle jobData = new Bundle();
         jobData.putParcelable(JOB_PARCEL, jobToEdit);
         Intent intent = new Intent(getActivity().getApplicationContext(), JobAddEditActivity.class);
@@ -159,45 +164,16 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
         startActivity(intent);
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, final View view, int position, long id) {
-        final JobContent jobContent = mAdapterForGrids.getItem(position);
-        final Job job = jobContent.getJob();
-        PopupMenu popupMenu = new PopupMenu(this.getActivity(), view);
-        popupMenu.inflate(R.menu.menu_job_item_popup);
-        MenuItem item = popupMenu.getMenu().findItem(R.id.action_job_toggle_enabled);
-        item.setTitle(job.isEnabled() ? "Disable" : "Enable");
-        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                int id = item.getItemId();
-                if (id == R.id.action_job_edit) {
-                    editJob(job);
-                    return true;
-                } else if (id == R.id.action_job_execute) {
-                    executeJob(job);
-                    return true;
-                } else if (id == R.id.action_job_toggle_enabled) {
-                    toggleEnabled(job, view);
-                    return true;
-                }
-                return false;
-            }
-        });
-        popupMenu.show();
-
-        // Notify the active callbacks interface (the activity, if the
-        // fragment is attached to one) that an item has been selected.
-        Log.d(TAG, "clicked on jobContent " + jobContent);
-    }
-
-    private void executeJob(Job job) {
+    void executeJob(Job job) {
         mScriptEngine.runScript(job.getScript());
     }
 
-    private void toggleEnabled(Job job, View viewOfJob) {
+    void deleteJob(Job job) {
+        new JobDeleteTask(getActivity(), mJobScheduler).execute(job);
+    }
+
+    void toggleEnabled(Job job) {
         job.setEnabled(!job.isEnabled());
-        toggleEnabledIcon(viewOfJob, job.isEnabled());
         new JobUpdateTask(getActivity(), mJobScheduler).execute(job);
     }
 
@@ -207,7 +183,8 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
      * to supply the text it should use.
      */
     public void setEmptyText(CharSequence emptyText) {
-        View emptyView = mListView.getEmptyView();
+        Log.d(TAG, "setting empty text");
+        View emptyView = mListView.findViewById(android.R.id.empty);
 
         if (emptyView instanceof TextView) {
             ((TextView) emptyView).setText(emptyText);
@@ -226,21 +203,34 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
     public void onLoadFinished(Loader<List<JobContent>> loader, List<JobContent> data) {
         Log.d(TAG, "loading finished of job content");
         if (data != null) {
-            this.mAdapterForGrids.clear();
-            this.mAdapterForLists.clear();
-            this.mAdapterForGrids.addAll(data);
-            this.mAdapterForLists.addAll(data);
+            if (this.mAdapterForLists != null) {
+                this.mAdapterForLists.clear();
+                this.mAdapterForLists.addAll(data);
+            }
+            if (this.mAdapterForGrids != null) {
+                this.mAdapterForGrids.clear();
+                this.mAdapterForGrids.addAll(data);
+            }
         }
     }
 
     @Override
     public void onLoaderReset(Loader<List<JobContent>> loader) {
         Log.d(TAG, "clearing finished of job content");
-        this.mAdapterForGrids.clear();
-        this.mAdapterForLists.clear();
+        if (this.mAdapterForGrids != null) {
+            this.mAdapterForGrids.clear();
+        }
+        if (this.mAdapterForLists != null) {
+            this.mAdapterForLists.clear();
+        }
     }
 
     /**
@@ -291,116 +281,23 @@ public class JobsFragment extends Fragment implements AbsListView.OnItemClickLis
     }
 
     /**
-     * Our custom view adapter that lets the {@link android.widget.ArrayAdapter} take
-     * care of manipulating the data and recycling views
+     * A task to delete the enabled state of a job and deschedule it
      */
-    private class JobArrayAdapter extends ArrayAdapter<JobContent> {
-        public JobArrayAdapter(Context context, ArrayList<JobContent> jobContents) {
-            super(context, R.layout.job_item, R.id.job_item_job_name, jobContents);
+    private static class JobDeleteTask extends AsyncTask<Job, Void, Boolean> {
+        private final JobsDao jobDao;
+        private final JobScheduler mJobScheduler;
+        private JobDeleteTask(Context ctx, JobScheduler jobScheduler) {
+            this.jobDao = new JobsDao(ctx);
+            this.mJobScheduler = jobScheduler;
         }
-
-        //TODO: consider using the ViewHolder pattern from commons-ware (in android_list_view.pdf)
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-
-            View view = super.getView(position, convertView, parent);
-
-            JobContent item = getItem(position);
-            Log.d(TAG, "in job adapter get view with " + item.getJob());
-            TextView comments = (TextView) view.findViewById(R.id.job_item_job_comments);
-            Job job = item.getJob();
-            comments.setText(job.getComment());
-            toggleEnabledIcon(view, job.isEnabled());
-            return view;
-        }
-    }
-
-    private class ExpandableJobAdapter extends BaseExpandableListAdapter {
-
-        private Context context;
-        private List<JobContent> jobs;
-        private int aa = 0;
-
-        public void clear() {
-            jobs.clear();
-            notifyDataSetChanged();
-        }
-
-        public void addAll(List<JobContent> jobs0) {
-            Log.d(TAG, "adding jobs " + jobs.size() + " to exp job adapter");
-            //jobs.clear();
-            //jobs.add(new JobContent(new Job("a" + (aa++), null, null, "aaaa", null, null)));
-            jobs.addAll(jobs0);
-            notifyDataSetChanged();
-        }
-
-        public ExpandableJobAdapter(Context context) {
-            this.context = context;
-            jobs = new ArrayList<>();
-        }
-
-        @Override
-        public int getGroupCount() {
-            return jobs.size();
-        }
-
-        @Override
-        public int getChildrenCount(int groupPosition) {
-            return 1;
-        }
-
-        @Override
-        public Object getGroup(int groupPosition) {
-            return jobs.get(groupPosition);
-        }
-
-        @Override
-        public Object getChild(int groupPosition, int childPosition) {
-            return jobs.get(groupPosition);
-        }
-
-        @Override
-        public long getGroupId(int groupPosition) {
-            return groupPosition;
-        }
-
-        @Override
-        public long getChildId(int groupPosition, int childPosition) {
-            return childPosition;
-        }
-
-        @Override
-        public boolean hasStableIds() {
-            return false;
-        }
-
-        @Override
-        public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-            JobContent currentJob = jobs.get(groupPosition);
-            if (convertView == null) {
-                LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = layoutInflater.inflate(R.layout.job_item_header, null);
+        protected Boolean doInBackground(Job... params) {
+            Job job = params[0];
+            boolean result = jobDao.deleteJob(job);
+            if (result) {
+                mJobScheduler.descheduleJob(job);
             }
-            TextView viewById = (TextView) convertView.findViewById(R.id.job_item_job_name);
-            viewById.setText(currentJob.getJob().getJobName());
-            return convertView;
-        }
-
-        @Override
-        public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-            JobContent currentJob = jobs.get(groupPosition);
-            if (convertView == null) {
-                LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                convertView = layoutInflater.inflate(R.layout.job_item_body, null);
-            }
-            TextView viewById = (TextView) convertView.findViewById(R.id.job_item_job_comments);
-            viewById.setText(currentJob.getJob().getComment());
-            return convertView;
-        }
-
-        @Override
-        public boolean isChildSelectable(int groupPosition, int childPosition) {
-            return false;
+            return result;
         }
     }
 }

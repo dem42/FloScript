@@ -54,6 +54,13 @@ public class JobsDao {
         return saveOrUpdateJob(job, SaveMode.INSERT);
     }
 
+    public boolean deleteJob(Job job) {
+        SQLiteDatabase db = mDb.getWritableDatabase();
+        Long scriptId = job.getScript().getId();
+        int jobId = db.delete(JOBS_TABLE, q("{}=?", JOBS_NAME), new String[]{job.getJobName()});
+        return jobId > 0;
+    }
+
     private boolean saveOrUpdateJob(Job job, SaveMode mode) {
         SQLiteDatabase db = mDb.getWritableDatabase();
         Long scriptId = job.getScript().getId();

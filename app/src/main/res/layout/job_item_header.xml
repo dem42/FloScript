@@ -1,15 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#000000">
+    android:background="#ffffff">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Text"
+        android:text="Job"
         android:id="@+id/job_item_job_name"
         android:textSize="17dp"
-        android:textColor="#f9f93d"/>
+        android:textColor="#080808"
+        android:layout_alignParentLeft="true"
+        android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"/>
 
-</LinearLayout>
+    <!-- we need to set focusable to false or else the button won't let the
+         expandable list view be clicked -->
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/job_enabled"
+        android:checked="false"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="10dp"
+        android:paddingRight="15dp"
+        android:focusable="false"/>
+
+</RelativeLayout>
