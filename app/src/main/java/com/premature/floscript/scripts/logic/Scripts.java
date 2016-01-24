@@ -27,8 +27,11 @@ public final class Scripts {
             throw new ScriptCompilationException(CompilationErrorCode.ELEMENT_WITHOUT_SCRIPT, "Element = " + functionName);
         }
         StringBuilder bob = new StringBuilder("function " + functionName + " (env) {\n");
+        if (yesOrDefaultScript != null) {
+            bob.append("  var result = true;\n");
+        }
         if (codeToWrap.getVariables() != null && !codeToWrap.getVariables().isEmpty()) {
-            bob.append("var vars = ").append(codeToWrap.getVariables()).append(";\n");
+            bob.append("  var vars = ").append(codeToWrap.getVariables()).append(";\n");
         }
         if (!codeToWrap.getSourceCode().isEmpty()) {
             if (Script.Type.FUNCTION == codeToWrap.getType()) {

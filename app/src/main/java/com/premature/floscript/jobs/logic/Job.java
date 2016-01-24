@@ -24,7 +24,7 @@ public class Job implements Parcelable {
     // this is the mutable part of the job
     private boolean mEnabled = true;
 
-    private Job(String mJobName, Script mScript, Date mCreated, String mComment, String eventTriger, TimeTrigger timeTrigger) {
+    public Job(String mJobName, Script mScript, Date mCreated, String mComment, String eventTriger, TimeTrigger timeTrigger) {
         this.mJobName = mJobName;
         this.mScript = mScript;
         this.mCreated = mCreated;
