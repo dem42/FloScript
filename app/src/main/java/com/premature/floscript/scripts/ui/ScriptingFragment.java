@@ -140,6 +140,9 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
             case R.id.action_load:
                 loadDiagram();
                 return true;
+            case R.id.action_clear:
+                clearEditor();
+                return true;
             case R.id.action_compile:
                 Log.d(TAG, "Compiling");
                 compileDiagram();
@@ -159,6 +162,10 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void clearEditor() {
+        this.mDiagramEditorView.setDiagram(Diagram.createEmptyDiagram());
     }
 
     private void thumbnail() {

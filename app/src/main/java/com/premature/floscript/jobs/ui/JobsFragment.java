@@ -169,7 +169,7 @@ public class JobsFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     void deleteJob(Job job) {
-        new JobDeleteTask(getActivity(), mJobScheduler).execute(job);
+        new JobDeleteTask(this, mJobScheduler).execute(job);
     }
 
     void toggleEnabled(Job job) {
@@ -286,8 +286,10 @@ public class JobsFragment extends Fragment implements LoaderManager.LoaderCallba
     private static class JobDeleteTask extends AsyncTask<Job, Void, Boolean> {
         private final JobsDao jobDao;
         private final JobScheduler mJobScheduler;
-        private JobDeleteTask(Context ctx, JobScheduler jobScheduler) {
-            this.jobDao = new JobsDao(ctx);
+        private final JobsFragment jobsFragment;
+        private JobDeleteTask(JobsFragment jobsFragment, JobScheduler jobScheduler) {
+            this.jobDao = new JobsDao(jobsFragment.getActivity());
+            this.jobsFragment = jobsFragment;
             this.mJobScheduler = jobScheduler;
         }
         @Override
@@ -295,6 +297,9 @@ public class JobsFragment extends Fragment implements LoaderManager.LoaderCallba
             Job job = params[0];
             boolean result = jobDao.deleteJob(job);
             if (result) {
+                if (jobsFragment != null) {
+                    DbUtils.initOrRestartTheLoader(jobsFragment, jobsFragment.getLoaderManager(), JOB_LOADER);
+                }
                 mJobScheduler.descheduleJob(job);
             }
             return result;

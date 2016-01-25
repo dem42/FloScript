@@ -87,6 +87,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         Log.d(TAG, "Calling set diagram");
         cleanEditingState();
         this.mDiagram = diagram;
+        positionDiagramCenter(getWidth(), getHeight());
         this.invalidate();
     }
 
@@ -124,8 +125,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
         // Load attributes
         loadAttributes(attrs, defStyle);
-        mDiagram = new Diagram();
-        mDiagram.setEntryElement(new StartUiElement(mDiagram));
+        mDiagram = Diagram.createEmptyDiagram();
         mDensityScale = getResources().getDisplayMetrics().density;
         mElementMover = new ElementMover(this);
 
@@ -302,7 +302,11 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         if (w == 0 || h == 0) {
             return;
         }
+        Log.d(TAG, "Size changed. New size : (" + w + ", " + h + ")");
+        positionDiagramCenter(w, h);
+    }
 
+    private void positionDiagramCenter(int w, int h) {
         float paddingLeft = getPaddingLeft() / mDensityScale;
         float paddingTop = getPaddingTop() / mDensityScale;
         float paddingRight = getPaddingRight() / mDensityScale;
@@ -312,8 +316,9 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         int center_x = (int) (paddingLeft + contentWidth / 2);
         int center_y = (int) (paddingTop + contentHeight / 2);
 
-        Log.d(TAG, "Size changed. New size : (" + w + ", " + h + ")");
+
         // TODO this needs to be adjusted to work on screen orientation changes
+        // how will other elements behave? we would need to shift everything
         mDiagram.getEntryElement().moveCenterTo(center_x, 40);
     }
 

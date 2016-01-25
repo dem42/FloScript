@@ -115,6 +115,7 @@ public final class JobScheduler {
      * @param job
      */
     public void descheduleJob(Job job) {
+        Log.d(TAG, "in deschedule job");
         if (job.getTimeTrigger() != null) {
             wrapAsIntent(job).cancel();
         }

@@ -115,4 +115,10 @@ public final class Diagram {
             removeArrow(arrow);
         }
     }
+
+    public static Diagram createEmptyDiagram() {
+        Diagram diagram = new Diagram();
+        diagram.setEntryElement(new StartUiElement(diagram));
+        return diagram;
+    }
 }

@@ -9,6 +9,7 @@
     <string name="scripting_fragment">Scripting</string>
     <string name="action_load">Load</string>
     <string name="action_add_job">New job</string>
+    <string name="action_clear">Clear</string>
 
     <string name="action_job_edit">Edit</string>
     <string name="action_job_disable">Disable</string>
