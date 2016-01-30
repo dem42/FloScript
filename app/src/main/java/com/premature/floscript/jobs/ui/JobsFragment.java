@@ -177,20 +177,6 @@ public class JobsFragment extends Fragment implements LoaderManager.LoaderCallba
         new JobUpdateTask(getActivity(), mJobScheduler).execute(job);
     }
 
-    /**
-     * The default content for this Fragment has a TextView that is shown when
-     * the list is empty. If you would like to change the text, call this method
-     * to supply the text it should use.
-     */
-    public void setEmptyText(CharSequence emptyText) {
-        Log.d(TAG, "setting empty text");
-        View emptyView = mListView.findViewById(android.R.id.empty);
-
-        if (emptyView instanceof TextView) {
-            ((TextView) emptyView).setText(emptyText);
-        }
-    }
-
     /* *************** */
     /* LOADER METHODS */
     /* ************* */

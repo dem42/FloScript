@@ -14,153 +14,229 @@
             android:paddingRight="5dp"
             android:paddingTop="10dp">
 
-            <TextView
-                android:id="@+id/job_add_name_lbl"
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:text="Job name"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:id="@+id/job_name_box"
+                android:background="#ffffff"
+                android:layout_marginBottom="10dp">
+                <ImageView
+                    android:id="@+id/job_name_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_job_name"
+                    android:tint="@color/spearmint"
+                    android:layout_marginRight="10dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true" />
+                <TextView
+                    android:id="@+id/job_add_name_lbl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Job name"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    style="@style/JobAddEditLabel"
+                    android:layout_marginTop="10dp"
+                    android:layout_alignTop="@+id/job_name_icon"
+                    android:layout_alignLeft="@+id/job_add_name_in"
+                    android:layout_alignStart="@+id/job_add_name_in"/>
 
-            <EditText
-                android:id="@+id/job_add_name_in"
-                android:layout_width="wrap_content"
+                <EditText
+                    android:id="@+id/job_add_name_in"
+                    android:singleLine="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/job_add_name_lbl"
+                    android:layout_alignParentBottom="true"
+                    android:layout_toRightOf="@+id/job_name_icon"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@id/job_add_name_lbl"
-                android:width="200dp" />
+                android:id="@+id/job_desc_box"
+                android:layout_below="@id/job_name_box"
+                android:background="#ffffff"
+                android:layout_marginBottom="10dp">
+                <ImageView
+                    android:id="@+id/job_desc_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_job_desc"
+                    android:tint="@color/spearmint"
+                    android:layout_marginRight="10dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"/>
+                <TextView
+                    android:id="@+id/job_add_desc_lbl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Description"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    style="@style/JobAddEditLabel"
+                    android:enabled="true"
+                    android:layout_marginTop="10dp"
+                    android:layout_alignTop="@+id/job_desc_icon"
+                    android:layout_alignLeft="@+id/job_add_desc_in"
+                    android:layout_alignStart="@+id/job_add_desc_in"/>
+                <EditText
+                    android:id="@+id/job_add_desc_in"
+                    android:singleLine="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/job_add_desc_lbl"
+                    android:layout_alignParentBottom="true"
+                    android:layout_toRightOf="@+id/job_desc_icon"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"/>
+            </RelativeLayout>
 
-            <View
-                android:layout_below="@id/job_add_name_in"
-                android:id="@+id/job_add_rule0"
-                style="@style/PaddedHorizontalRule" />
-
-            <TextView
-                android:id="@+id/job_add_desc_lbl"
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/job_add_rule0"
-                android:text="Description"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:enabled="true" />
+                android:id="@+id/job_script_box"
+                android:layout_below="@id/job_desc_box"
+                android:background="#ffffff"
+                android:layout_marginBottom="10dp">
+                <ImageView
+                    android:id="@+id/job_script_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_job_script"
+                    android:tint="@color/spearmint"
+                    android:layout_marginRight="10dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"/>
+                <TextView
+                    android:id="@+id/job_add_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Job script"
+                    style="@style/JobAddEditLabel"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:layout_marginTop="10dp"
+                    android:layout_alignTop="@+id/job_script_icon"
+                    android:layout_alignLeft="@+id/job_add_spinner"
+                    android:layout_alignStart="@+id/job_add_spinner"/>
+                <Spinner
+                    android:id="@+id/job_add_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:spinnerMode="dropdown"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_below="@id/job_add_title"
+                    android:layout_toRightOf="@+id/job_script_icon"/>
+            </RelativeLayout>
 
-            <EditText
-                android:id="@+id/job_add_desc_in"
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/job_add_desc_lbl"
-                android:width="500dp" />
+                android:id="@+id/job_time_trig_box"
+                android:layout_below="@id/job_script_box"
+                android:background="#ffffff"
+                android:layout_marginBottom="10dp">
+                <ImageView
+                    android:id="@+id/job_time_trig_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_job_time_trig"
+                    android:tint="@color/spearmint"
+                    android:layout_marginRight="10dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"/>
+                <TextView
+                    android:id="@+id/job_add_time_lbl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Execution time"
+                    style="@style/JobAddEditLabel"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:layout_marginTop="10dp"
+                    android:layout_alignTop="@+id/job_time_trig_icon"
+                    android:layout_alignLeft="@+id/job_add_time"
+                    android:layout_alignStart="@+id/job_add_time"/>
+                <com.premature.floscript.jobs.ui.TimeTriggerView
+                    android:id="@+id/job_add_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:elegantTextHeight="false"
+                    android:textSize="50sp"
+                    android:textIsSelectable="false"
+                    android:paddingLeft="30dp"
+                    android:paddingTop="5dp"
+                    android:paddingRight="30dp"
+                    android:paddingBottom="5dp"
+                    android:text="20:30"
+                    android:enabled="false"
+                    android:background="@drawable/time_trigger_background"
+                    android:textColor="@color/time_trigger_text"
+                    android:layout_below="@id/job_add_time_lbl"
+                    android:layout_toRightOf="@+id/job_time_trig_icon"/>
+                <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/job_add_time_trig"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:checked="false" />
+            </RelativeLayout>
 
-            <View
-                android:layout_below="@id/job_add_desc_in"
-                android:id="@+id/job_add_rule1"
-                style="@style/PaddedHorizontalRule" />
-
-            <TextView
-                android:id="@+id/job_add_title"
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/job_add_rule1"
-                android:text="Select script"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <Spinner
-                android:id="@+id/job_add_spinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/job_add_title"
-                android:spinnerMode="dialog" />
-
-            <View
-                android:layout_below="@id/job_add_spinner"
-                android:id="@+id/job_add_rule2"
-                style="@style/PaddedHorizontalRule" />
-
-            <TextView
-                android:id="@+id/job_add_time_lbl"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@id/job_add_rule2"
-                android:text="Execution time"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-
-            <com.premature.floscript.jobs.ui.TimeTriggerView
-                android:id="@+id/job_add_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/job_add_time_lbl"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:clickable="true"
-                android:elegantTextHeight="false"
-                android:textSize="50sp"
-                android:textIsSelectable="false"
-                android:paddingLeft="30dp"
-                android:paddingTop="5dp"
-                android:paddingRight="30dp"
-                android:paddingBottom="5dp"
-                android:text="20:30"
-                android:enabled="false"
-                android:background="@drawable/time_trigger_background"
-                android:textColor="@color/time_trigger_text" />
-
-            <Switch
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/job_add_time_trig"
-                android:layout_below="@id/job_add_rule2"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:checked="false" />
-
-            <View
-                android:layout_below="@id/job_add_time"
-                android:id="@+id/job_add_rule3"
-                style="@style/PaddedHorizontalRule" />
-
-            <TextView
-                android:id="@+id/job_add_event_lbl"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@id/job_add_rule3"
-                android:text="Event Trigger"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <Spinner
-                android:id="@+id/job_add_event_spin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_below="@+id/job_add_event_lbl"
-                android:spinnerMode="dialog"
-                android:enabled="false" />
-
-            <Switch
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/job_add_evt_trig"
-                android:layout_below="@+id/job_add_rule3"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true"
-                android:checked="false" />
-
+                android:id="@+id/job_event_trig_box"
+                android:layout_below="@id/job_time_trig_box"
+                android:background="#ffffff"
+                android:layout_marginBottom="10dp">
+                <ImageView
+                    android:id="@+id/job_event_trig_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_job_event_trig"
+                    android:tint="@color/spearmint"
+                    android:layout_marginRight="10dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"/>
+                <TextView
+                    android:id="@+id/job_add_event_lbl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Event trigger"
+                    style="@style/JobAddEditLabel"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:layout_marginTop="10dp"
+                    android:layout_alignTop="@+id/job_event_trig_icon"
+                    android:layout_alignLeft="@+id/job_add_event_spin"
+                    android:layout_alignStart="@+id/job_add_event_spin"/>
+                <Spinner
+                    android:id="@+id/job_add_event_spin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:spinnerMode="dialog"
+                    android:enabled="false"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:layout_below="@id/job_add_event_lbl"
+                    android:layout_toRightOf="@+id/job_event_trig_icon"/>
+                <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/job_add_evt_trig"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"
+                    android:checked="false" />
+            </RelativeLayout>
 
         </RelativeLayout>
     </ScrollView>

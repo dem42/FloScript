@@ -6,6 +6,7 @@
     <item name="spearmint_light" type="color">#73baa7</item>
     <item name="highlight" type="color">#E40078</item>
     <item name="flo_background" type="color">#e9e9e9</item>
+    <item name="white" type="color">#ffffff</item>
 
     <!-- @android:color/darker_gray -->
     <item name="divider" type="color">#ffffff</item>

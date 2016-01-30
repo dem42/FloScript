@@ -31,6 +31,10 @@
         <item name="android:background">@color/horizontal_rule</item>
     </style>
 
+    <style name="JobAddEditLabel">
+        <item name="android:textColor">@color/spearmint_dark</item>
+    </style>
+
     <style name="PaddedHorizontalRule" parent="HorizontalRule">
         <item name="android:layout_height">1dp</item>
         <item name="android:layout_marginBottom">5dp</item>

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.premature.fqqqloscript.jobs.ui.JobsFragment">
+    tools:context="com.premature.floscript.jobs.ui.JobsFragment">
 
     <ImageView
         android:id="@+id/job_control_icon"
