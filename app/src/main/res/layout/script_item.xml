@@ -18,21 +18,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Script Name:"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Script: &lt;placeholder>"
             android:id="@+id/script_col_name_lbl"
             android:layout_gravity="left"
             android:textStyle="bold"
-            android:padding="1px" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="dynamic"
-            android:id="@+id/script_col_name"
-            android:layout_gravity="left"
-            android:padding="1px" />
+            android:paddingLeft="15px" />
 
 
         <View style="@style/HorizontalRule" />
@@ -40,20 +31,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Description:"
-            android:id="@+id/script_col_comment_lbl"
-            android:layout_gravity="left"
-            android:padding="1px"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:text="New Text"
             android:id="@+id/script_col_comment"
             android:layout_gravity="left"
-            android:padding="1px" />
+            android:typeface="monospace"
+            android:paddingLeft="20px"
+            android:paddingTop="20px" />
 
     </LinearLayout>
 </LinearLayout>

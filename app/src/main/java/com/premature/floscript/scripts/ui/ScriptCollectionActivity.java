@@ -138,7 +138,7 @@ public class ScriptCollectionActivity extends ActionBarActivity implements Loade
      */
     private class ScriptArrayAdapter extends ArrayAdapter<Script> {
         public ScriptArrayAdapter(Context context, ArrayList<Script> scripts) {
-            super(context, R.layout.script_item, R.id.script_col_name, scripts);
+            super(context, R.layout.script_item, R.id.script_col_name_lbl, scripts);
         }
 
         //TODO: consider using the ViewHolder pattern from commons-ware (in android_list_view.pdf)
@@ -147,8 +147,8 @@ public class ScriptCollectionActivity extends ActionBarActivity implements Loade
             View view = super.getView(position, convertView, parent);
 
             Script script = getItem(position);
-            TextView scriptNameLbl = (TextView) view.findViewById(R.id.script_col_name);
-            scriptNameLbl.setText(script.getName());
+            TextView scriptNameLbl = (TextView) view.findViewById(R.id.script_col_name_lbl);
+            scriptNameLbl.setText("Script: " + script.getName());
 
             TextView scriptComments = (TextView) view.findViewById(R.id.script_col_comment);
             scriptComments.setText(script.getDescription());
