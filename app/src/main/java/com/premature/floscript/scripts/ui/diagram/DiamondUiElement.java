@@ -92,9 +92,9 @@ public final class DiamondUiElement extends ConnectableDiagramElement {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(Canvas canvas, int xOffset, int yOffset) {
         int saveCount = canvas.save();
-        canvas.translate(mXPos, mYPos);
+        canvas.translate(mXPos + xOffset, mYPos + yOffset);
         mDiamond.draw(canvas);
         if (getScript() != null) {
             FloDrawableUtils.drawMultilineText(canvas, mTextPaint, wrappedComments, getTextXOffset(), getTextYOffset(), lineHeight);

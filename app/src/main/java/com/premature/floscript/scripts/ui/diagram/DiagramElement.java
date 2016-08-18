@@ -92,7 +92,7 @@ public abstract class DiagramElement {
         this.mPinned = pinned;
     }
 
-    public abstract void draw(Canvas canvas);
+    public abstract void draw(Canvas canvas, int xOffset, int yOffset);
 
     public abstract Drawable getDrawable();
 

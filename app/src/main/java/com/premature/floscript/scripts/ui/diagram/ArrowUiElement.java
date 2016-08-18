@@ -193,9 +193,9 @@ public final class ArrowUiElement extends DiagramElement {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(Canvas canvas, int xOffset, int yOffset) {
         int saveCount = canvas.save();
-        canvas.translate(mXPos, mYPos);
+        canvas.translate(mXPos + xOffset, mYPos + yOffset);
         canvas.rotate(mArrowAngleDegs);
 
         // apply arrow scaling which adjusts the size of the body

@@ -16,7 +16,7 @@ create table scripts (
 -- a diagram can be converted to a script and we store the converted script too
 create table diagrams (
     _id integer primary key autoincrement,
-    name text not null,
+    name text unique not null,
     version integer not null,
     created integer not null,
     description text,
@@ -52,7 +52,7 @@ create table arrows (
 -- jobs for the job execution service to execute
 create table jobs (
     _id integer primary key autoincrement,
-    name text not null,
+    name text unique not null,
     script_id integer not null,
     created integer not null,
     enabled integer not null,

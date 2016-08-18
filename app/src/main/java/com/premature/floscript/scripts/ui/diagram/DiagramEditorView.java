@@ -6,12 +6,10 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.ScaleDrawable;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -57,6 +55,8 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private EditingState mEditingState = EditingState.ELEMENT_EDITING;
     private DiagramValidator mDiagramValidator;
     private List<DiagramEditorPopupButtonType> mArrowMenuButtons;
+    private int mXOffset = 0;
+    private int mYOffset = 0;
 
     public boolean isDiagramValid() {
         return mDiagramValidator.allReachable() && mDiagramValidator.allHaveScripts();
@@ -87,7 +87,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         Log.d(TAG, "Calling set diagram");
         cleanEditingState();
         this.mDiagram = diagram;
-        positionDiagramCenter(getWidth(), getHeight());
+        updateOffset(getWidth(), getHeight());
         this.invalidate();
     }
 
@@ -200,7 +200,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     public boolean onTouchEvent(MotionEvent event) {
         boolean handledGesture = mDetector.onTouchEvent(event);
         if (!handledGesture) {
-            mElementMover.handleEvents(TouchEvent.eventsFrom(event, mDensityScale));
+            mElementMover.handleEvents(TouchEvent.eventsFrom(event, mDensityScale, mXOffset, mYOffset));
             // we care about these gestures and want to receive the following move,touch_up
             // events so we return true here, which indicates that this view will handle them
         }
@@ -303,10 +303,10 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
             return;
         }
         Log.d(TAG, "Size changed. New size : (" + w + ", " + h + ")");
-        positionDiagramCenter(w, h);
+        updateOffset(w, h);
     }
 
-    private void positionDiagramCenter(int w, int h) {
+    private void updateOffset(int w, int h) {
         float paddingLeft = getPaddingLeft() / mDensityScale;
         float paddingTop = getPaddingTop() / mDensityScale;
         float paddingRight = getPaddingRight() / mDensityScale;
@@ -316,10 +316,10 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         int center_x = (int) (paddingLeft + contentWidth / 2);
         int center_y = (int) (paddingTop + contentHeight / 2);
 
-
         // TODO this needs to be adjusted to work on screen orientation changes
         // how will other elements behave? we would need to shift everything
-        mDiagram.getEntryElement().moveCenterTo(center_x, 40);
+        mXOffset = center_x;
+        mYOffset = 40;
     }
 
     @Override
@@ -333,20 +333,20 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         canvas.scale(mDensityScale, mDensityScale);
 
         if (mEditingState == EditingState.ARROW_DRAGGING) {
-            mFloatingArrow.draw(canvas);
+            mFloatingArrow.draw(canvas, mXOffset, mYOffset);
         }
         // we draw arrows first so that they don't get drawn on top of the other elements
         for (ArrowUiElement arrow : mDiagram.getArrows()) {
-            arrow.draw(canvas);
+            arrow.draw(canvas, mXOffset, mYOffset);
         }
         for (ConnectableDiagramElement element : mDiagram.getConnectables()) {
-            element.draw(canvas);
+            element.draw(canvas, mXOffset, mYOffset);
         }
         if (mElemPopupMenu.isActive()) {
-            mElemPopupMenu.draw(canvas);
+            mElemPopupMenu.draw(canvas, mXOffset, mYOffset);
         }
         if (mArrowPopupMenu.isActive()) {
-            mArrowPopupMenu.draw(canvas);
+            mArrowPopupMenu.draw(canvas, mXOffset, mYOffset);
         }
         canvas.restore();
     }
@@ -466,7 +466,6 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
                 mEditorView.invalidate();
             }
         }
-
     }
 
     private static class DiagramGestureListener extends GestureDetector.SimpleOnGestureListener {
@@ -480,7 +479,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         @Override
         public void onLongPress(MotionEvent e) {
             Log.d(TAG, "Long press detected at " + e.getX() + "," + e.getY());
-            List<TouchEvent> events = TouchEvent.eventsFrom(e, mEditorView.mDensityScale);
+            List<TouchEvent> events = TouchEvent.eventsFrom(e, mEditorView.mDensityScale, mEditorView.mXOffset, mEditorView.mYOffset);
             for (TouchEvent event : events) {
                 ConnectableDiagramElement touchedElement = findTouchedElement(mEditorView.getDiagram().getConnectables(),
                         event.getXPosDips(), event.getYPosDips());

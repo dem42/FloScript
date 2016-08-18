@@ -50,7 +50,8 @@ public final class ScriptsDao {
 
     static long saveScript(Script script, SQLiteDatabase db) {
         if (script.getId() != null) {
-            throw new IllegalArgumentException("The script " + script.getName() + " has already been saved");
+            // script has already been saved
+            return script.getId();
         }
         if (script == Scripts.ENTRY_POINT_SCRIPT && startScriptId != null) {
             return startScriptId;

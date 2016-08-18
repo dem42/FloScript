@@ -105,9 +105,9 @@ public class LogicBlockUiElement extends ConnectableDiagramElement {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(Canvas canvas, int xOffset, int yOffset) {
         int saveCount = canvas.save();
-        canvas.translate(mXPos, mYPos);
+        canvas.translate(mXPos + xOffset, mYPos + yOffset);
         mLogicBlockRect.draw(canvas);
         mLogicBlockLeafOverShdw.draw(canvas);
         mLogicBlockLeafOver.draw(canvas);

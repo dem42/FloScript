@@ -64,12 +64,79 @@ public final class DiagramDao {
     public static final String[] ARROWS_COLUMNS = {ARROWS_SRC, ARROWS_TARGET,
             ARROWS_DIAGRAM, ARROWS_CONDITION};
 
+    public static final String WORK_IN_PROGRESS_DIAGRAM = "WORK_IN_PROGRESS_DIAGRAM";
+    private static final String GLOBAL_DIAGRAMS_QUERY_LIMIT = "1";
     private final FloDbHelper mDb;
     private final ScriptsDao mScriptsDao;
 
     public DiagramDao(Context ctx) {
         this.mDb = FloDbHelper.getInstance(ctx);
         this.mScriptsDao = new ScriptsDao(ctx);
+    }
+
+    public List<DbUtils.NameAndId> getDiagramNames(boolean executable) {
+        Cursor query = null;
+        List<DbUtils.NameAndId> namesAndIds = new ArrayList<>();
+        try {
+            // select distinct
+            query = getDiagramNamesAsCursor(executable);
+            query.moveToFirst();
+            while (!query.isAfterLast()) {
+                String diagramName = query.getString(query.getColumnIndex(DIAGRAMS_NAME));
+                Long scriptId = query.getLong(query.getColumnIndex(DIAGRAMS_SCRIPT));
+                namesAndIds.add(new DbUtils.NameAndId(diagramName, scriptId));
+                query.moveToNext();
+            }
+        } finally {
+            if (query != null) {
+                query.close();
+            }
+        }
+        return namesAndIds;
+    }
+
+    /**
+     * This function fetches diagram names into a cursor.
+     *
+     * @param executable determines whether we only want to fetch executable diagrams (i.e
+     *                   ones which have a script)
+     * @return
+     */
+    public Cursor getDiagramNamesAsCursor(boolean executable) {
+        return mDb.getReadableDatabase().query(true, DIAGRAMS_TABLE, new String[]{DIAGRAMS_ID, DIAGRAMS_NAME, DIAGRAMS_SCRIPT},
+                (executable ? q("{} is not null and {} != ?", DIAGRAMS_SCRIPT, DIAGRAMS_NAME) : q("{} != ?", DIAGRAMS_NAME)),
+                new String[]{WORK_IN_PROGRESS_DIAGRAM}, null, null, "created desc", null);
+    }
+
+    public Diagram getDiagram(String name) {
+        Log.d(TAG, "fetching diagram with name " + name);
+        Cursor query = null;
+        Diagram diagram = null;
+        try {
+            query = mDb.getReadableDatabase().query(DIAGRAMS_TABLE, DIAGRAMS_COLUMNS, q("{}=?", DIAGRAMS_NAME), new String[]{name},
+                    null, null, q("{} desc", DIAGRAMS_VERSION), GLOBAL_DIAGRAMS_QUERY_LIMIT);
+            if (!query.moveToFirst()) {
+                return null;
+            }
+            String desc = query.getString(query.getColumnIndex(DIAGRAMS_DESCRIPTION));
+            long diagramId = query.getLong(query.getColumnIndex(DIAGRAMS_ID));
+            int version = query.getInt(query.getColumnIndex(DIAGRAMS_VERSION));
+            Date created = new Date(query.getLong(query.getColumnIndex(DIAGRAMS_CREATED)));
+            Log.d(TAG, "Found diagram with id " + diagramId + " created at " + created);
+
+            diagram = new Diagram();
+            diagram.setName(name);
+            diagram.setDescription(desc);
+            diagram.setVersion(version);
+            Map<Long, ConnectableDiagramElement> connectableIds = new HashMap<>();
+            loadConnectables(diagramId, diagram, connectableIds);
+            loadArrows(diagramId, diagram, connectableIds);
+        } finally {
+            if (query != null) {
+                query.close();
+            }
+        }
+        return diagram;
     }
 
     public boolean saveDiagram(Diagram diagram) {
@@ -92,7 +159,7 @@ public final class DiagramDao {
             columnToValue.put(DIAGRAMS_VERSION, diagram.getVersion());
             columnToValue.put(DIAGRAMS_CREATED, new Date().getTime());
             columnToValue.put(DIAGRAMS_SCRIPT, scriptId);
-            long id = db.insert(DIAGRAMS_TABLE, null, columnToValue);
+            long id = insertOrUpdate(db, DIAGRAMS_TABLE, diagram.getName(), columnToValue);
             if (id == -1) {
                 Log.e(TAG, "Failed to insert diagram " + diagram);
                 return false;
@@ -116,6 +183,49 @@ public final class DiagramDao {
             db.endTransaction();
         }
         return true;
+    }
+
+    /**
+     * @return -1 if the diagram doesnt exist
+     */
+    private long getDiagramId(SQLiteDatabase db, String diagramName) {
+        Cursor query = null;
+        Diagram diagram = null;
+        try {
+            query = db.query(DIAGRAMS_TABLE, DIAGRAMS_COLUMNS, q("{}=?", DIAGRAMS_NAME), new String[]{diagramName},
+                    null, null, q("{} desc", DIAGRAMS_VERSION), GLOBAL_DIAGRAMS_QUERY_LIMIT);
+            if(!query.moveToFirst()) {
+                return -1;
+            }
+            else {
+                return query.getLong(query.getColumnIndex(DIAGRAMS_ID));
+            }
+        } finally {
+            if (query != null) {
+                query.close();
+            }
+        }
+    }
+
+    private long insertOrUpdate(SQLiteDatabase db, String diagramsTable, String diagramsName, ContentValues columnToValue) {
+        long diagramId = getDiagramId(db, diagramsName);
+        if (diagramId == -1) {
+            return db.insert(DIAGRAMS_TABLE, null, columnToValue);
+        }
+        else {
+            db.update(DIAGRAMS_TABLE, columnToValue, q("{} = ?", DIAGRAMS_NAME), new String[]{diagramsName});
+            removeArrows(db, diagramId);
+            removeConnectables(db, diagramId);
+            return diagramId;
+        }
+    }
+
+    private void removeConnectables(SQLiteDatabase db, long diagramId) {
+        db.delete(CONNECT_TABLE, q("{} = ?", CONNECT_DIAGRAM), new String[]{Long.toString(diagramId)});
+    }
+
+    private void removeArrows(SQLiteDatabase db, long diagramId) {
+        db.delete(ARROWS_TABLE, q("{} = ?", ARROWS_DIAGRAM), new String[]{Long.toString(diagramId)});
     }
 
     private boolean saveArrows(long diagramId, ArrowUiElement arrow, Map<ConnectableDiagramElement, Long> connectableIds) {
@@ -152,71 +262,6 @@ public final class DiagramDao {
         }
         connectableIds.put(connectable, id);
         return true;
-    }
-
-    public List<DbUtils.NameAndId> getDiagramNames(boolean executable) {
-        Cursor query = null;
-        List<DbUtils.NameAndId> namesAndIds = new ArrayList<>();
-        try {
-            // select distinct
-            query = getDiagramNamesAsCursor(executable);
-            query.moveToFirst();
-            while (!query.isAfterLast()) {
-                String diagramName = query.getString(query.getColumnIndex(DIAGRAMS_NAME));
-                Long scriptId = query.getLong(query.getColumnIndex(DIAGRAMS_SCRIPT));
-                namesAndIds.add(new DbUtils.NameAndId(diagramName, scriptId));
-                query.moveToNext();
-            }
-        } finally {
-            if (query != null) {
-                query.close();
-            }
-        }
-        return namesAndIds;
-    }
-
-    /**
-     * This function fetches diagram names into a cursor.
-     *
-     * @param executable determines whether we only want to fetch executable diagrams (i.e
-     *                   ones which have a script)
-     * @return
-     */
-    public Cursor getDiagramNamesAsCursor(boolean executable) {
-        return mDb.getReadableDatabase().query(true, DIAGRAMS_TABLE, new String[]{DIAGRAMS_ID, DIAGRAMS_NAME, DIAGRAMS_SCRIPT},
-                (executable ? q("{} is not null", DIAGRAMS_SCRIPT) : null), new String[]{},
-                null, null, "created desc", null);
-    }
-
-    public Diagram getDiagram(String name) {
-        Log.d(TAG, "fetching diagram with name " + name);
-        Cursor query = null;
-        Diagram diagram = null;
-        try {
-            query = mDb.getReadableDatabase().query(DIAGRAMS_TABLE, DIAGRAMS_COLUMNS, q("{}=?", DIAGRAMS_NAME), new String[]{name},
-                    null, null, q("{} desc", DIAGRAMS_VERSION), "1");
-            if (!query.moveToFirst()) {
-                return null;
-            }
-            String desc = query.getString(query.getColumnIndex(DIAGRAMS_DESCRIPTION));
-            long diagramId = query.getLong(query.getColumnIndex(DIAGRAMS_ID));
-            int version = query.getInt(query.getColumnIndex(DIAGRAMS_VERSION));
-            Date created = new Date(query.getLong(query.getColumnIndex(DIAGRAMS_CREATED)));
-            Log.d(TAG, "Found diagram with id " + diagramId + " created at " + created);
-
-            diagram = new Diagram();
-            diagram.setName(name);
-            diagram.setDescription(desc);
-            diagram.setVersion(version);
-            Map<Long, ConnectableDiagramElement> connectableIds = new HashMap<>();
-            loadConnectables(diagramId, diagram, connectableIds);
-            loadArrows(diagramId, diagram, connectableIds);
-        } finally {
-            if (query != null) {
-                query.close();
-            }
-        }
-        return diagram;
     }
 
     private void loadArrows(long diagramId, Diagram diagram, Map<Long, ConnectableDiagramElement> connectableIds) {

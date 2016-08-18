@@ -93,7 +93,10 @@ public abstract class ConnectableDiagramElement extends DiagramElement {
         return script;
     }
 
-    public void setScript(Script script) {
+    public void setScript(@Nullable Script script) {
+        if (script == null) {
+            return;
+        }
         this.script = script;
         updateComments(script.getDescription());
     }

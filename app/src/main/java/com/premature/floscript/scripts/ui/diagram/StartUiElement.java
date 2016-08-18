@@ -54,9 +54,9 @@ public final class StartUiElement extends ConnectableDiagramElement {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(Canvas canvas, int xOffset, int yOffset) {
         int savePoint = canvas.save();
-        canvas.translate(mXPos, mYPos);
+        canvas.translate(mXPos + xOffset, mYPos + yOffset);
         outsideCircle.draw(canvas);
         canvas.translate(mWidth / 2 - mWidth / 6, mHeight / 2 - mHeight / 6);
         innerCircle.draw(canvas);

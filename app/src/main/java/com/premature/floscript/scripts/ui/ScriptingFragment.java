@@ -188,6 +188,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     private void adminCode() {
         FloDbHelper mDb = FloDbHelper.getInstance(getActivity());
         mDb.wipe();
+        mDb.dropDatabase();
     }
 
     private void compileAndRunDiagram() {
@@ -254,12 +255,17 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         super.onCreateView(inflater, container, savedInstanceState);
+        Log.d(TAG, "Creating scripting view");
         final View view = inflater.inflate(R.layout.fragment_scripting, container, false);
         ButterKnife.inject(this, view);
         initButtons();
 
         FloBus.getInstance().register(this);
         mDiagramEditorView.busRegister(true);
+        Diagram workInProgressDiagram = mDiagramDao.getDiagram(DiagramDao.WORK_IN_PROGRESS_DIAGRAM);
+        if (workInProgressDiagram != null) {
+            mDiagramEditorView.setDiagram(workInProgressDiagram);
+        }
 
         return view;
     }
@@ -267,8 +273,12 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        Log.d(TAG, "Destroying scripting view");
         FloBus.getInstance().unregister(this);
         mDiagramEditorView.busRegister(false);
+        Diagram workInProgressDiagram = mDiagramEditorView.getDiagram();
+        workInProgressDiagram.setName(DiagramDao.WORK_IN_PROGRESS_DIAGRAM);
+        mDiagramDao.saveDiagram(workInProgressDiagram);
     }
 
     private void initButtons() {
