@@ -90,9 +90,9 @@ public class DiagramPopupMenu<T extends DiagramElement> {
         return this;
     }
 
-    public void draw(Canvas canvas) {
+    public void draw(Canvas canvas, int xOffset, int yOffset) {
         canvas.save();
-        canvas.translate(xPos, yPos);
+        canvas.translate(xPos + xOffset, yPos + yOffset);
         canvas.drawRect(rectangle, borderPaint);
         for (PopupMenuButton btn : buttons) {
             btn.draw(canvas, btn, textPaint, innerPaint);
