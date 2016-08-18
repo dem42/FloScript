@@ -7,6 +7,7 @@
     <item name="highlight" type="color">#E40078</item>
     <item name="flo_background" type="color">#e9e9e9</item>
     <item name="white" type="color">#ffffff</item>
+    <item name="light_dark" type="color">#080808</item>
 
     <!-- @android:color/darker_gray -->
     <item name="divider" type="color">#ffffff</item>

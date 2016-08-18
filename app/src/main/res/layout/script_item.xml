@@ -18,7 +18,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/light_dark"
+            android:textSize="17dp"
             android:text="Script: &lt;placeholder>"
             android:id="@+id/script_col_name_lbl"
             android:layout_gravity="left"
@@ -28,15 +29,19 @@
 
         <View style="@style/HorizontalRule" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="New Text"
-            android:id="@+id/script_col_comment"
-            android:layout_gravity="left"
-            android:typeface="monospace"
-            android:paddingLeft="20px"
-            android:paddingTop="20px" />
-
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="122dp"
+            android:background="@drawable/wallpaper_repeat_pale">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New Text"
+                android:id="@+id/script_col_comment"
+                android:layout_gravity="left"
+                android:typeface="monospace"
+                android:paddingLeft="20px"
+                android:paddingTop="20px" />
+        </FrameLayout>
     </LinearLayout>
 </LinearLayout>
