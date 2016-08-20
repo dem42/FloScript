@@ -15,5 +15,7 @@
     <string name="action_job_disable">Disable</string>
     <string name="action_job_enable">Enable</string>
     <string name="action_job_execute">Execute</string>
+    <string name="job_script_prompt">Choose a script</string>
+    <string name="job_condition_prompt">Choose an execution condition</string>
 
 </resources>

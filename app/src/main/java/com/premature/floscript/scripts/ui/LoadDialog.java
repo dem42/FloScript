@@ -78,22 +78,27 @@ public class LoadDialog extends DialogFragment implements LoaderManager.LoaderCa
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         mListener = getTargetListener();
 
-        mCursorAdapter = new SimpleCursorAdapter(getActivity(), R.layout.diagram_list_element,
+        mCursorAdapter = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_single_choice,
                 null,
-                new String[] {DiagramDao.DIAGRAMS_NAME}, new int[]{R.id.diagram_name}, Adapter.NO_SELECTION);
+                new String[] {DiagramDao.DIAGRAMS_NAME}, new int[]{android.R.id.text1}, Adapter.NO_SELECTION);
 
         DbUtils.initOrRestartTheLoader(this, getActivity().getSupportLoaderManager(), LOADER);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Select script")
-                .setAdapter(mCursorAdapter, new DialogInterface.OnClickListener() {
+        builder.setTitle("Load script")
+                .setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setSingleChoiceItems(mCursorAdapter, -1, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Cursor cursor = mCursorAdapter.getCursor();
                         cursor.moveToPosition(which);
                         String diagramName = cursor.getString(cursor.getColumnIndex(DiagramDao.DIAGRAMS_NAME));
                         mListener.loadClicked(diagramName);
-                        dialog.dismiss();
                     }
                 });
 

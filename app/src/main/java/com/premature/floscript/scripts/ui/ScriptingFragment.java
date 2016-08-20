@@ -188,7 +188,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     private void adminCode() {
         FloDbHelper mDb = FloDbHelper.getInstance(getActivity());
         mDb.wipe();
-        mDb.dropDatabase();
     }
 
     private void compileAndRunDiagram() {

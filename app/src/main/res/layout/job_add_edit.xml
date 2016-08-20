@@ -92,7 +92,8 @@
                     android:layout_alignParentBottom="true"
                     android:layout_toRightOf="@+id/job_desc_icon"
                     android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true"/>
+                    android:layout_alignParentEnd="true"
+                    android:textStyle="italic" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -129,11 +130,12 @@
                     android:id="@+id/job_add_spinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:spinnerMode="dropdown"
                     android:layout_marginTop="5dp"
                     android:layout_marginBottom="5dp"
                     android:layout_below="@id/job_add_title"
-                    android:layout_toRightOf="@+id/job_script_icon"/>
+                    android:layout_toRightOf="@+id/job_script_icon"
+                    android:spinnerMode="dialog"
+                    android:prompt="@string/job_script_prompt" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -228,7 +230,8 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginBottom="5dp"
                     android:layout_below="@id/job_add_event_lbl"
-                    android:layout_toRightOf="@+id/job_event_trig_icon"/>
+                    android:layout_toRightOf="@+id/job_event_trig_icon"
+                    android:prompt="@string/job_condition_prompt"/>
                 <Switch
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
