@@ -96,7 +96,7 @@ public class ScriptCollectionActivity extends ActionBarActivity implements Loade
         Log.d(TAG, "Picked script " + script.getName());
         if (script.getType() == Script.Type.DIAMOND_TEMPLATE || script.getType() == Script.Type.BLOCK_TEMPLATE) {
             // a template script needs its variables populated
-            VariablesDialog.showPopup(getSupportFragmentManager(), VariablesParser.createVarTypesTuples(script));
+            VariablesDialog.showPopup(getSupportFragmentManager(), script);
         } else {
             Intent data = new Intent(getApplicationContext(), MainActivity.class);
             data.putExtra(SCRIPT_PARAM, script);

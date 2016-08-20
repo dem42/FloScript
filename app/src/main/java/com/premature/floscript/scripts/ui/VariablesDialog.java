@@ -21,6 +21,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.premature.floscript.R;
 import com.premature.floscript.scripts.logic.Script;
+import com.premature.floscript.scripts.logic.VariablesParser;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,11 +36,12 @@ public class VariablesDialog extends DialogFragment {
 
     public static final String VAR_NAMES_KEY = "VAR_NAMES";
     public static final String VAR_TYPES_KEY = "VAR_TYPES";
+    private static final String COMMAND_KEY = "COMMAND";
 
     private WeakHashMap<String, Pair<View, Script.VarType>> vars;
     private OnVariablesListener mOnVariablesListener;
 
-    public static VariablesDialog newInstance(List<Pair<String, Script.VarType>> vars) {
+    public static VariablesDialog newInstance(String command, List<Pair<String, Script.VarType>> vars) {
         VariablesDialog dialog = new VariablesDialog();
         Bundle args = new Bundle();
         ArrayList<String> names = new ArrayList<>();
@@ -50,6 +52,7 @@ public class VariablesDialog extends DialogFragment {
         }
         args.putStringArrayList(VAR_NAMES_KEY, names);
         args.putIntegerArrayList(VAR_TYPES_KEY, types);
+        args.putString(COMMAND_KEY, command);
         dialog.setArguments(args);
         return dialog;
     }
@@ -70,12 +73,16 @@ public class VariablesDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         // we create the layout dynamically
         LinearLayout layout = new LinearLayout(getActivity());
+        layout.setBackgroundResource(R.drawable.wallpaper_repeat_pale);
         layout.setOrientation(LinearLayout.VERTICAL);
 
         if (getArguments() != null) {
             vars = new WeakHashMap<>();
+            String command = getArguments().getString(COMMAND_KEY);
             ArrayList<String> names = getArguments().getStringArrayList(VAR_NAMES_KEY);
             ArrayList<Integer> types = getArguments().getIntegerArrayList(VAR_TYPES_KEY);
+
+            createStringCommandView(command, layout);
             for (int i = 0; i < names.size(); i++) {
                 Script.VarType varType = Script.VarType.fromCode(types.get(i));
                 View view = createView(names.get(i), varType, layout);
@@ -118,6 +125,13 @@ public class VariablesDialog extends DialogFragment {
         return builder.create();
     }
 
+    private void createStringCommandView(String command, ViewGroup layout) {
+        View view = getActivity().getLayoutInflater().inflate(R.layout.string_command_edit, layout, false);
+        TextView commandView = (TextView) view.findViewById(R.id.string_command_edit_lbl);
+        commandView.setText(command);
+        layout.addView(view);
+    }
+
     @Nullable
     private View createView(String label, Script.VarType varType, ViewGroup layout) {
         TextView lbl;
@@ -127,21 +141,22 @@ public class VariablesDialog extends DialogFragment {
                 //specifying false means that the root of the layout xml is returned instead of our param layout object
                 view = getActivity().getLayoutInflater().inflate(R.layout.string_script_variable_item, layout, false);
                 lbl = (TextView) view.findViewById(R.id.variable_item_string);
-                lbl.setText(label);
+                lbl.setText(label + " = ");
                 layout.addView(view);
                 return view.findViewById(R.id.variable_item_string_in);
             case INT:
                 view = getActivity().getLayoutInflater().inflate(R.layout.int_script_variable_item, layout, false);
                 lbl = (TextView) view.findViewById(R.id.variable_item_int);
-                lbl.setText(label);
+                lbl.setText(label + " = ");
                 layout.addView(view);
                 return view.findViewById(R.id.variable_item_int_in);
         }
         return null;
     }
 
-    public static void showPopup(FragmentManager supportFragmentManager, List<Pair<String, Script.VarType>> vars) {
-        VariablesDialog popup = VariablesDialog.newInstance(vars);
+    public static void showPopup(FragmentManager supportFragmentManager, Script script) {
+        List<Pair<String, Script.VarType>> vars = VariablesParser.createVarTypesTuples(script);
+        VariablesDialog popup = VariablesDialog.newInstance(script.getDescription(), vars);
         popup.show(supportFragmentManager, null);
     }
 

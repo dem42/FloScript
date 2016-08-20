@@ -2,19 +2,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:weightSum="1">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="dynamic"
-        android:id="@+id/variable_item_int" />
+        android:text="&lt;placeholder> ="
+        android:id="@+id/variable_item_int"
+        android:paddingLeft="10dp"
+        android:paddingTop="15dp"
+        android:paddingRight="5dp"
+        android:textStyle="bold" />
 
     <EditText
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/variable_item_int_in"
         android:inputType="number"
-        android:ems="2"
-        android:layout_gravity="center_horizontal" />
+        android:ems="10"
+        android:id="@+id/variable_item_int_in"
+        android:layout_weight="0.91" />
+
 </LinearLayout>
