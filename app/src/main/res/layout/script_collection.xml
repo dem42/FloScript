@@ -4,19 +4,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <GridView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@android:id/list"
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:src="@drawable/library"
+        android:layout_gravity="center_horizontal" />
+
+    <TextView
+        android:layout_width="287dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/library_docu"
+        android:id="@+id/textView"
         android:layout_gravity="center_horizontal"
-        android:numColumns="auto_fit"
-        android:stretchMode="columnWidth"
-        android:horizontalSpacing="16dp"
-        android:verticalSpacing="16dp"
-        android:padding="16dp"
-        android:clipToPadding="false"
-        android:scrollbarStyle="insideOverlay"
-        android:clickable="true"
-        android:smoothScrollbar="false"
-        android:fastScrollAlwaysVisible="true" />
+        android:textSize="@dimen/abc_text_size_small_material"
+        android:textStyle="italic"
+        android:textAlignment="center"
+        android:typeface="normal"
+        android:gravity="center" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <GridView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@android:id/list"
+            android:numColumns="auto_fit"
+            android:stretchMode="columnWidth"
+            android:horizontalSpacing="16dp"
+            android:verticalSpacing="16dp"
+            android:padding="16dp"
+            android:clipToPadding="false"
+            android:scrollbarStyle="insideOverlay"
+            android:clickable="true"
+            android:smoothScrollbar="false"
+            android:fastScrollAlwaysVisible="true" />
+    </LinearLayout>
 </LinearLayout>
