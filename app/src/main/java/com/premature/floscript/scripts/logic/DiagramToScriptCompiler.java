@@ -12,8 +12,10 @@ import com.premature.floscript.scripts.ui.diagram.StartUiElement;
 import com.premature.floscript.util.ResourceAndFileUtils;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by martin on 15/01/15.
@@ -44,8 +46,8 @@ public final class DiagramToScriptCompiler {
             Log.d(TAG, "connected to start are " + connectedElements);
             throw new ScriptCompilationException(CompilationErrorCode.ENTRY_MUST_HAVE_SINGLE_CHILD);
         }
-
-        depthFirstCompile(entryElement, connectedElements, code, generatedFunNames);
+        HashSet<ConnectableDiagramElement> visited = new HashSet<>();
+        depthFirstCompile(entryElement, connectedElements, code, generatedFunNames, visited);
 
         code.append(mCodeShell).append("return function_stack.length == 0;\n}\n");
         return new Script(code.toString(), diagram.getName(), Script.Type.FUNCTION, diagram.getDescription());
@@ -68,7 +70,12 @@ public final class DiagramToScriptCompiler {
     private void depthFirstCompile(ConnectableDiagramElement elem,
                                    List<Pair<ConnectableDiagramElement, ArrowUiElement>> connectedElements,
                                    StringBuilder code,
-                                   Map<ConnectableDiagramElement, String> generatedFunNames) throws ScriptCompilationException {
+                                   Map<ConnectableDiagramElement, String> generatedFunNames, Set<ConnectableDiagramElement> visited) throws ScriptCompilationException {
+        if (visited.contains(elem)) {
+            return;
+        }
+        visited.add(elem);
+
         if (connectedElements.size() == 0) {
             // empty script
             code.append(Scripts.createFunctionWrapper(elem.getScript(), generatedFunNames.get(elem), null, null));
@@ -76,7 +83,7 @@ public final class DiagramToScriptCompiler {
             Pair<ConnectableDiagramElement, ArrowUiElement> connectedElement = connectedElements.get(0);
             // we wrap and append the entryFunction which the code shell uses as the entry point
             code.append(Scripts.createFunctionWrapper(elem.getScript(), generatedFunNames.get(elem), generatedFunNames.get(connectedElement.first), null));
-            depthFirstCompile(connectedElement.first, connectedElement.first.getConnectedElements(), code, generatedFunNames);
+            depthFirstCompile(connectedElement.first, connectedElement.first.getConnectedElements(), code, generatedFunNames, visited);
         } else {
             Pair<ConnectableDiagramElement, ArrowUiElement> connectedElement1 = connectedElements.get(0);
             Pair<ConnectableDiagramElement, ArrowUiElement> connectedElement2 = connectedElements.get(1);
@@ -84,8 +91,8 @@ public final class DiagramToScriptCompiler {
             ConnectableDiagramElement yes = (connectedElement1.second.getCondition() == ArrowCondition.YES) ? connectedElement1.first : connectedElement2.first;
             ConnectableDiagramElement no = (connectedElement1.second.getCondition() == ArrowCondition.NO) ? connectedElement1.first : connectedElement2.first;
             code.append(Scripts.createFunctionWrapper(elem.getScript(), generatedFunNames.get(elem), generatedFunNames.get(yes), generatedFunNames.get(no)));
-            depthFirstCompile(yes, yes.getConnectedElements(), code, generatedFunNames);
-            depthFirstCompile(no, no.getConnectedElements(), code, generatedFunNames);
+            depthFirstCompile(yes, yes.getConnectedElements(), code, generatedFunNames, visited);
+            depthFirstCompile(no, no.getConnectedElements(), code, generatedFunNames, visited);
         }
     }
 }

@@ -4,32 +4,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Script Name:"
-        android:id="@+id/save_dialog_lbl1"
-        android:layout_gravity="center_horizontal" />
-
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/save_dialog_name"
-        android:inputType="text" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Script Description:"
-        android:id="@+id/save_dialog_lbl2"
-        android:layout_gravity="center_horizontal" />
+        android:inputType="text"
+        android:hint="Script name"
+        android:padding="15dp" />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/save_dialog_description"
-        android:inputType="textMultiLine" />
+        android:inputType="textMultiLine"
+        android:hint="Script description"
+        android:padding="15dp" />
 
 </LinearLayout>

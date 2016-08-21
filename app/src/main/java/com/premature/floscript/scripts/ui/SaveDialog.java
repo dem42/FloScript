@@ -48,7 +48,7 @@ public class SaveDialog extends DialogFragment {
         View view = inflater.inflate(R.layout.script_save_dialog, null);
         final EditText name = (EditText) view.findViewById(R.id.save_dialog_name);
         final EditText desc = (EditText) view.findViewById(R.id.save_dialog_description);
-        builder.setTitle("Script name")
+        builder.setTitle("Save script")
                 .setView(view)
                 .setPositiveButton("Save", new DialogInterface.OnClickListener() {
                     @Override
