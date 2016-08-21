@@ -88,7 +88,10 @@ public final class ScriptsDao {
         }
     }
 
-    public Script getScriptById(Long scriptId) {
+    public Script getScriptById(@Nullable Long scriptId) {
+        if (scriptId == null) {
+            return null;
+        }
         Cursor query = null;
         try {
             query = mDb.getReadableDatabase().query(SCRIPTS_TABLE, SCRIPTS_COLUMNS, q("{}=?", SCRIPTS_ID), new String[]{Long.toString(scriptId)}, null, null, null);

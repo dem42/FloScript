@@ -49,6 +49,8 @@ import static com.premature.floscript.scripts.ui.diagram.DiagramValidator.Diagra
 public final class ScriptingFragment extends Fragment implements SaveDialog.OnSaveDialogListener,
         LoadDialog.OnLoadDialogListener {
     private static final String TAG = "SCRIPT_FRAG";
+    private static final String ERROR_COMPILING_DIAGRAM_POPUP_TITLE = "Error compiling diagram";
+    private static final String DIAGRAM_CODE_POPUP_TITLE = "Diagram source code";
 
 
     private LogicBlockUiElement mLogicBlockElement;
@@ -181,7 +183,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
     @Subscribe
     public void onDiagramValidationError(DiagramValidationEvent validationEvent) {
-        TextPopupDialog.showPopup(getFragmentManager(), validationEvent.msg);
+        TextPopupDialog.showPopup(getFragmentManager(), validationEvent.msg, ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
     }
 
     //TODO: get rid of adming stuff
@@ -195,9 +197,9 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
             Script script = mCompiler.compile(mDiagramEditorView.getDiagram());
             String result = new ScriptEngine(getActivity().getApplicationContext()).runScript(script);
             TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), script.getSourceCode() +
-                    "\n\nWith result: " + result);
+                    "\n\nWith result: " + result, DIAGRAM_CODE_POPUP_TITLE);
         } catch (ScriptCompilationException e) {
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getMessage());
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getMessage(), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
             Log.e(TAG, "compile exp", e);
         }
     }
@@ -207,9 +209,9 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
         try {
             Script script = compiler.compile(mDiagramEditorView.getDiagram());
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), script.getSourceCode());
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), script.getSourceCode(), DIAGRAM_CODE_POPUP_TITLE);
         } catch (ScriptCompilationException e) {
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getMessage());
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getMessage(), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
             Log.e(TAG, "compile exp", e);
         }
     }
@@ -244,7 +246,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
             diagram.setCompiledDiagram(compiledDiagram);
         } catch (ScriptCompilationException e) {
             TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), "Failed to compile diagram. It will not be available" +
-                    "as a job\n\nReason:" + e.getMessage());
+                    "as a job\n\nReason:" + e.getMessage(), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
         }
         new SaveTask(this).execute(diagram);
     }

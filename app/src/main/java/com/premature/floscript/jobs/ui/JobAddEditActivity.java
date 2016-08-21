@@ -29,6 +29,7 @@ import com.premature.floscript.jobs.logic.Job;
 import com.premature.floscript.jobs.logic.JobScheduler;
 import com.premature.floscript.jobs.logic.TimeTrigger;
 import com.premature.floscript.scripts.logic.Script;
+import com.premature.floscript.scripts.ui.TextPopupDialog;
 import com.premature.floscript.util.FloBus;
 import com.squareup.otto.Subscribe;
 
@@ -55,6 +56,7 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
     private static final String TAG = "JOB_ADD_ACTIVITY";
     private static final int JOB_ADD = 2;
     private static final String TIME_TRIG_DIALOG = "TIME_TRIG_DIAG";
+    private static final String ERROR_SAVING_JOB_POPUP_TITLE = "Error saving job";
     private ArrayAdapter<DbUtils.NameAndId> mArrayAdapter;
     private Map<String, Integer> mDiagramNameToPos;
     private String mActiveScriptName;
@@ -201,16 +203,15 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         Log.d(TAG, "no selection :(!");
     }
 
-    private void saveJob() {
+    private boolean saveJob() {
         int selectedId = mDiagramNameSpinner.getSelectedItemPosition();
-        DbUtils.NameAndId nameAndId = mArrayAdapter.getItem(selectedId);
-        Long scriptId = nameAndId.id;
-        if (scriptId == null) {
-            Log.e(TAG, "No script found for selected diagram");
+        Script script = null;
+        if (selectedId >= 0 && selectedId < mArrayAdapter.getCount()) {
+            DbUtils.NameAndId nameAndId = mArrayAdapter.getItem(selectedId);
+            Long scriptId = nameAndId.id;
+            ScriptsDao scriptsDao = new ScriptsDao(this);
+            script = scriptsDao.getScriptById(scriptId);
         }
-        ScriptsDao scriptsDao = new ScriptsDao(this);
-        Script script = scriptsDao.getScriptById(scriptId);
-        Log.d(TAG, "Found script " + script);
 
         String jobName = mJobName.getText().toString();
         String comment = mJobDesc.getText().toString();
@@ -229,22 +230,42 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
             eventTrigger = mEventTrigAdapter.getItem(mEventTriggerSpin.getSelectedItemPosition());
         }
 
+        if (!validateJobData(script, jobName, comment, timeTrigger, eventTrigger)) {
+            return false;
+        }
+
         Job job = Job.builder().withName(jobName).fromScript(script).withComment(comment)
                 .triggerWhen(timeTrigger).triggerWhen(eventTrigger).build();
         job.setEnabled(mJobEnabled);
         Log.d(TAG, "Job to be saved " + job);
 
         new SaveUpdateJobTask(this, mMode).execute(job);
+        return true;
+    }
+
+    /**
+     * We allow timeTrigger and eventTrigger to be both empty at the same time. This means the job has to be run manually
+     */
+    private boolean validateJobData(Script script, String jobName, String comment, TimeTrigger timeTrigger, String eventTrigger) {
+        if (script == null) {
+            TextPopupDialog.showPopup(getSupportFragmentManager(), "No script selected for this job", ERROR_SAVING_JOB_POPUP_TITLE);
+            return false;
+        }
+        if (jobName == null || jobName.isEmpty()) {
+            TextPopupDialog.showPopup(getSupportFragmentManager(), "The job must have a non-empty name", ERROR_SAVING_JOB_POPUP_TITLE);
+            return false;
+        }
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_job_add_save) {
-            saveJob();
-
-            finish(); // finish this activity and return to calling activity
-            return true;
+            if (saveJob()) {
+                finish(); // finish this activity and return to calling activity
+                return true;
+            }
         }
         return super.onOptionsItemSelected(item);
     }
