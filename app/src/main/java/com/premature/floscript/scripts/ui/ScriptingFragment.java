@@ -57,10 +57,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     private DiamondUiElement mDiamondElement;
     private ArrowUiElement mArrowElement;
 
-
-    @InjectView(R.id.preview)
-    ImageView preview;
-
     @InjectView(R.id.script_editor)
     DiagramEditorView mDiagramEditorView;
     @InjectView(R.id.logic_elem_btn)
@@ -157,10 +153,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
                 Log.d(TAG, "admin code");
                 adminCode();
                 return true;
-            case R.id.action_thumb:
-                Log.d(TAG, "preview");
-                thumbnail();
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -168,17 +160,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
     private void clearEditor() {
         this.mDiagramEditorView.setDiagram(Diagram.createEmptyDiagram());
-    }
-
-    private void thumbnail() {
-        if (preview.getVisibility() == View.INVISIBLE) {
-            preview.setVisibility(View.VISIBLE);
-            preview.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-            preview.setImageDrawable(mDiagramEditorView.getDrawable());
-        }
-        else {
-            preview.setVisibility(View.INVISIBLE);
-        }
     }
 
     @Subscribe
