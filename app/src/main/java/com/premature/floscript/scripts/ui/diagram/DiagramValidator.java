@@ -4,6 +4,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 
+import com.premature.floscript.events.DiagramValidationEvent;
 import com.premature.floscript.scripts.logic.CompilationErrorCode;
 import com.premature.floscript.util.FloBus;
 
@@ -88,11 +89,4 @@ public final class DiagramValidator {
         }
     }
 
-    public static class DiagramValidationEvent {
-        public final String msg;
-
-        public DiagramValidationEvent(String msg) {
-            this.msg = msg;
-        }
-    }
 }

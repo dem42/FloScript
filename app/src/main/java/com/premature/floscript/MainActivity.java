@@ -3,16 +3,19 @@ package com.premature.floscript;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.premature.floscript.events.CurrentDiagramNameChangeEvent;
 import com.premature.floscript.jobs.ui.JobsFragment;
 import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.ui.ScriptCollectionActivity;
@@ -21,9 +24,13 @@ import com.premature.floscript.util.FloBus;
 import com.squareup.otto.Subscribe;
 
 import static android.support.v7.app.ActionBar.Tab;
-import static com.premature.floscript.scripts.ui.ScriptCollectionActivity.ScriptAvailableEvent;
-import static com.premature.floscript.scripts.ui.ScriptCollectionActivity.ScriptCollectionRequestEvent;
 
+import com.premature.floscript.events.ScriptAvailableEvent;
+
+import com.premature.floscript.events.ScriptCollectionRequestEvent;
+
+import butterknife.BindString;
+import butterknife.ButterKnife;
 
 /**
  * The top level class of the floscript app. All it does is contain two fragments a {@link com.premature.floscript.jobs.ui.JobsFragment}
@@ -33,11 +40,23 @@ public class MainActivity extends ActionBarActivity {
 
     private static final String TAG = "MAIN_ACT";
     private static final String SELECTED_IDX = "Selected_Tab_Idx";
+    private static final String EDITED_DIAGRAM_NAME = "Edited_Diagram_Name";
+
+    // used to display what diagram is being edited
+    private String currentDiagramName = "test";
+
+    @BindString(R.string.diagramTitle)
+    String diagramTitle;
+
+    @BindString(R.string.jobsTitle)
+    String jobsTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         // setting the navigation mode makes the tabs visible
@@ -54,7 +73,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getSupportActionBar().setTitle("FloScript");
+        setMainActivityTile();
     }
 
     @Override
@@ -73,12 +92,14 @@ public class MainActivity extends ActionBarActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(SELECTED_IDX, getSupportActionBar().getSelectedNavigationIndex());
+        outState.putString(EDITED_DIAGRAM_NAME, currentDiagramName);
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt(SELECTED_IDX, 0));
+        currentDiagramName = savedInstanceState.getString(EDITED_DIAGRAM_NAME);
     }
 
     @Override
@@ -108,6 +129,25 @@ public class MainActivity extends ActionBarActivity {
         Intent scriptColIntent = new Intent(this.getApplicationContext(), ScriptCollectionActivity.class);
         scriptColIntent.putExtra(ScriptCollectionActivity.DIAGRAM_NAME_PARAM, scriptColRequestEvent.diagramName);
         startActivityForResult(scriptColIntent, 0);
+    }
+
+    @Subscribe
+    public void currentDiagramNameChanged(CurrentDiagramNameChangeEvent currentDiagramNameChangeEvent) {
+        currentDiagramName = currentDiagramNameChangeEvent.diagramName;
+        setMainActivityTile();
+    }
+
+    private void setMainActivityTile() {
+
+        int selectedTab = getSupportActionBar().getSelectedNavigationIndex();
+        String mainTitle = selectedTab == 0 ? diagramTitle : jobsTitle;
+        String diagramName = currentDiagramName;
+        if (diagramName == null) {
+            getSupportActionBar().setTitle(mainTitle);
+        }
+        else {
+            getSupportActionBar().setTitle(Html.fromHtml(mainTitle + " > Diagram: <i>" + diagramName + "</i>"));
+        }
     }
 
     @Override

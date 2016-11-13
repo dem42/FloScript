@@ -12,7 +12,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.premature.floscript.R;
@@ -36,10 +35,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 import static android.view.View.LAYER_TYPE_SOFTWARE;
-import static com.premature.floscript.scripts.ui.diagram.DiagramValidator.DiagramValidationEvent;
+
+import com.premature.floscript.events.DiagramValidationEvent;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -57,13 +57,13 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     private DiamondUiElement mDiamondElement;
     private ArrowUiElement mArrowElement;
 
-    @InjectView(R.id.script_editor)
+    @BindView(R.id.script_editor)
     DiagramEditorView mDiagramEditorView;
-    @InjectView(R.id.logic_elem_btn)
+    @BindView(R.id.logic_elem_btn)
     Button mLogicElemBtn;
-    @InjectView(R.id.diamond_elem_btn)
+    @BindView(R.id.diamond_elem_btn)
     Button mDiamondElemBtn;
-    @InjectView(R.id.arrow_elem_btn)
+    @BindView(R.id.arrow_elem_btn)
     Button mArrowElemBtn;
 
     private float mDensity;
@@ -239,7 +239,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         super.onCreateView(inflater, container, savedInstanceState);
         Log.d(TAG, "Creating scripting view");
         final View view = inflater.inflate(R.layout.fragment_scripting, container, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
         initButtons();
 
         FloBus.getInstance().register(this);

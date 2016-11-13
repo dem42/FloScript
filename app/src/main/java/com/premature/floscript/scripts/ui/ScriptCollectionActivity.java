@@ -25,8 +25,8 @@ import com.premature.floscript.scripts.logic.VariablesParser;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 /**
  * Created by martin on 21/01/15.
@@ -42,7 +42,7 @@ public class ScriptCollectionActivity extends ActionBarActivity implements Loade
     public static final int LOADER_ID = 12340;
     // the selected position inside the grid view
     private int selectedPosition = 0;
-    @InjectView(android.R.id.list)
+    @BindView(android.R.id.list)
     GridView mScriptCollection;
 
     private ArrayAdapter<Script> mScriptCollectionAdapter;
@@ -55,7 +55,7 @@ public class ScriptCollectionActivity extends ActionBarActivity implements Loade
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.script_collection);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         mScriptCollectionAdapter = new ScriptArrayAdapter(this, new ArrayList<Script>());
         mScriptCollection.setAdapter(mScriptCollectionAdapter);
@@ -157,19 +157,4 @@ public class ScriptCollectionActivity extends ActionBarActivity implements Loade
         }
     }
 
-    public static class ScriptCollectionRequestEvent {
-        public final String diagramName;
-
-        public ScriptCollectionRequestEvent(String diagramName) {
-            this.diagramName = diagramName;
-        }
-    }
-
-    public static class ScriptAvailableEvent {
-        public final Script script;
-
-        public ScriptAvailableEvent(Script script) {
-            this.script = script;
-        }
-    }
 }

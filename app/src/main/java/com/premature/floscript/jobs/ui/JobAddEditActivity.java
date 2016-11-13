@@ -25,6 +25,7 @@ import com.premature.floscript.db.DiagramDao;
 import com.premature.floscript.db.JobsDao;
 import com.premature.floscript.db.ListFromDbLoader;
 import com.premature.floscript.db.ScriptsDao;
+import com.premature.floscript.events.TimeTriggerResultEvent;
 import com.premature.floscript.jobs.logic.Job;
 import com.premature.floscript.jobs.logic.JobScheduler;
 import com.premature.floscript.jobs.logic.TimeTrigger;
@@ -40,8 +41,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 import static com.premature.floscript.jobs.ui.JobEditDialogs.TimeTriggerDialog;
 
@@ -70,19 +71,19 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
     private JobActivityMode mMode;
     private boolean mJobEnabled = true;
 
-    @InjectView(R.id.job_add_spinner)
+    @BindView(R.id.job_add_spinner)
     Spinner mDiagramNameSpinner;
-    @InjectView(R.id.job_add_desc_in)
+    @BindView(R.id.job_add_desc_in)
     EditText mJobDesc;
-    @InjectView(R.id.job_add_name_in)
+    @BindView(R.id.job_add_name_in)
     EditText mJobName;
-    @InjectView(R.id.job_add_time)
+    @BindView(R.id.job_add_time)
     TimeTriggerView mJobTime;
-    @InjectView(R.id.job_add_event_spin)
+    @BindView(R.id.job_add_event_spin)
     Spinner mEventTriggerSpin;
-    @InjectView(R.id.job_add_evt_trig)
+    @BindView(R.id.job_add_evt_trig)
     Switch mEventTrigSwitch;
-    @InjectView(R.id.job_add_time_trig)
+    @BindView(R.id.job_add_time_trig)
     Switch mTimeTrigSwitch;
 
 
@@ -100,7 +101,7 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         mDiagramNameToPos = new HashMap<>();
 
         setContentView(R.layout.job_add_edit);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         mDiagramNameSpinner.setAdapter(mArrayAdapter);
         mDiagramNameSpinner.setOnItemSelectedListener(this);
@@ -377,11 +378,4 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
         }
     }
 
-    public static class TimeTriggerResultEvent {
-        private final TimeTrigger trigger;
-
-        public TimeTriggerResultEvent(TimeTrigger trigger) {
-            this.trigger = trigger;
-        }
-    }
 }

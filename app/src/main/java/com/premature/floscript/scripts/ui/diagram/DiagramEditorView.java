@@ -14,9 +14,10 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.premature.floscript.R;
+import com.premature.floscript.events.ScriptAvailableEvent;
+import com.premature.floscript.events.ScriptCollectionRequestEvent;
 import com.premature.floscript.scripts.logic.ArrowCondition;
 import com.premature.floscript.scripts.ui.OnElementSelectorListener;
-import com.premature.floscript.scripts.ui.ScriptCollectionActivity;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
 import com.premature.floscript.util.FloBus;
 import com.premature.floscript.util.FloColors;
@@ -152,7 +153,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         @Override
         public void onDiagramMenuItemClick(DiagramEditorPopupButtonType buttonClicked) {
             if (DiagramEditorPopupButtonType.SET_CODE_BTN == buttonClicked) {
-                FloBus.getInstance().post(new ScriptCollectionActivity.ScriptCollectionRequestEvent(getDiagram().getName()));
+                FloBus.getInstance().post(new ScriptCollectionRequestEvent(getDiagram().getName()));
             } else if (DiagramEditorPopupButtonType.DELETE_BTN == buttonClicked) {
                 if (!(mElemPopupMenu.getTouchedElement() instanceof StartUiElement)) {
                     mDiagram.remove(mElemPopupMenu.getTouchedElement());
@@ -212,7 +213,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     }
 
     @Subscribe
-    public void onScriptAvailable(ScriptCollectionActivity.ScriptAvailableEvent scriptAvailableEvent) {
+    public void onScriptAvailable(ScriptAvailableEvent scriptAvailableEvent) {
         Log.d(TAG, "User chose the script with name " + scriptAvailableEvent.script.getName());
         mElemPopupMenu.getTouchedElement().setScript(scriptAvailableEvent.script);
         mElemPopupMenu.setTouchedElement(null);

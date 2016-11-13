@@ -100,7 +100,7 @@ public class JobsFragment extends Fragment implements LoaderManager.LoaderCallba
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_job, container, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
         mListView = (AbsListView) view.findViewById(android.R.id.list);
         mListView.setEmptyView(view.findViewById(android.R.id.empty));
         /* dirty hack -- we have a refs.xml to be able to pick the jobs layout automatically based on screen size
