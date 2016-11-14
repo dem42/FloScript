@@ -37,11 +37,12 @@ public final class DiagramDao {
     public static final String DIAGRAMS_ID = "_id";
     public static final String DIAGRAMS_VERSION = "version";
     public static final String DIAGRAMS_NAME = "name";
+    public static final String DIAGRAMS_ORIGINAL_NAME = "original_name";
     public static final String DIAGRAMS_DESCRIPTION = "description";
     public static final String DIAGRAMS_CREATED = "created";
     public static final String DIAGRAMS_SCRIPT = "script_id";
     public static final String[] DIAGRAMS_COLUMNS = {DIAGRAMS_ID, DIAGRAMS_NAME, DIAGRAMS_DESCRIPTION, DIAGRAMS_VERSION,
-            DIAGRAMS_CREATED,};
+            DIAGRAMS_CREATED, DIAGRAMS_ORIGINAL_NAME};
 
     // connectables table
     public static final String CONNECT_TABLE = "connectable_diagram_elements";
@@ -122,10 +123,12 @@ public final class DiagramDao {
             long diagramId = query.getLong(query.getColumnIndex(DIAGRAMS_ID));
             int version = query.getInt(query.getColumnIndex(DIAGRAMS_VERSION));
             Date created = new Date(query.getLong(query.getColumnIndex(DIAGRAMS_CREATED)));
+            String originalName = query.getString(query.getColumnIndex(DIAGRAMS_ORIGINAL_NAME));
             Log.d(TAG, "Found diagram with id " + diagramId + " created at " + created);
 
             diagram = new Diagram();
             diagram.setName(name);
+            diagram.setOriginalName(originalName);
             diagram.setDescription(desc);
             diagram.setVersion(version);
             Map<Long, ConnectableDiagramElement> connectableIds = new HashMap<>();

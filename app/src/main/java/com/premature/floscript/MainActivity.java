@@ -41,15 +41,17 @@ public class MainActivity extends ActionBarActivity {
     private static final String TAG = "MAIN_ACT";
     private static final String SELECTED_IDX = "Selected_Tab_Idx";
     private static final String EDITED_DIAGRAM_NAME = "Edited_Diagram_Name";
+    private static final String EDITED_DIAGRAM_STATE = "Edited_Diagram_State";
+    private static final int MAX_DIAGRAM_NAME_LEN = 10;
 
     // used to display what diagram is being edited
-    private String currentDiagramName = "test";
+    private String currentDiagramName = "test1";
+    private String currentDiagramState = "Unsaved";
 
-    @BindString(R.string.diagramTitle)
-    String diagramTitle;
-
-    @BindString(R.string.jobsTitle)
-    String jobsTitle;
+    @BindString(R.string.diagramTitle) String diagramTitle;
+    @BindString(R.string.jobsTitle) String jobsTitle;
+    @BindString(R.string.unsavedState) String unsavedSateDesc;
+    @BindString(R.string.savedState) String savedSateDesc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +95,7 @@ public class MainActivity extends ActionBarActivity {
         super.onSaveInstanceState(outState);
         outState.putInt(SELECTED_IDX, getSupportActionBar().getSelectedNavigationIndex());
         outState.putString(EDITED_DIAGRAM_NAME, currentDiagramName);
+        outState.putString(EDITED_DIAGRAM_STATE, currentDiagramState);
     }
 
     @Override
@@ -100,6 +103,7 @@ public class MainActivity extends ActionBarActivity {
         super.onRestoreInstanceState(savedInstanceState);
         getSupportActionBar().setSelectedNavigationItem(savedInstanceState.getInt(SELECTED_IDX, 0));
         currentDiagramName = savedInstanceState.getString(EDITED_DIAGRAM_NAME);
+        currentDiagramState = savedInstanceState.getString(EDITED_DIAGRAM_STATE);
     }
 
     @Override
@@ -134,20 +138,30 @@ public class MainActivity extends ActionBarActivity {
     @Subscribe
     public void currentDiagramNameChanged(CurrentDiagramNameChangeEvent currentDiagramNameChangeEvent) {
         currentDiagramName = currentDiagramNameChangeEvent.diagramName;
+        currentDiagramState = currentDiagramNameChangeEvent.state == CurrentDiagramNameChangeEvent.DiagramEditingState.SAVED ? savedSateDesc : unsavedSateDesc;
         setMainActivityTile();
     }
 
     private void setMainActivityTile() {
-
         int selectedTab = getSupportActionBar().getSelectedNavigationIndex();
-        String mainTitle = selectedTab == 0 ? diagramTitle : jobsTitle;
+        boolean isDiagram = selectedTab == 0;
+        String mainTitle = isDiagram ? diagramTitle : jobsTitle;
         String diagramName = currentDiagramName;
-        if (diagramName == null) {
+
+        if (!isDiagram || diagramName == null) {
             getSupportActionBar().setTitle(mainTitle);
         }
         else {
-            getSupportActionBar().setTitle(Html.fromHtml(mainTitle + " > Diagram: <i>" + diagramName + "</i>"));
+            String diagramState = currentDiagramState;
+            String diagramStateColor = unsavedSateDesc.equals(diagramState) ? "red" : "green";
+            getSupportActionBar().setTitle(Html.fromHtml(mainTitle + ": <i>" + restrictLength(diagramName) +
+                    " (<font color='" + diagramStateColor + "'>" + diagramState + "</font>)</i>"));
         }
+    }
+
+    private String restrictLength(String diagramName) {
+        if (diagramName == null || diagramName.length() <= MAX_DIAGRAM_NAME_LEN) return diagramName;
+        return diagramName.substring(0, MAX_DIAGRAM_NAME_LEN) + "...";
     }
 
     @Override
@@ -172,11 +186,11 @@ public class MainActivity extends ActionBarActivity {
 
         private FragmentManager mFragManager;
         private Fragment mFragment;
-        private final Activity mActivity;
+        private final MainActivity mActivity;
         private final Class<F> mFragmentClass; // needed for instantiation
         private String tag;
 
-        private TabListener(FragmentActivity activity, Class<F> fragmentClass) {
+        private TabListener(MainActivity activity, Class<F> fragmentClass) {
             this.mActivity = activity;
             this.mFragmentClass = fragmentClass;
             this.tag = mFragmentClass.getName();
@@ -192,6 +206,7 @@ public class MainActivity extends ActionBarActivity {
             } else {
                 fragmentTransaction.attach(mFragment);
             }
+            mActivity.setMainActivityTile();
         }
 
         @Override

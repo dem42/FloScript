@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.premature.floscript.R;
 import com.premature.floscript.db.DiagramDao;
 import com.premature.floscript.db.FloDbHelper;
+import com.premature.floscript.events.DiagramValidationEvent;
 import com.premature.floscript.scripts.logic.DiagramToScriptCompiler;
 import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.logic.ScriptCompilationException;
@@ -34,12 +35,10 @@ import com.squareup.otto.Subscribe;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.ButterKnife;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 import static android.view.View.LAYER_TYPE_SOFTWARE;
-
-import com.premature.floscript.events.DiagramValidationEvent;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -220,6 +219,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     @Override
     public void saveClicked(String name, String description) {
         final Diagram diagram = mDiagramEditorView.getDiagram();
+        diagram.setOriginalName(diagram.getName());
         diagram.setName(name);
         diagram.setDescription(description);
         try {
@@ -259,6 +259,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         FloBus.getInstance().unregister(this);
         mDiagramEditorView.busRegister(false);
         Diagram workInProgressDiagram = mDiagramEditorView.getDiagram();
+        workInProgressDiagram.setOriginalName(workInProgressDiagram.getName());
         workInProgressDiagram.setName(DiagramDao.WORK_IN_PROGRESS_DIAGRAM);
         mDiagramDao.saveDiagram(workInProgressDiagram);
     }

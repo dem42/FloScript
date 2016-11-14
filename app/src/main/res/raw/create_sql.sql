@@ -21,6 +21,7 @@ create table diagrams (
     created integer not null,
     description text,
     script_id integer,
+    original_name text,
     foreign key (script_id) references scripts(_id)
 );
 

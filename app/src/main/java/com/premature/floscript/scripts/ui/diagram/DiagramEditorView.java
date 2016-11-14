@@ -14,6 +14,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.premature.floscript.R;
+import com.premature.floscript.db.DiagramDao;
+import com.premature.floscript.events.CurrentDiagramNameChangeEvent;
 import com.premature.floscript.events.ScriptAvailableEvent;
 import com.premature.floscript.events.ScriptCollectionRequestEvent;
 import com.premature.floscript.scripts.logic.ArrowCondition;
@@ -90,6 +92,20 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         this.mDiagram = diagram;
         updateOffset(getWidth(), getHeight());
         this.invalidate();
+
+        updateTitle(diagram.getName());
+    }
+
+    private void updateTitle(String name) {
+        final String nameToShow;
+        if (name == null || name.equals(DiagramDao.WORK_IN_PROGRESS_DIAGRAM)) {
+            nameToShow = "Unnamed";
+        }
+        else {
+            nameToShow = name;
+        }
+
+        FloBus.getInstance().post(new CurrentDiagramNameChangeEvent(nameToShow, CurrentDiagramNameChangeEvent.DiagramEditingState.SAVED));
     }
 
     private void cleanEditingState() {

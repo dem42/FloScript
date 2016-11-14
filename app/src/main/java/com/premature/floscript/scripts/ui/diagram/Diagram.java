@@ -24,6 +24,8 @@ public final class Diagram {
     @Nullable
     private Script compiledDiagram; // the diagram may not have been compiled yet
     private String mName;
+    @Nullable
+    private String originalName;
     private String mDescription;
     private int version;
 
@@ -33,6 +35,14 @@ public final class Diagram {
 
     public void setName(String name) {
         this.mName = name;
+    }
+
+    public String getOriginalName() {
+        return originalName;
+    }
+
+    public void setOriginalName(@Nullable String originalName) {
+        this.originalName = originalName;
     }
 
     public String getDescription() {

@@ -20,5 +20,7 @@
     <string name="library_docu">To use code from the library click on an item and fill in the variables.</string>
     <string name="diagramTitle">Diagram</string>
     <string name="jobsTitle">Job Control</string>
+    <string name="unsavedState">Unsaved</string>
+    <string name="savedState">Saved</string>
 
 </resources>

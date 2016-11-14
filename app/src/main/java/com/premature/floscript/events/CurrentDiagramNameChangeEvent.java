@@ -6,8 +6,17 @@ package com.premature.floscript.events;
 public class CurrentDiagramNameChangeEvent {
 
     public final String diagramName;
+    public final DiagramEditingState state;
 
-    public CurrentDiagramNameChangeEvent(String diagramName) {
+    public CurrentDiagramNameChangeEvent(String diagramName, DiagramEditingState state) {
         this.diagramName = diagramName;
+        this.state = state;
+    }
+
+    public enum DiagramEditingState {
+        UNSAVED,
+        SAVED
     }
 }
+
+
