@@ -55,31 +55,33 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private ConnectableDiagramElement mFloatingConnectable;
     @Nullable
     private ArrowUiElement mFloatingArrow;
+
     private EditingState mEditingState = EditingState.ELEMENT_EDITING;
     private DiagramValidator mDiagramValidator;
     private List<DiagramEditorPopupButtonType> mArrowMenuButtons;
     private int mXOffset = 0;
     private int mYOffset = 0;
+    private ElementMover mElementMover;
+    private OnDiagramEditorListener mOnDiagramEditorListener;
+
+    public DiagramEditorView(Context context) {
+        super(context);
+        init(null, 0);
+    }
+
+    public DiagramEditorView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(attrs, 0);
+    }
+
+    public DiagramEditorView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+        init(attrs, defStyle);
+    }
 
     public boolean isDiagramValid() {
         return mDiagramValidator.allReachable() && mDiagramValidator.allHaveScripts();
     }
-
-    private enum EditingState {
-        ELEMENT_EDITING {
-            @Override
-            public boolean isNonArrowState() {
-                return true;
-            }
-        },
-        ARROW_PLACING, ARROW_PLACED, ARROW_DRAGGING;
-
-        public boolean isNonArrowState() {
-            return false;
-        }
-    }
-
-    private ElementMover mElementMover;
 
     public Diagram getDiagram() {
         return mDiagram;
@@ -94,6 +96,14 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         this.invalidate();
 
         updateTitle(diagram.getName());
+    }
+
+    EditingState getEditingState() {
+        return mEditingState;
+    }
+
+    void setEditingState(EditingState mEditingState) {
+        this.mEditingState = mEditingState;
     }
 
     private void updateTitle(String name) {
@@ -111,25 +121,8 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private void cleanEditingState() {
         mFloatingArrow = null;
         mFloatingConnectable = null;
-        mEditingState = EditingState.ELEMENT_EDITING;
+        setEditingState(EditingState.ELEMENT_EDITING);
         mElementMover.mTouchedElement = null;
-    }
-
-    private OnDiagramEditorListener mOnDiagramEditorListener;
-
-    public DiagramEditorView(Context context) {
-        super(context);
-        init(null, 0);
-    }
-
-    public DiagramEditorView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(attrs, 0);
-    }
-
-    public DiagramEditorView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        init(attrs, defStyle);
     }
 
     private void init(AttributeSet attrs, int defStyle) {
@@ -259,10 +252,10 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     @Override
     public void onArrowClicked() {
         if (mEditingState.isNonArrowState()) {
-            mEditingState = EditingState.ARROW_PLACING;
+            setEditingState(EditingState.ARROW_PLACING);
             mFloatingArrow = new ArrowUiElement(mDiagram);
         } else {
-            mEditingState = EditingState.ELEMENT_EDITING;
+            setEditingState(EditingState.ELEMENT_EDITING);
             mDiagram.removeArrow(mFloatingArrow);
             mFloatingArrow = null;
         }
@@ -288,13 +281,13 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private void placeFloatingArrowStartPoint(ConnectableDiagramElement start, TouchEvent touchEvent) {
         if (mDiagramValidator.validateArrowAddition(start, mFloatingArrow.getEndPoint())) {
             mFloatingArrow.anchorStartPoint(start, touchEvent);
-            mEditingState = EditingState.ARROW_PLACED;
+            setEditingState(EditingState.ARROW_PLACED);
         }
     }
 
     private void placeFloatingArrowEndPoint(ConnectableDiagramElement end, TouchEvent touchEvent) {
         if (mDiagramValidator.validateArrowAddition(mFloatingArrow.getStartPoint(), end)) {
-            mEditingState = EditingState.ELEMENT_EDITING;
+            setEditingState(EditingState.ELEMENT_EDITING);
             mFloatingArrow.anchorEndPoint(end, touchEvent);
             mDiagram.addArrow(mFloatingArrow);
             mOnDiagramEditorListener.onElementPlaced();
@@ -446,7 +439,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         private boolean handleDragging(TouchEvent touchEvent) {
             boolean doInvalidate = false;
             if (mEditorView.mEditingState == EditingState.ARROW_DRAGGING || mEditorView.mEditingState == EditingState.ARROW_PLACED) {
-                mEditorView.mEditingState = EditingState.ARROW_DRAGGING;
+                mEditorView.setEditingState(EditingState.ARROW_DRAGGING);
                 ConnectableDiagramElement end = findTouchedElement(mEditorView.getDiagram().getConnectables(), touchEvent.getXPosDips(), touchEvent.getYPosDips());
                 if (end != null && end != mEditorView.mFloatingArrow.getStartPoint()) {
                     mEditorView.placeFloatingArrowEndPoint(end, touchEvent);
@@ -468,7 +461,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
             mTouchedElement = null;
             Log.d(TAG, "letting go " + touchEvent);
             if (mEditorView.mEditingState == EditingState.ARROW_DRAGGING) {
-                mEditorView.mEditingState = EditingState.ARROW_PLACED;
+                mEditorView.setEditingState(EditingState.ARROW_PLACED);
                 return true;
             }
             return false;
@@ -511,6 +504,20 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
                     }
                 }
             }
+        }
+    }
+
+    private enum EditingState {
+        ELEMENT_EDITING {
+            @Override
+            public boolean isNonArrowState() {
+                return true;
+            }
+        },
+        ARROW_PLACING, ARROW_PLACED, ARROW_DRAGGING;
+
+        public boolean isNonArrowState() {
+            return false;
         }
     }
 }

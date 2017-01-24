@@ -1,6 +1,5 @@
 package com.premature.floscript.scripts.ui;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -8,11 +7,9 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.premature.floscript.R;
 import com.premature.floscript.db.DiagramDao;
@@ -25,15 +22,10 @@ import com.premature.floscript.scripts.logic.ScriptEngine;
 import com.premature.floscript.scripts.ui.diagram.ArrowUiElement;
 import com.premature.floscript.scripts.ui.diagram.Diagram;
 import com.premature.floscript.scripts.ui.diagram.DiagramEditorView;
-import com.premature.floscript.scripts.ui.diagram.DiagramElement;
 import com.premature.floscript.scripts.ui.diagram.DiamondUiElement;
 import com.premature.floscript.scripts.ui.diagram.LogicBlockUiElement;
-import com.premature.floscript.scripts.ui.diagram.OnDiagramEditorListener;
 import com.premature.floscript.util.FloBus;
 import com.squareup.otto.Subscribe;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -108,18 +100,6 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         setRetainInstance(true);
     }
 
-    private void init() {
-        this.mCompiler = new DiagramToScriptCompiler(getActivity());
-        this.mDiagramDao = new DiagramDao(getActivity());
-        this.mDensity = getResources().getDisplayMetrics().density;
-        this.mLogicBlockElement = new LogicBlockUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
-        this.mDiamondElement = new DiamondUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
-        this.mArrowElement = new ArrowUiElement(null, (int) (40 * mDensity), (int) (6 * mDensity));
-
-        // align the elements inside the buttons
-        mArrowElement.advanceBy(8, 10);
-    }
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         Log.d(TAG, "inflating our menu " + menu);
@@ -157,63 +137,14 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         }
     }
 
-    private void clearEditor() {
-        this.mDiagramEditorView.setDiagram(Diagram.createEmptyDiagram());
-    }
-
     @Subscribe
     public void onDiagramValidationError(DiagramValidationEvent validationEvent) {
         TextPopupDialog.showPopup(getFragmentManager(), validationEvent.msg, ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
     }
 
-    //TODO: get rid of adming stuff
-    private void adminCode() {
-        FloDbHelper mDb = FloDbHelper.getInstance(getActivity());
-        mDb.wipe();
-    }
-
-    private void compileAndRunDiagram() {
-        try {
-            Script script = mCompiler.compile(mDiagramEditorView.getDiagram());
-            String result = new ScriptEngine(getActivity().getApplicationContext()).runScript(script);
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), script.getSourceCode() +
-                    "\n\nWith result: " + result, DIAGRAM_CODE_POPUP_TITLE);
-        } catch (ScriptCompilationException e) {
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getMessage(), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
-            Log.e(TAG, "compile exp", e);
-        }
-    }
-
-    private void compileDiagram() {
-        DiagramToScriptCompiler compiler = new DiagramToScriptCompiler(getActivity());
-
-        try {
-            Script script = compiler.compile(mDiagramEditorView.getDiagram());
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), script.getSourceCode(), DIAGRAM_CODE_POPUP_TITLE);
-        } catch (ScriptCompilationException e) {
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getMessage(), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
-            Log.e(TAG, "compile exp", e);
-        }
-    }
-
-    private void loadDiagram() {
-        LoadDialog dialog = new LoadDialog();
-        dialog.setTargetFragment(this, 1);
-        dialog.show(getActivity().getSupportFragmentManager(), "load dialog");
-    }
-
-    private void saveDiagram() {
-        if (!mDiagramEditorView.isDiagramValid()) {
-            return;
-        }
-        SaveDialog dialog = new SaveDialog();
-        dialog.setTargetFragment(this, 1);
-        dialog.show(getActivity().getSupportFragmentManager(), "save dialog");
-    }
-
     @Override
     public void loadClicked(String name) {
-        new LoadTask(this).execute(name);
+        new LoadDiagramTask(this).execute(name);
     }
 
     @Override
@@ -229,7 +160,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
             TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), "Failed to compile diagram. It will not be available" +
                     "as a job\n\nReason:" + e.getMessage(), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
         }
-        new SaveTask(this).execute(diagram);
+        new SaveDiagramTask(this, true).execute(diagram);
     }
 
     @Override
@@ -258,10 +189,44 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         Log.d(TAG, "Destroying scripting view");
         FloBus.getInstance().unregister(this);
         mDiagramEditorView.busRegister(false);
+
+        // make the saving non-blocking
         Diagram workInProgressDiagram = mDiagramEditorView.getDiagram();
         workInProgressDiagram.setOriginalName(workInProgressDiagram.getName());
         workInProgressDiagram.setName(DiagramDao.WORK_IN_PROGRESS_DIAGRAM);
-        mDiagramDao.saveDiagram(workInProgressDiagram);
+        new SaveDiagramTask(this, false).execute(workInProgressDiagram);
+    }
+
+    // these methods are for the interaction with nested async task (dont want inner class asyncs)
+    DiagramDao getDiagramDao() {
+        return mDiagramDao;
+    }
+
+    // these methods are for the interaction with nested async task (dont want inner class asyncs)
+    void showDiagram(Diagram diagram) {
+        mDiagramEditorView.setDiagram(diagram);
+    }
+
+    private void clearEditor() {
+        this.mDiagramEditorView.setDiagram(Diagram.createEmptyDiagram());
+    }
+
+    //TODO: get rid of admin stuff
+    private void adminCode() {
+        FloDbHelper mDb = FloDbHelper.getInstance(getActivity());
+        mDb.wipe();
+    }
+
+    private void compileAndRunDiagram() {
+        try {
+            Script script = mCompiler.compile(mDiagramEditorView.getDiagram());
+            String result = new ScriptEngine(getActivity().getApplicationContext()).runScript(script);
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), script.getSourceCode() +
+                    "\n\nWith result: " + result, DIAGRAM_CODE_POPUP_TITLE);
+        } catch (ScriptCompilationException e) {
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getMessage(), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
+            Log.e(TAG, "compile exp", e);
+        }
     }
 
     private void initButtons() {
@@ -310,151 +275,42 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         mBtnCoordinator.registerElementButtonListener(arrowListener);
     }
 
-    // these methods are for the interaction with nested async task (dont want inner class asyncs)
-    DiagramDao getDiagramDao() {
-        return mDiagramDao;
+    private void init() {
+        this.mCompiler = new DiagramToScriptCompiler(getActivity());
+        this.mDiagramDao = new DiagramDao(getActivity());
+        this.mDensity = getResources().getDisplayMetrics().density;
+        this.mLogicBlockElement = new LogicBlockUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
+        this.mDiamondElement = new DiamondUiElement(null, (int) (40 * mDensity), (int) (40 * mDensity));
+        this.mArrowElement = new ArrowUiElement(null, (int) (40 * mDensity), (int) (6 * mDensity));
+
+        // align the elements inside the buttons
+        mArrowElement.advanceBy(8, 10);
     }
 
-    // these methods are for the interaction with nested async task (dont want inner class asyncs)
-    void showDiagram(Diagram diagram) {
-        mDiagramEditorView.setDiagram(diagram);
-    }
+    private void compileDiagram() {
+        DiagramToScriptCompiler compiler = new DiagramToScriptCompiler(getActivity());
 
-    /**
-     * This class turns our buttons into stateful push buttons.
-     * </p>
-     * This means that they can no longer register click events, because this class consumes all touch
-     * events. For that reason, a user of this class who desires custom behaviour for onDiagramMenuItemClick events
-     * should extend this class and place the logic inside the {@link #doOnClick()} method
-     */
-    private static class StickyButtonOnTouchListener implements View.OnTouchListener {
-        boolean isPressed = false;
-        private final Button mPressableElement;
-        private final StickyButtonCoordinator mBtnCoordinator;
-        protected final OnElementSelectorListener mOnElementSelectorListener;
-
-        public StickyButtonOnTouchListener(Button logicElemBtn, OnElementSelectorListener listener, StickyButtonCoordinator btnCoordinator) {
-            this.mPressableElement = logicElemBtn;
-            this.mOnElementSelectorListener = listener;
-            this.mBtnCoordinator = btnCoordinator;
-        }
-
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                mBtnCoordinator.unpressOtherButtons(this);
-                isPressed = !isPressed;
-                mPressableElement.setPressed(isPressed);
-                doOnClick();
-            }
-            return true; //consumed .. don't send to any other listeners
-        }
-
-        public boolean isPressed() {
-            return isPressed;
-        }
-
-        public void setPressed(boolean isPressed) {
-            mPressableElement.setPressed(isPressed);
-            this.isPressed = isPressed;
-        }
-
-        public void doOnClick() {
-            Log.d(TAG, "Clicked " + mPressableElement);
+        try {
+            Script script = compiler.compile(mDiagramEditorView.getDiagram());
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), script.getSourceCode(), DIAGRAM_CODE_POPUP_TITLE);
+        } catch (ScriptCompilationException e) {
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getMessage(), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
+            Log.e(TAG, "compile exp", e);
         }
     }
 
-    /**
-     * This class acts as a nexus for the communication of sticky button listeners
-     * </p>
-     * The main task of this class is to coordinate that no more than one touch element
-     * has been pressed and also to receive callbacks from the diagram editor about element placement
-     * or element selection which affects the pin-unpin button.
-     */
-    private static class StickyButtonCoordinator implements OnDiagramEditorListener {
-        private List<StickyButtonOnTouchListener> mElementButtons = new ArrayList<>();
-        private StickyButtonOnTouchListener mPinUnpinListener;
-        private Button mPinUButton;
-
-        @Override
-        public void onElementSelected(DiagramElement element) {
-        }
-
-        @Override
-        public void onElementPlaced() {
-            for (StickyButtonOnTouchListener listener : mElementButtons) {
-                listener.setPressed(false);
-            }
-        }
-
-        public void registerElementButtonListener(StickyButtonOnTouchListener elementBtnListener) {
-            mElementButtons.add(elementBtnListener);
-        }
-
-        public void unpressOtherButtons(StickyButtonOnTouchListener stickyButtonOnTouchListener) {
-            for (StickyButtonOnTouchListener listener : mElementButtons) {
-                if (stickyButtonOnTouchListener != listener && listener.isPressed()) {
-                    listener.doOnClick();
-                    listener.setPressed(false);
-                }
-            }
-        }
+    private void loadDiagram() {
+        LoadDialog dialog = new LoadDialog();
+        dialog.setTargetFragment(this, 1);
+        dialog.show(getActivity().getSupportFragmentManager(), "load dialog");
     }
 
-    private static final class SaveTask extends AsyncTask<Diagram, Void, Boolean> {
-
-        private final ScriptingFragment mFrag;
-
-        private SaveTask(ScriptingFragment mFrag) {
-            this.mFrag = mFrag;
+    private void saveDiagram() {
+        if (!mDiagramEditorView.isDiagramValid()) {
+            return;
         }
-
-        @Override
-        protected Boolean doInBackground(Diagram... params) {
-            if (mFrag != null) {
-                return mFrag.getDiagramDao().saveDiagram(params[0]);
-            } else {
-                return false;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            if (mFrag != null) {
-                if (aBoolean) {
-                    Toast.makeText(mFrag.getActivity(), "Diagram saved", Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(mFrag.getActivity(), "Failed to save diagram", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
+        SaveDialog dialog = new SaveDialog();
+        dialog.setTargetFragment(this, 1);
+        dialog.show(getActivity().getSupportFragmentManager(), "save dialog");
     }
-
-
-    private static final class LoadTask extends AsyncTask<String, Void, Diagram> {
-
-        private final ScriptingFragment mFrag;
-
-        private LoadTask(ScriptingFragment mFrag) {
-            this.mFrag = mFrag;
-        }
-
-        @Override
-        protected Diagram doInBackground(String... params) {
-            if (mFrag != null) {
-                return mFrag.getDiagramDao().getDiagram(params[0]);
-            } else {
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Diagram diagram) {
-            if (mFrag != null) {
-                mFrag.showDiagram(diagram);
-            }
-        }
-    }
-
-
 }
