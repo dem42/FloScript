@@ -139,6 +139,7 @@ public class MainActivity extends ActionBarActivity {
     public void currentDiagramNameChanged(CurrentDiagramNameChangeEvent currentDiagramNameChangeEvent) {
         currentDiagramName = currentDiagramNameChangeEvent.diagramName;
         currentDiagramState = currentDiagramNameChangeEvent.state == CurrentDiagramNameChangeEvent.DiagramEditingState.SAVED ? savedSateDesc : unsavedSateDesc;
+        Log.d(TAG, "Received a current diagram name change [" + currentDiagramName + ", " + currentDiagramState + "]");
         setMainActivityTile();
     }
 

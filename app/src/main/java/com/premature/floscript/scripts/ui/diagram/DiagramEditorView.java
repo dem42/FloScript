@@ -98,6 +98,142 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         updateTitle(diagram.getName());
     }
 
+    //TODO:
+    //meant to be used for drawing a preview but currently unused
+    public Drawable getDrawable() {
+        Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        draw(canvas);
+        float aspectRatio = (1.0f * getWidth()) / getHeight();
+        Drawable diagram = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, (int)(100*aspectRatio), 100, false));
+        return diagram;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        boolean handledGesture = mDetector.onTouchEvent(event);
+        if (!handledGesture) {
+            mElementMover.handleEvents(TouchEvent.eventsFrom(event, mDensityScale, mXOffset, mYOffset));
+            // we care about these gestures and want to receive the following move,touch_up
+            // events so we return true here, which indicates that this view will handle them
+        }
+        return true;
+    }
+
+    public void setOnDiagramEditorListener(OnDiagramEditorListener onDiagramEditorListener) {
+        this.mOnDiagramEditorListener = onDiagramEditorListener;
+    }
+
+    @Subscribe
+    public void onScriptAvailable(ScriptAvailableEvent scriptAvailableEvent) {
+        Log.d(TAG, "User chose the script with name " + scriptAvailableEvent.script.getName());
+        mElemPopupMenu.getTouchedElement().setScript(scriptAvailableEvent.script);
+        mElemPopupMenu.setTouchedElement(null);
+        onDiagramModified();
+        invalidate();
+    }
+
+    @Override
+    public void onLogicElementClicked() {
+        if (mFloatingConnectable == null) {
+            LogicBlockUiElement newLogicBlock = new LogicBlockUiElement(mDiagram);
+            mFloatingConnectable = newLogicBlock;
+        } else {
+            mFloatingConnectable = null;
+        }
+    }
+
+    @Override
+    public void onDiamondElementClicked() {
+        if (mFloatingConnectable == null) {
+            DiamondUiElement newDiamond = new DiamondUiElement(mDiagram);
+            mFloatingConnectable = newDiamond;
+        } else {
+            mFloatingConnectable = null;
+        }
+    }
+
+    @Override
+    public void onArrowClicked() {
+        if (mEditingState.isNonArrowState()) {
+            setEditingState(EditingState.ARROW_PLACING);
+            mFloatingArrow = new ArrowUiElement(mDiagram);
+        } else {
+            setEditingState(EditingState.ELEMENT_EDITING);
+            mDiagram.removeArrow(mFloatingArrow);
+            mFloatingArrow = null;
+        }
+    }
+
+    @Override
+    public void pinningStateToggled() {
+    }
+
+    public void busRegister(boolean activate) {
+        if (activate) {
+            FloBus.getInstance().register(this);
+        } else {
+            FloBus.getInstance().unregister(this);
+        }
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        // this method may get called with 0 values, if it does it will get called again with correct
+        // values later
+        if (w == 0 || h == 0) {
+            return;
+        }
+        Log.d(TAG, "Size changed. New size : (" + w + ", " + h + ")");
+        updateOffset(w, h);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        canvas.save();
+        //canvas.drawColor(mBgColor);
+        // we will draw everything in mdpi coords so that we can use a physical coord system
+        // this means that we need to scale up to the size of our device
+        // and then everything will have the same physical size on all devices
+        canvas.scale(mDensityScale, mDensityScale);
+
+        if (mEditingState == EditingState.ARROW_DRAGGING) {
+            mFloatingArrow.draw(canvas, mXOffset, mYOffset);
+        }
+        // we draw arrows first so that they don't get drawn on top of the other elements
+        for (ArrowUiElement arrow : mDiagram.getArrows()) {
+            arrow.draw(canvas, mXOffset, mYOffset);
+        }
+        for (ConnectableDiagramElement element : mDiagram.getConnectables()) {
+            element.draw(canvas, mXOffset, mYOffset);
+        }
+        if (mElemPopupMenu.isActive()) {
+            mElemPopupMenu.draw(canvas, mXOffset, mYOffset);
+        }
+        if (mArrowPopupMenu.isActive()) {
+            mArrowPopupMenu.draw(canvas, mXOffset, mYOffset);
+        }
+        canvas.restore();
+    }
+
+    static <T extends DiagramElement> T findTouchedElement(Iterable<T> elements, int xPosDips, int yPosDips) {
+        DiagramElement.ContainsResult smallestContainsResult = DiagramElement.NOT_CONTAINED;
+        T closestElement = null;
+        for (T element : elements) {
+            DiagramElement.ContainsResult containsResult = element.contains(xPosDips, yPosDips);
+            if (containsResult.compareTo(smallestContainsResult) < 0) {
+                smallestContainsResult = containsResult;
+                closestElement = element;
+            }
+        }
+        if (smallestContainsResult == DiagramElement.NOT_CONTAINED) {
+            return null;
+        }
+        return closestElement;
+    }
+
     EditingState getEditingState() {
         return mEditingState;
     }
@@ -149,15 +285,6 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         mDiagramValidator = new DiagramValidator(this);
     }
 
-
-    public void busRegister(boolean activate) {
-        if (activate) {
-            FloBus.getInstance().register(this);
-        } else {
-            FloBus.getInstance().unregister(this);
-        }
-    }
-
     private DiagramPopupMenu.OnDiagramMenuClickListener mConnectableMenuListener = new DiagramPopupMenu.OnDiagramMenuClickListener() {
         @Override
         public void onDiagramMenuItemClick(DiagramEditorPopupButtonType buttonClicked) {
@@ -168,6 +295,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
                     mDiagram.remove(mElemPopupMenu.getTouchedElement());
                     mElemPopupMenu.setTouchedElement(null);
                     invalidate();
+                    onDiagramModified();
                 }
             }
             Log.d(TAG, "Clicked on button" + buttonClicked);
@@ -190,6 +318,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
             }
             mArrowPopupMenu.setTouchedElement(null);
             invalidate();
+            onDiagramModified();
         }
 
         @Override
@@ -205,66 +334,6 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         this.mBgColor = FloColors.backgroundColor;//a.getColor(R.styleable.DiagramEditorView_backgroundColor, Color.WHITE);
         a.recycle();
     }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        boolean handledGesture = mDetector.onTouchEvent(event);
-        if (!handledGesture) {
-            mElementMover.handleEvents(TouchEvent.eventsFrom(event, mDensityScale, mXOffset, mYOffset));
-            // we care about these gestures and want to receive the following move,touch_up
-            // events so we return true here, which indicates that this view will handle them
-        }
-        return true;
-    }
-
-    public void setOnDiagramEditorListener(OnDiagramEditorListener onDiagramEditorListener) {
-        this.mOnDiagramEditorListener = onDiagramEditorListener;
-    }
-
-    @Subscribe
-    public void onScriptAvailable(ScriptAvailableEvent scriptAvailableEvent) {
-        Log.d(TAG, "User chose the script with name " + scriptAvailableEvent.script.getName());
-        mElemPopupMenu.getTouchedElement().setScript(scriptAvailableEvent.script);
-        mElemPopupMenu.setTouchedElement(null);
-        invalidate();
-    }
-
-    @Override
-    public void onLogicElementClicked() {
-        if (mFloatingConnectable == null) {
-            LogicBlockUiElement newLogicBlock = new LogicBlockUiElement(mDiagram);
-            mFloatingConnectable = newLogicBlock;
-        } else {
-            mFloatingConnectable = null;
-        }
-    }
-
-    @Override
-    public void onDiamondElementClicked() {
-        if (mFloatingConnectable == null) {
-            DiamondUiElement newDiamond = new DiamondUiElement(mDiagram);
-            mFloatingConnectable = newDiamond;
-        } else {
-            mFloatingConnectable = null;
-        }
-    }
-
-    @Override
-    public void onArrowClicked() {
-        if (mEditingState.isNonArrowState()) {
-            setEditingState(EditingState.ARROW_PLACING);
-            mFloatingArrow = new ArrowUiElement(mDiagram);
-        } else {
-            setEditingState(EditingState.ELEMENT_EDITING);
-            mDiagram.removeArrow(mFloatingArrow);
-            mFloatingArrow = null;
-        }
-    }
-
-    @Override
-    public void pinningStateToggled() {
-    }
-
 
     private void showDiagramPopupMenuFor(ConnectableDiagramElement touchedElement) {
         mElemPopupMenu.setTouchedElement(touchedElement);
@@ -292,6 +361,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
             mDiagram.addArrow(mFloatingArrow);
             mOnDiagramEditorListener.onElementPlaced();
             mFloatingArrow = null;
+            onDiagramModified();
         }
     }
 
@@ -301,19 +371,8 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         mOnDiagramEditorListener.onElementPlaced();
         mFloatingConnectable = null;
         mDiagram.addConnectable(temp);
+        onDiagramModified();
         return temp;
-    }
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        // this method may get called with 0 values, if it does it will get called again with correct
-        // values later
-        if (w == 0 || h == 0) {
-            return;
-        }
-        Log.d(TAG, "Size changed. New size : (" + w + ", " + h + ")");
-        updateOffset(w, h);
     }
 
     private void updateOffset(int w, int h) {
@@ -332,58 +391,8 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         mYOffset = 40;
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        canvas.save();
-        //canvas.drawColor(mBgColor);
-        // we will draw everything in mdpi coords so that we can use a physical coord system
-        // this means that we need to scale up to the size of our device
-        // and then everything will have the same physical size on all devices
-        canvas.scale(mDensityScale, mDensityScale);
-
-        if (mEditingState == EditingState.ARROW_DRAGGING) {
-            mFloatingArrow.draw(canvas, mXOffset, mYOffset);
-        }
-        // we draw arrows first so that they don't get drawn on top of the other elements
-        for (ArrowUiElement arrow : mDiagram.getArrows()) {
-            arrow.draw(canvas, mXOffset, mYOffset);
-        }
-        for (ConnectableDiagramElement element : mDiagram.getConnectables()) {
-            element.draw(canvas, mXOffset, mYOffset);
-        }
-        if (mElemPopupMenu.isActive()) {
-            mElemPopupMenu.draw(canvas, mXOffset, mYOffset);
-        }
-        if (mArrowPopupMenu.isActive()) {
-            mArrowPopupMenu.draw(canvas, mXOffset, mYOffset);
-        }
-        canvas.restore();
-    }
-
-    public Drawable getDrawable() {
-        Bitmap bitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(bitmap);
-        draw(canvas);
-        float aspectRatio = (1.0f * getWidth()) / getHeight();
-        Drawable diagram = new BitmapDrawable(getResources(), Bitmap.createScaledBitmap(bitmap, (int)(100*aspectRatio), 100, false));
-        return diagram;
-    }
-
-    static <T extends DiagramElement> T findTouchedElement(Iterable<T> elements, int xPosDips, int yPosDips) {
-        DiagramElement.ContainsResult smallestContainsResult = DiagramElement.NOT_CONTAINED;
-        T closestElement = null;
-        for (T element : elements) {
-            DiagramElement.ContainsResult containsResult = element.contains(xPosDips, yPosDips);
-            if (containsResult.compareTo(smallestContainsResult) < 0) {
-                smallestContainsResult = containsResult;
-                closestElement = element;
-            }
-        }
-        if (smallestContainsResult == DiagramElement.NOT_CONTAINED) {
-            return null;
-        }
-        return closestElement;
+    private void onDiagramModified() {
+        FloBus.getInstance().post(new CurrentDiagramNameChangeEvent(getDiagram().getName(), CurrentDiagramNameChangeEvent.DiagramEditingState.UNSAVED));
     }
 
     /**
