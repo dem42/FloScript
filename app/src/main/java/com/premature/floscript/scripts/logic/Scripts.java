@@ -92,6 +92,7 @@ public final class Scripts {
         scripts.add(getScriptFromFile(ctx, R.raw.output_msg));
         scripts.add(getScriptFromFile(ctx, R.raw.between_test));
         scripts.add(getScriptFromFile(ctx, R.raw.open_browser));
+        scripts.add(getScriptFromFile(ctx, R.raw.arithmetic));
         return scripts;
     }
 }

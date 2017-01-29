@@ -1,0 +1,15 @@
+/* Name Section */
+Arithmetic Template
+/* Type Section */
+BLOCK_TEMPLATE
+/* Var Section */
+{'expression':'undefined'}
+/* Var Types Section */
+{'expression':'STRING'}
+/* Code Section */
+vars.expression = floHelper.expandPassedArgumentLabels(vars.expression);
+env.vars.arguments = [];
+env.vars.arguments[0] = new Function("return ".concat(vars.expression, ";"))();
+floApi.logMessage(env.vars.arguments);
+/* Comment Section */
+compute "${expression}"

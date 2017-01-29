@@ -19,10 +19,12 @@ public class ScriptEngine {
     private final StringWriter writer;
     private final Context ctx;
     private final FloJsApi floJsApi;
+    private final FloJsHelper floJsHelper;
 
     public ScriptEngine(Context ctx) {
         this.writer = new StringWriter();
         this.floJsApi = new FloJsApi(ctx);
+        this.floJsHelper = new FloJsHelper();
         this.ctx = ctx;
     }
 
@@ -37,6 +39,7 @@ public class ScriptEngine {
             // a scope object that we use in later calls.
             Scriptable scope = cx.initStandardObjects();
             ScriptableObject.putProperty(scope, "floApi", org.mozilla.javascript.Context.javaToJS(floJsApi, scope));
+            ScriptableObject.putProperty(scope, "floHelper", org.mozilla.javascript.Context.javaToJS(floJsHelper, scope));
             // Now evaluate the string we've collected.
             String code = script.getSourceCode();
             if (Script.Type.FUNCTION == script.getType()) {

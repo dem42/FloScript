@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -243,15 +244,24 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     }
 
     private void updateTitle(String name) {
-        final String nameToShow;
+        final String nameToShow = getDiagramDisplayTitle(name);
+
+        FloBus.getInstance().post(new CurrentDiagramNameChangeEvent(nameToShow, CurrentDiagramNameChangeEvent.DiagramEditingState.SAVED));
+    }
+
+    /**
+     * Used just for showing the title of the diagram next to the (saved/unsaved) state indicator
+     */
+    @NonNull
+    private String getDiagramDisplayTitle(String name) {
+        String nameToShow;
         if (name == null || name.equals(DiagramDao.WORK_IN_PROGRESS_DIAGRAM)) {
             nameToShow = "Unnamed";
         }
         else {
             nameToShow = name;
         }
-
-        FloBus.getInstance().post(new CurrentDiagramNameChangeEvent(nameToShow, CurrentDiagramNameChangeEvent.DiagramEditingState.SAVED));
+        return nameToShow;
     }
 
     private void cleanEditingState() {
@@ -391,8 +401,12 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         mYOffset = 40;
     }
 
+    /**
+     * Used to updated notify about a change to the saved/unsaved state
+     */
     private void onDiagramModified() {
-        FloBus.getInstance().post(new CurrentDiagramNameChangeEvent(getDiagram().getName(), CurrentDiagramNameChangeEvent.DiagramEditingState.UNSAVED));
+        String title = getDiagramDisplayTitle(getDiagram().getName());
+        FloBus.getInstance().post(new CurrentDiagramNameChangeEvent(title, CurrentDiagramNameChangeEvent.DiagramEditingState.UNSAVED));
     }
 
     /**

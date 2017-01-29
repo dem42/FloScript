@@ -27,7 +27,7 @@ public class FloJsApi {
         this.ctx = ctx;
     }
 
-    public static void logMessage(String msg) {
+    public void logMessage(String msg) {
         Log.d(TAG, "from js land: " + msg);
     }
 
