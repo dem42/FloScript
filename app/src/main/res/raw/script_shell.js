@@ -1,5 +1,5 @@
 var env = env || {};
-env.vars = env.vars || {arguments: [], result: null};
+env.vars = env.vars || {};
 var max_iter = 100;
 var iter = 0;
 var function_stack = [];

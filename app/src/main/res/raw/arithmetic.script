@@ -3,13 +3,12 @@ Arithmetic Template
 /* Type Section */
 BLOCK_TEMPLATE
 /* Var Section */
-{'expression':'undefined'}
+{'result_var': 'undefined', 'expression':'undefined'}
 /* Var Types Section */
-{'expression':'STRING'}
+{'result_var':'STRING', 'expression':'STRING'}
 /* Code Section */
-vars.expression = floHelper.expandPassedArgumentLabels(vars.expression);
-env.vars.arguments = [];
-env.vars.arguments[0] = new Function("return ".concat(vars.expression, ";"))();
-floApi.logMessage(env.vars.arguments);
+vars.result = floHelper.expandPassedArgumentLabels(JSON.stringify(env.vars), vars.expression);
+env.vars[vars.result_var] = new Function("return ".concat(vars.result, ";"))();
+floApi.logMessage(env.vars[vars.result_var]);
 /* Comment Section */
-compute "${expression}"
+${result_var} = ${expression}
