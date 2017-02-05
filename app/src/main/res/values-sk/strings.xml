@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- error messages -->
+    <string name="compile_err7">Niektore logicke elementy niesu pripojene</string>
+
+
+</resources>
