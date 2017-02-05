@@ -28,7 +28,7 @@ public class ScriptEngine {
         this.ctx = ctx;
     }
 
-    public String runScript(com.premature.floscript.scripts.logic.Script script) {
+    public String runScript(com.premature.floscript.scripts.logic.Script script) throws ScriptExecutionException {
         // Creates and enters a Context. The Context stores information
         // about the execution environment of a script.
         org.mozilla.javascript.Context cx = org.mozilla.javascript.Context.enter();
@@ -50,12 +50,12 @@ public class ScriptEngine {
 
             // Convert the result to a string and print it.
             return org.mozilla.javascript.Context.toString(result);
-        } catch (org.mozilla.javascript.EvaluatorException ee) {
-            Log.d(TAG, "execution of script failed with exception: " + Log.getStackTraceString(ee));
+        } catch (org.mozilla.javascript.RhinoException ee) {
+            Log.e(TAG, "execution of script failed with exception: " + Log.getStackTraceString(ee));
+            throw new ScriptExecutionException(ee.getMessage());
         } finally {
             // Exit from the context.
             org.mozilla.javascript.Context.exit();
         }
-        return "";
     }
 }

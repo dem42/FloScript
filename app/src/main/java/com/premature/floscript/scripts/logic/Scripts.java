@@ -24,7 +24,7 @@ public final class Scripts {
     public static String createFunctionWrapper(Script codeToWrap, String functionName, @Nullable String yesOrDefaultScript, @Nullable String noScript)
             throws ScriptCompilationException {
         if (codeToWrap == null) {
-            throw new ScriptCompilationException(CompilationErrorCode.ELEMENT_WITHOUT_SCRIPT, "Element = " + functionName);
+            throw new ScriptCompilationException(CompilationErrorCode.ELEMENT_WITHOUT_SCRIPT, "[" + functionName + "]");
         }
         StringBuilder bob = new StringBuilder("function " + functionName + " (env) {\n");
         if (yesOrDefaultScript != null) {

@@ -46,7 +46,7 @@ public class MainActivity extends ActionBarActivity {
 
     // used to display what diagram is being edited
     private String currentDiagramName = "test1";
-    private String currentDiagramState = "Unsaved";
+    private String currentDiagramState;
 
     @BindString(R.string.diagramTitle) String diagramTitle;
     @BindString(R.string.jobsTitle) String jobsTitle;
@@ -59,6 +59,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        currentDiagramState = unsavedSateDesc;
         // Set up the action bar.
         final ActionBar actionBar = getSupportActionBar();
         // setting the navigation mode makes the tabs visible

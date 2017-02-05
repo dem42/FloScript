@@ -19,6 +19,8 @@ import com.premature.floscript.scripts.logic.DiagramToScriptCompiler;
 import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.logic.ScriptCompilationException;
 import com.premature.floscript.scripts.logic.ScriptEngine;
+import com.premature.floscript.scripts.logic.ScriptExecutionException;
+import com.premature.floscript.scripts.logic.StringResolver;
 import com.premature.floscript.scripts.ui.diagram.ArrowUiElement;
 import com.premature.floscript.scripts.ui.diagram.Diagram;
 import com.premature.floscript.scripts.ui.diagram.DiagramEditorView;
@@ -27,6 +29,7 @@ import com.premature.floscript.scripts.ui.diagram.LogicBlockUiElement;
 import com.premature.floscript.util.FloBus;
 import com.squareup.otto.Subscribe;
 
+import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -40,9 +43,6 @@ import static android.view.View.LAYER_TYPE_SOFTWARE;
 public final class ScriptingFragment extends Fragment implements SaveDialog.OnSaveDialogListener,
         LoadDialog.OnLoadDialogListener {
     private static final String TAG = "SCRIPT_FRAG";
-    private static final String ERROR_COMPILING_DIAGRAM_POPUP_TITLE = "Error compiling diagram";
-    private static final String DIAGRAM_CODE_POPUP_TITLE = "Diagram source code";
-
 
     private LogicBlockUiElement mLogicBlockElement;
     private DiamondUiElement mDiamondElement;
@@ -57,10 +57,20 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     @BindView(R.id.arrow_elem_btn)
     Button mArrowElemBtn;
 
+    @BindString(R.string.error_compile_diagram)
+    String ERROR_COMPILING_DIAGRAM_POPUP_TITLE;
+    @BindString(R.string.error_running_diagram)
+    String ERROR_RUNNING_DIAGRAM_POPUP_TITLE;
+    @BindString(R.string.diagram_code_popup_title)
+    String DIAGRAM_CODE_POPUP_TITLE;
+    @BindString(R.string.failed_to_compile_msg)
+    String FAILED_TO_COMPILE;
+
     private float mDensity;
     private StickyButtonCoordinator mBtnCoordinator;
     private DiagramDao mDiagramDao;
     private DiagramToScriptCompiler mCompiler;
+    private StringResolver stringResolver;
 
     /**
      * Use this factory method to create a new instance of
@@ -139,7 +149,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
     @Subscribe
     public void onDiagramValidationError(DiagramValidationEvent validationEvent) {
-        TextPopupDialog.showPopup(getFragmentManager(), validationEvent.msg, ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
+        TextPopupDialog.showPopup(getFragmentManager(), stringResolver.resolve(validationEvent.errorCode), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
     }
 
     @Override
@@ -157,8 +167,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
             Script compiledDiagram = mCompiler.compile(diagram);
             diagram.setCompiledDiagram(compiledDiagram);
         } catch (ScriptCompilationException e) {
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), "Failed to compile diagram. It will not be available" +
-                    "as a job\n\nReason:" + e.getMessage(), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), FAILED_TO_COMPILE + e.getScriptCompilationMessage(stringResolver), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
         }
         new SaveDiagramTask(this, true).execute(diagram);
     }
@@ -173,6 +182,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         ButterKnife.bind(this, view);
         initButtons();
 
+        stringResolver = new StringResolver(view);
         FloBus.getInstance().register(this);
         mDiagramEditorView.busRegister(true);
         Diagram workInProgressDiagram = mDiagramDao.getDiagram(DiagramDao.WORK_IN_PROGRESS_DIAGRAM);
@@ -224,8 +234,11 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
             TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), script.getSourceCode() +
                     "\n\nWith result: " + result, DIAGRAM_CODE_POPUP_TITLE);
         } catch (ScriptCompilationException e) {
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getMessage(), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
-            Log.e(TAG, "compile exp", e);
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getScriptCompilationMessage(stringResolver), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
+            Log.e(TAG, "Compile exception", e);
+        } catch (ScriptExecutionException e) {
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getMessage(), ERROR_RUNNING_DIAGRAM_POPUP_TITLE);
+            Log.e(TAG, "Execute exception", e);
         }
     }
 
@@ -294,7 +307,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
             Script script = compiler.compile(mDiagramEditorView.getDiagram());
             TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), script.getSourceCode(), DIAGRAM_CODE_POPUP_TITLE);
         } catch (ScriptCompilationException e) {
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getMessage(), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getScriptCompilationMessage(stringResolver), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
             Log.e(TAG, "compile exp", e);
         }
     }

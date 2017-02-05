@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -57,7 +58,6 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
     private static final String TAG = "JOB_ADD_ACTIVITY";
     private static final int JOB_ADD = 2;
     private static final String TIME_TRIG_DIALOG = "TIME_TRIG_DIAG";
-    private static final String ERROR_SAVING_JOB_POPUP_TITLE = "Error saving job";
     private ArrayAdapter<DbUtils.NameAndId> mArrayAdapter;
     private Map<String, Integer> mDiagramNameToPos;
     private String mActiveScriptName;
@@ -85,6 +85,8 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
     Switch mEventTrigSwitch;
     @BindView(R.id.job_add_time_trig)
     Switch mTimeTrigSwitch;
+    @BindString(R.string.error_saving_job)
+    String ERROR_SAVING_JOB_POPUP_TITLE;
 
 
     /* ******************** */

@@ -29,10 +29,13 @@ import com.premature.floscript.db.ScriptsDao;
 import com.premature.floscript.jobs.logic.Job;
 import com.premature.floscript.jobs.logic.JobScheduler;
 import com.premature.floscript.scripts.logic.ScriptEngine;
+import com.premature.floscript.scripts.logic.ScriptExecutionException;
+import com.premature.floscript.scripts.ui.TextPopupDialog;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindString;
 import butterknife.ButterKnife;
 
 /**
@@ -51,6 +54,8 @@ public class JobsFragment extends Fragment implements LoaderManager.LoaderCallba
     private ScriptsDao mScriptsDao;
     private ScriptEngine mScriptEngine;
 
+    @BindString(R.string.error_executing_job)
+    String ERROR_RUNNING_DIAGRAM_POPUP_TITLE;
     /**
      * The fragment's ListView/GridView.
      */
@@ -165,7 +170,12 @@ public class JobsFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     void executeJob(Job job) {
-        mScriptEngine.runScript(job.getScript());
+        try {
+            mScriptEngine.runScript(job.getScript());
+        } catch (ScriptExecutionException e) {
+            Log.e(TAG, "Error executing the job" + e.getMessage());
+            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getMessage(), ERROR_RUNNING_DIAGRAM_POPUP_TITLE);
+        }
     }
 
     void deleteJob(Job job) {

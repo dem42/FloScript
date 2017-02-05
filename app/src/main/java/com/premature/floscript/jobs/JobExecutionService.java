@@ -9,6 +9,7 @@ import com.premature.floscript.db.JobsDao;
 import com.premature.floscript.jobs.logic.Job;
 import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.logic.ScriptEngine;
+import com.premature.floscript.scripts.logic.ScriptExecutionException;
 
 /**
  * This class is a {@link IntentService} subclass for handling asynchronous job execution requests in
@@ -82,12 +83,16 @@ public class JobExecutionService extends IntentService {
     private void handleSystemEvent(String eventAlias) {
         Iterable<Job> jobs = mJobDao.getEnabledJobsForEventTrigger(eventAlias);
         for (Job job : jobs) {
-            Log.d(TAG, "Triggering job " + job.getJobName() + " enabled registered event trigger listener");
-            String result = mScriptEngine.runScript(job.getScript());
-            Log.d(TAG, "For job " + job.getJobName() + " the job result was = " + result);
+            try {
+                String result = null;
+                Log.d(TAG, "Triggering job " + job.getJobName() + " enabled registered event trigger listener");
+                result = mScriptEngine.runScript(job.getScript());
+                Log.d(TAG, "For job " + job.getJobName() + " the job result was = " + result);
+            } catch (ScriptExecutionException e) {
+                Log.e(TAG, "For job " + job.getJobName() + " failed to execute due to exception: " + e.getMessage());
+            }
         }
     }
-
 
     /**
      * TODO: make sure this holds onto the cpu wakup lock, or else the device might sleep before we get here
@@ -95,9 +100,14 @@ public class JobExecutionService extends IntentService {
      * we will require an activity to receive the action
      */
     private void handleJobExecution(String jobName) {
-        Script script = mJobDao.getScriptForJob(jobName);
-        Log.d(TAG, "For job " + jobName + " we are going to run script " + script);
-        String result = mScriptEngine.runScript(script);
-        Log.d(TAG, "For job " + jobName + " the script result was = " + result);
+        try {
+            Script script = mJobDao.getScriptForJob(jobName);
+            Log.d(TAG, "For job " + jobName + " we are going to run script " + script);
+            String result = null;
+            result = mScriptEngine.runScript(script);
+            Log.d(TAG, "For job " + jobName + " the script result was = " + result);
+        } catch (ScriptExecutionException e) {
+            Log.e(TAG, "For job " + jobName + " failed to execute due to exception: " + e.getMessage());
+        }
     }
 }

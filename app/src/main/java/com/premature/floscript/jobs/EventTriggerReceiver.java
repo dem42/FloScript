@@ -16,11 +16,6 @@ import com.premature.floscript.jobs.logic.JobScheduler;
  */
 public class EventTriggerReceiver extends BroadcastReceiver {
 
-    static {
-        System.out.println("Static receiver code");
-    }
-
-
     /**
      * Receive a system event and sends/start the job execution service with
      * an event alias as parameter.

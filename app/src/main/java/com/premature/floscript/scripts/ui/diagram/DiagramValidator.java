@@ -60,7 +60,7 @@ public final class DiagramValidator {
 
     private boolean checkAndNotify(boolean result, CompilationErrorCode code) {
         if (!result) {
-            FloBus.getInstance().post(new DiagramValidationEvent(code.getReason()));
+            FloBus.getInstance().post(new DiagramValidationEvent(code));
             return false;
         }
         return true;

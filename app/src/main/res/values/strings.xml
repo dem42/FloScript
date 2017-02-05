@@ -23,4 +23,26 @@
     <string name="unsavedState">Unsaved</string>
     <string name="savedState">Saved</string>
 
+    <string name="variables_input">Bind variables</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- error messages -->
+    <string name="error_saving_job">Error saving job</string>
+    <string name="error_executing_job">Error executing job</string>
+    <string name="error_compile_diagram">Error compiling diagram</string>
+    <string name="error_running_diagram">Error running code</string>
+    <string name="diagram_code_popup_title">Diagram source code</string>
+    <string name="failed_to_compile_msg">Failed to compile diagram. It will not be available as a job\\n\\nReason:</string>
+
+    <string name="compile_err1">An entry point element may only have one child.</string>
+    <string name="compile_err2">Diagram must have an entry element.</string>
+    <string name="compile_err3">An element doesn\'t contain any code.</string>
+    <string name="compile_err4">The element cannot have any more arrows connected.</string>
+    <string name="compile_err5">It is not allowed to connect an arrow to the entry element.</string>
+    <string name="compile_err6">Adding this arrow would created an infinite loop.</string>
+    <string name="compile_err7">Some elements in the diagram cannot be reached from the entry node.\\n\\nOK?</string>
+    <string name="compile_err8">Make sure all diagram elements are non-empty.</string>
+    <string name="compile_err_default">Unknown error</string>
+
+
 </resources>

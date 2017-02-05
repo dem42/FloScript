@@ -29,6 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import butterknife.BindString;
+import butterknife.ButterKnife;
+
 /**
  * Created by martin on 24/01/15.
  */
@@ -40,6 +43,13 @@ public class VariablesDialog extends DialogFragment {
 
     private WeakHashMap<String, Pair<View, Script.VarType>> vars;
     private OnVariablesListener mOnVariablesListener;
+
+    @BindString(R.string.variables_input)
+    String VARIABLES_INPUT;
+    @BindString(R.string.action_save)
+    String SAVE_TXT;
+    @BindString(R.string.cancel)
+    String CANCEL_TXT;
 
     public static VariablesDialog newInstance(String command, List<Pair<String, Script.VarType>> vars) {
         VariablesDialog dialog = new VariablesDialog();
@@ -76,6 +86,8 @@ public class VariablesDialog extends DialogFragment {
         layout.setBackgroundResource(R.drawable.wallpaper_repeat_pale);
         layout.setOrientation(LinearLayout.VERTICAL);
 
+        ButterKnife.bind(this, layout);
+
         if (getArguments() != null) {
             vars = new WeakHashMap<>();
             String command = getArguments().getString(COMMAND_KEY);
@@ -90,15 +102,15 @@ public class VariablesDialog extends DialogFragment {
             }
 
             builder.setView(layout);
-            builder.setTitle("Bind variables");
+            builder.setTitle(VARIABLES_INPUT);
         }
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(CANCEL_TXT, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
             }
         });
-        builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(SAVE_TXT, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
