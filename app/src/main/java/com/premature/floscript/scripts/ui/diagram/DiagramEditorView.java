@@ -20,6 +20,7 @@ import com.premature.floscript.events.CurrentDiagramNameChangeEvent;
 import com.premature.floscript.events.ScriptAvailableEvent;
 import com.premature.floscript.events.ScriptCollectionRequestEvent;
 import com.premature.floscript.scripts.logic.ArrowCondition;
+import com.premature.floscript.scripts.logic.StringResolver;
 import com.premature.floscript.scripts.ui.OnElementSelectorListener;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
 import com.premature.floscript.util.FloBus;
@@ -64,6 +65,8 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     private int mYOffset = 0;
     private ElementMover mElementMover;
     private OnDiagramEditorListener mOnDiagramEditorListener;
+    @Nullable
+    private StringResolver stringResolver;
 
     public DiagramEditorView(Context context) {
         super(context);
@@ -168,6 +171,16 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
     @Override
     public void pinningStateToggled() {
+    }
+
+    public void setStringResolver(@Nullable StringResolver resolver) {
+        this.stringResolver = resolver;
+        if (mArrowPopupMenu != null) {
+            mArrowPopupMenu.setStringResolver(resolver);
+        }
+        if (mElemPopupMenu != null) {
+            mElemPopupMenu.setStringResolver(resolver);
+        }
     }
 
     public void busRegister(boolean activate) {

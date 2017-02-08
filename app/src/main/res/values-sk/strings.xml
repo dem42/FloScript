@@ -4,5 +4,8 @@
     <!-- error messages -->
     <string name="compile_err7">Niektore logicke elementy niesu pripojene</string>
 
+    <!-- popup buttons in diagram view -->
+    <string name="toggle_pin_popup_btn">Togluj pripnutie</string>
+
 
 </resources>

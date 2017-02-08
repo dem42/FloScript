@@ -1,5 +1,10 @@
 package com.premature.floscript.scripts.ui.diagram;
 
+import android.support.annotation.Nullable;
+import android.support.annotation.PluralsRes;
+
+import com.premature.floscript.scripts.logic.StringResolver;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,8 +29,11 @@ public enum DiagramEditorPopupButtonType {
         this.text = text;
     }
 
-    public String getText() {
-        return text;
+    public String getText(@Nullable StringResolver stringResolver) {
+        if (stringResolver == null) {
+            return text;
+        }
+        return stringResolver.resolvePopupBtnText(this, text);
     }
 
     public static String longest(List<DiagramEditorPopupButtonType> buttonsTypes) {

@@ -44,5 +44,12 @@
     <string name="compile_err8">Make sure all diagram elements are non-empty.</string>
     <string name="compile_err_default">Unknown error</string>
 
+    <!-- popup buttons in diagram view -->
+    <string name="delete_popup_btn">Delete</string>
+    <string name="yes_arrow_label">Yes</string>
+    <string name="no_arrow_label">No</string>
+    <string name="set_code_popup_btn">Set Code</string>
+    <string name="toggle_pin_popup_btn">Toggle Pinned</string>
+
 
 </resources>

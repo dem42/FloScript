@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.premature.floscript.scripts.logic.StringResolver;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
 
 import java.util.ArrayList;
@@ -38,6 +39,8 @@ public class DiagramPopupMenu<T extends DiagramElement> {
     private final static Rect TEXT_BOUNDS = new Rect(); //don't new this up in a draw method
     @Nullable
     private T touchedElement;
+    @Nullable
+    private StringResolver stringResolver;
 
     public DiagramPopupMenu(List<DiagramEditorPopupButtonType> buttonsTypes, OnDiagramMenuClickListener listener) {
         this.listener = listener;
@@ -55,6 +58,10 @@ public class DiagramPopupMenu<T extends DiagramElement> {
         this.buttonTypes = buttonsTypes;
         this.buttons = new ArrayList<>();
         rectangle = new Rect(0, 0, 0, 0);
+    }
+
+    public void setStringResolver(@Nullable StringResolver stringResolver) {
+        this.stringResolver = stringResolver;
     }
 
     private void initViewFromButtons(T selectedElement) {
@@ -76,7 +83,7 @@ public class DiagramPopupMenu<T extends DiagramElement> {
         int sofar = 0;
         for (DiagramEditorPopupButtonType buttonType : shownBtns) {
             this.buttons.add(new PopupMenuButton(buttonType, Color.LTGRAY,
-                    new Rect(0, sofar, width, sofar + btnHeight)));
+                    new Rect(0, sofar, width, sofar + btnHeight), stringResolver));
             cnt++;
             sofar += btnHeight;
         }
@@ -155,12 +162,14 @@ public class DiagramPopupMenu<T extends DiagramElement> {
     private static class PopupMenuButton {
         int btnColor;
         Rect rectangle;
+        final StringResolver stringResolver;
         DiagramEditorPopupButtonType btnType;
 
-        private PopupMenuButton(DiagramEditorPopupButtonType btnType, int btnColor, Rect rect) {
+        private PopupMenuButton(DiagramEditorPopupButtonType btnType, int btnColor, Rect rect, StringResolver stringResolver) {
             this.btnType = btnType;
             this.btnColor = btnColor;
             this.rectangle = rect;
+            this.stringResolver = stringResolver;
         }
 
         public int getBtnColor() {
@@ -178,7 +187,7 @@ public class DiagramPopupMenu<T extends DiagramElement> {
         public void draw(Canvas canvas, PopupMenuButton btn, Paint textPaint, Paint innerPaint) {
             innerPaint.setColor(btnColor);
             canvas.drawRect(rectangle, innerPaint);
-            drawTextCentredVertically(canvas, textPaint, btnType.getText(),
+            drawTextCentredVertically(canvas, textPaint, btnType.getText(stringResolver),
                     rectangle.top, rectangle.height() / 2f);
         }
 

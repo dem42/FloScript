@@ -184,7 +184,9 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
         stringResolver = new StringResolver(view);
         FloBus.getInstance().register(this);
+
         mDiagramEditorView.busRegister(true);
+        mDiagramEditorView.setStringResolver(stringResolver);
         Diagram workInProgressDiagram = mDiagramDao.getDiagram(DiagramDao.WORK_IN_PROGRESS_DIAGRAM);
         if (workInProgressDiagram != null) {
             mDiagramEditorView.setDiagram(workInProgressDiagram);
@@ -199,7 +201,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         Log.d(TAG, "Destroying scripting view");
         FloBus.getInstance().unregister(this);
         mDiagramEditorView.busRegister(false);
-
+        mDiagramEditorView.setStringResolver(null);
         // make the saving non-blocking
         Diagram workInProgressDiagram = mDiagramEditorView.getDiagram();
         workInProgressDiagram.setOriginalName(workInProgressDiagram.getName());

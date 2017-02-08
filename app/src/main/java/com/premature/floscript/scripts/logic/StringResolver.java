@@ -1,10 +1,10 @@
 package com.premature.floscript.scripts.logic;
 
-import android.app.Activity;
 import android.util.Log;
 import android.view.View;
 
 import com.premature.floscript.R;
+import com.premature.floscript.scripts.ui.diagram.DiagramEditorPopupButtonType;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,6 +19,11 @@ import butterknife.ButterKnife;
 public class StringResolver {
 
     private static final String TAG = "STRING_RESOLVER";
+    /**
+     * Strings for compilation and execution error messages
+     *
+     * @see com.premature.floscript.scripts.logic.CompilationErrorCode
+     */
     @BindString(R.string.compile_err_default)
     String DEFAULT_ERROR;
     @BindString(R.string.compile_err1)
@@ -37,25 +42,56 @@ public class StringResolver {
     String NOT_ALL_DIAGRAM_ELEMENTS_ARE_REACHABLE;
     @BindString(R.string.compile_err8)
     String UNSCRIPTED_ELEMENTS;
+    /**
+     * Strings for popup menu buttons. These are drawn programmatically
+     *
+     * @see com.premature.floscript.scripts.ui.diagram.DiagramEditorPopupButtonType
+     */
+    @BindString(R.string.delete_popup_btn)
+    String DELETE_BTN;
+    @BindString(R.string.yes_arrow_label)
+    String YES_BTN;
+    @BindString(R.string.no_arrow_label)
+    String NO_BTN;
+    @BindString(R.string.set_code_popup_btn)
+    String SET_CODE_BTN;
+    @BindString(R.string.toggle_pin_popup_btn)
+    String TOGGLE_PIN_BTN;
 
-    private final Map<CompilationErrorCode, String> codes = new HashMap<>();
+    private final Map<CompilationErrorCode, String> errorCodes = new HashMap<>();
+    private final Map<DiagramEditorPopupButtonType, String> popupBtnCodes = new HashMap<>();
 
     public StringResolver(View rootView) {
         ButterKnife.bind(this, rootView);
-        codes.put(CompilationErrorCode.ENTRY_MUST_HAVE_SINGLE_CHILD, ENTRY_MUST_HAVE_SINGLE_CHILD);
-        codes.put(CompilationErrorCode.DIAGRAM_MUST_HAVE_ENTRY_ELEM, DIAGRAM_MUST_HAVE_ENTRY_ELEM);
-        codes.put(CompilationErrorCode.ELEMENT_WITHOUT_SCRIPT, ELEMENT_WITHOUT_SCRIPT);
-        codes.put(CompilationErrorCode.MAX_CHILDREN_REACHED, MAX_CHILDREN_REACHED);
-        codes.put(CompilationErrorCode.CANNOT_CONNECT_TO_ENTRY, CANNOT_CONNECT_TO_ENTRY);
-        codes.put(CompilationErrorCode.HAS_ALWAYS_TRUE_LOOP, HAS_ALWAYS_TRUE_LOOP);
-        codes.put(CompilationErrorCode.NOT_ALL_DIAGRAM_ELEMENTS_ARE_REACHABLE, NOT_ALL_DIAGRAM_ELEMENTS_ARE_REACHABLE);
-        codes.put(CompilationErrorCode.UNSCRIPTED_ELEMENTS, UNSCRIPTED_ELEMENTS);
+        errorCodes.put(CompilationErrorCode.ENTRY_MUST_HAVE_SINGLE_CHILD, ENTRY_MUST_HAVE_SINGLE_CHILD);
+        errorCodes.put(CompilationErrorCode.DIAGRAM_MUST_HAVE_ENTRY_ELEM, DIAGRAM_MUST_HAVE_ENTRY_ELEM);
+        errorCodes.put(CompilationErrorCode.ELEMENT_WITHOUT_SCRIPT, ELEMENT_WITHOUT_SCRIPT);
+        errorCodes.put(CompilationErrorCode.MAX_CHILDREN_REACHED, MAX_CHILDREN_REACHED);
+        errorCodes.put(CompilationErrorCode.CANNOT_CONNECT_TO_ENTRY, CANNOT_CONNECT_TO_ENTRY);
+        errorCodes.put(CompilationErrorCode.HAS_ALWAYS_TRUE_LOOP, HAS_ALWAYS_TRUE_LOOP);
+        errorCodes.put(CompilationErrorCode.NOT_ALL_DIAGRAM_ELEMENTS_ARE_REACHABLE, NOT_ALL_DIAGRAM_ELEMENTS_ARE_REACHABLE);
+        errorCodes.put(CompilationErrorCode.UNSCRIPTED_ELEMENTS, UNSCRIPTED_ELEMENTS);
+
+        popupBtnCodes.put(DiagramEditorPopupButtonType.DELETE_BTN, DELETE_BTN);
+        popupBtnCodes.put(DiagramEditorPopupButtonType.YES_BTN, YES_BTN);
+        popupBtnCodes.put(DiagramEditorPopupButtonType.NO_BTN, NO_BTN);
+        popupBtnCodes.put(DiagramEditorPopupButtonType.SET_CODE_BTN, SET_CODE_BTN);
+        popupBtnCodes.put(DiagramEditorPopupButtonType.TOGGLE_PIN_BTN, TOGGLE_PIN_BTN);
     }
 
     public String resolve(CompilationErrorCode reason) {
-        if (codes.get(reason) == null) {
-            Log.e(TAG, "Failed to find a text message for the error code");
+        if (errorCodes.get(reason) == null) {
+            Log.e(TAG, "Failed to find a text message for the error code " + reason);
+            return DEFAULT_ERROR;
         }
-        return codes.get(reason);
+        return errorCodes.get(reason);
+    }
+
+    public String resolvePopupBtnText(DiagramEditorPopupButtonType buttonType, String defaultValue) {
+        if (popupBtnCodes.get(buttonType) == null) {
+            Log.e(TAG, "Failed to find a label for the button " + buttonType);
+            return defaultValue;
+        }
+        return popupBtnCodes.get(buttonType);
     }
 }
