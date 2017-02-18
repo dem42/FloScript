@@ -174,7 +174,7 @@ public class JobsFragment extends Fragment implements LoaderManager.LoaderCallba
             mScriptEngine.runScript(job.getScript());
         } catch (ScriptExecutionException e) {
             Log.e(TAG, "Error executing the job" + e.getMessage());
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getMessage(), ERROR_RUNNING_DIAGRAM_POPUP_TITLE);
+            TextPopupDialog.showErrorPopup(getActivity().getSupportFragmentManager(), e.getMessage(), ERROR_RUNNING_DIAGRAM_POPUP_TITLE);
         }
     }
 

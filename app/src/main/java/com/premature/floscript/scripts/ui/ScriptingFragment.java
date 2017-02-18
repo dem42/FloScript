@@ -149,7 +149,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
     @Subscribe
     public void onDiagramValidationError(DiagramValidationEvent validationEvent) {
-        TextPopupDialog.showPopup(getFragmentManager(), stringResolver.resolve(validationEvent.errorCode), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
+        TextPopupDialog.showErrorPopup(getFragmentManager(), stringResolver.resolve(validationEvent.errorCode), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
     }
 
     @Override
@@ -167,7 +167,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
             Script compiledDiagram = mCompiler.compile(diagram);
             diagram.setCompiledDiagram(compiledDiagram);
         } catch (ScriptCompilationException e) {
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), FAILED_TO_COMPILE + e.getScriptCompilationMessage(stringResolver), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
+            TextPopupDialog.showErrorPopup(getActivity().getSupportFragmentManager(), FAILED_TO_COMPILE + e.getScriptCompilationMessage(stringResolver), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
         }
         new SaveDiagramTask(this, true).execute(diagram);
     }
@@ -233,13 +233,13 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         try {
             Script script = mCompiler.compile(mDiagramEditorView.getDiagram());
             String result = new ScriptEngine(getActivity().getApplicationContext()).runScript(script);
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), script.getSourceCode() +
+            TextPopupDialog.showInfoPopup(getActivity().getSupportFragmentManager(), script.getSourceCode() +
                     "\n\nWith result: " + result, DIAGRAM_CODE_POPUP_TITLE);
         } catch (ScriptCompilationException e) {
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getScriptCompilationMessage(stringResolver), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
+            TextPopupDialog.showErrorPopup(getActivity().getSupportFragmentManager(), e.getScriptCompilationMessage(stringResolver), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
             Log.e(TAG, "Compile exception", e);
         } catch (ScriptExecutionException e) {
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getMessage(), ERROR_RUNNING_DIAGRAM_POPUP_TITLE);
+            TextPopupDialog.showErrorPopup(getActivity().getSupportFragmentManager(), e.getMessage(), ERROR_RUNNING_DIAGRAM_POPUP_TITLE);
             Log.e(TAG, "Execute exception", e);
         }
     }
@@ -307,9 +307,9 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
 
         try {
             Script script = compiler.compile(mDiagramEditorView.getDiagram());
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), script.getSourceCode(), DIAGRAM_CODE_POPUP_TITLE);
+            TextPopupDialog.showInfoPopup(getActivity().getSupportFragmentManager(), script.getSourceCode(), DIAGRAM_CODE_POPUP_TITLE);
         } catch (ScriptCompilationException e) {
-            TextPopupDialog.showPopup(getActivity().getSupportFragmentManager(), e.getScriptCompilationMessage(stringResolver), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
+            TextPopupDialog.showErrorPopup(getActivity().getSupportFragmentManager(), e.getScriptCompilationMessage(stringResolver), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
             Log.e(TAG, "compile exp", e);
         }
     }

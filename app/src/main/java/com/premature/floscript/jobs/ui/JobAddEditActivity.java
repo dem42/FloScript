@@ -251,11 +251,11 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
      */
     private boolean validateJobData(Script script, String jobName, String comment, TimeTrigger timeTrigger, String eventTrigger) {
         if (script == null) {
-            TextPopupDialog.showPopup(getSupportFragmentManager(), "No script selected for this job", ERROR_SAVING_JOB_POPUP_TITLE);
+            TextPopupDialog.showErrorPopup(getSupportFragmentManager(), "No script selected for this job", ERROR_SAVING_JOB_POPUP_TITLE);
             return false;
         }
         if (jobName == null || jobName.isEmpty()) {
-            TextPopupDialog.showPopup(getSupportFragmentManager(), "The job must have a non-empty name", ERROR_SAVING_JOB_POPUP_TITLE);
+            TextPopupDialog.showErrorPopup(getSupportFragmentManager(), "The job must have a non-empty name", ERROR_SAVING_JOB_POPUP_TITLE);
             return false;
         }
         return true;

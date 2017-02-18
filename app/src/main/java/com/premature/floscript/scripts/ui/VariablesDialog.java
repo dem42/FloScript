@@ -33,6 +33,8 @@ import butterknife.BindString;
 import butterknife.ButterKnife;
 
 /**
+ * Popup dialog that's used to populate the variables that a code block uses
+ * <p/>
  * Created by martin on 24/01/15.
  */
 public class VariablesDialog extends DialogFragment {
