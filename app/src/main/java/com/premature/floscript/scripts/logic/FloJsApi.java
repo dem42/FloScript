@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.premature.floscript.R;
 
@@ -28,7 +29,12 @@ public class FloJsApi {
     }
 
     public void logMessage(String msg) {
-        Log.d(TAG, "from js land: " + msg);
+        Log.d(TAG, "Message from js land: " + msg);
+    }
+
+    public void errorMessage(String msg) {
+        Log.e(TAG, "Error from js land: " + msg);
+        floNotify("ERROR: " + msg);
     }
 
     public void floNotify(String msg) {

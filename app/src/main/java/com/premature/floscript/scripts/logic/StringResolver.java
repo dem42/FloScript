@@ -42,6 +42,8 @@ public class StringResolver {
     String NOT_ALL_DIAGRAM_ELEMENTS_ARE_REACHABLE;
     @BindString(R.string.compile_err8)
     String UNSCRIPTED_ELEMENTS;
+    @BindString(R.string.arrow_diamond_no_label)
+    String DIAMOND_ARROW_NO_LABEL;
     /**
      * Strings for popup menu buttons. These are drawn programmatically
      *
@@ -71,6 +73,7 @@ public class StringResolver {
         errorCodes.put(CompilationErrorCode.HAS_ALWAYS_TRUE_LOOP, HAS_ALWAYS_TRUE_LOOP);
         errorCodes.put(CompilationErrorCode.NOT_ALL_DIAGRAM_ELEMENTS_ARE_REACHABLE, NOT_ALL_DIAGRAM_ELEMENTS_ARE_REACHABLE);
         errorCodes.put(CompilationErrorCode.UNSCRIPTED_ELEMENTS, UNSCRIPTED_ELEMENTS);
+        errorCodes.put(CompilationErrorCode.DIAMOND_ARROW_NO_LABEL, DIAMOND_ARROW_NO_LABEL);
 
         popupBtnCodes.put(DiagramEditorPopupButtonType.DELETE_BTN, DELETE_BTN);
         popupBtnCodes.put(DiagramEditorPopupButtonType.YES_BTN, YES_BTN);

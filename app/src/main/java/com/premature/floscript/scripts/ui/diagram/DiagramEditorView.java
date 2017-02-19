@@ -84,7 +84,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
     }
 
     public boolean isDiagramValid() {
-        return mDiagramValidator.allReachable() && mDiagramValidator.allHaveScripts();
+        return mDiagramValidator.allReachable() && mDiagramValidator.allHaveScripts() && mDiagramValidator.allDiamondArrowsHaveLabels();
     }
 
     public Diagram getDiagram() {

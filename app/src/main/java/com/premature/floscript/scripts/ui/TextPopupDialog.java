@@ -8,6 +8,8 @@ import android.support.v4.app.DialogFragment;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 
+import static android.R.attr.type;
+
 /**
  * Created by martin on 16/01/15.
  * <p/>
@@ -50,10 +52,8 @@ public class TextPopupDialog extends DialogFragment {
             String typeName = getArguments().getString(POPUP_TYPE_KEY);
             if (typeName != null) {
                 TextPopupType type = TextPopupType.valueOf(typeName);
-                //set icon as error or as info
-                if (type == TextPopupType.INFO) {
-                    builder.setIconAttribute(android.R.attr.dialogIcon);
-                } else if (type == TextPopupType.ERROR) {
+                //set icon if error
+                if (type == TextPopupType.ERROR) {
                     builder.setIconAttribute(android.R.attr.alertDialogIcon);
                 }
             }

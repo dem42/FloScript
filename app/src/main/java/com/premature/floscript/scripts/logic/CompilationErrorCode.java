@@ -1,6 +1,10 @@
 package com.premature.floscript.scripts.logic;
 
 /**
+ * These error codes correspond to possible errors during the compilation/validation of a script.
+ * <p/>
+ * If you add an error code, remember to also create an error message for it in {@link StringResolver}
+ * <p/>
  * Created by martin on 16/01/15.
  */
 public enum CompilationErrorCode {
@@ -11,6 +15,6 @@ public enum CompilationErrorCode {
     CANNOT_CONNECT_TO_ENTRY,
     HAS_ALWAYS_TRUE_LOOP,
     NOT_ALL_DIAGRAM_ELEMENTS_ARE_REACHABLE,
-    UNSCRIPTED_ELEMENTS;
-
+    UNSCRIPTED_ELEMENTS,
+    DIAMOND_ARROW_NO_LABEL;
 }

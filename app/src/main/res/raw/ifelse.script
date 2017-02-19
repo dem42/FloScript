@@ -1,0 +1,14 @@
+/* Name Section */
+If-Else Template
+/* Type Section */
+DIAMOND_TEMPLATE
+/* Var Section */
+{'expression':'undefined'}
+/* Var Types Section */
+{'expression':'STRING'}
+/* Code Section */
+vars.result = floHelper.expandPassedArgumentLabels(JSON.stringify(env.vars), vars.expression);
+floApi.logMessage(vars.result);
+result = true == new Function("return ".concat(vars.result, ";"))();
+/* Comment Section */
+if ${expression}

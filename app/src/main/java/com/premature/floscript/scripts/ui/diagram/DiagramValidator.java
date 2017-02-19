@@ -5,6 +5,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.premature.floscript.events.DiagramValidationEvent;
+import com.premature.floscript.scripts.logic.ArrowCondition;
 import com.premature.floscript.scripts.logic.CompilationErrorCode;
 import com.premature.floscript.util.FloBus;
 
@@ -58,6 +59,28 @@ public final class DiagramValidator {
         return true;
     }
 
+
+    public boolean allDiamondArrowsHaveLabels() {
+        for (ConnectableDiagramElement elem : mEditorView.getDiagram().getConnectables()) {
+            if (DiamondUiElement.TYPE_TOKEN.equals(elem.getTypeDesc())) {
+                int cY = 0, cN = 0, cArr = 0;
+                for (ArrowUiElement anchoredArrow : elem.getAnchoredArrows()) {
+                    if (!DiamondUiElement.TYPE_TOKEN.equals(anchoredArrow.getStartPoint().getTypeDesc())) {
+                        // we only care about arrows that leave this element
+                        continue;
+                    }
+                    cArr++;
+                    if (anchoredArrow.getCondition() == ArrowCondition.YES) cY++;
+                    else if (anchoredArrow.getCondition() == ArrowCondition.NO) cN++;
+                }
+                if (cArr != 2 || cN != 1 || cY != 1) {
+                    return checkAndNotify(false, CompilationErrorCode.DIAMOND_ARROW_NO_LABEL);
+                }
+            }
+        }
+        return true;
+    }
+
     private boolean checkAndNotify(boolean result, CompilationErrorCode code) {
         if (!result) {
             FloBus.getInstance().post(new DiagramValidationEvent(code));
@@ -88,5 +111,4 @@ public final class DiagramValidator {
             }
         }
     }
-
 }

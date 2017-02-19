@@ -10,9 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by martin on 16/01/15.
+ * Utility class for script helper. We also wire in the Scripts here (maybe not the best place),
+ * so if you add a new script in raw remember to add it to the wiring or else it won't be available
  * <p/>
- * Utility class for script helper
+ * Created by martin on 16/01/15.
  */
 public final class Scripts {
 
@@ -20,6 +21,16 @@ public final class Scripts {
     }
 
     public static final Script ENTRY_POINT_SCRIPT = new Script("", "entryFunction");
+
+    public static List<Script> getPreinstalledScripts(Context ctx) {
+        List<Script> scripts = new ArrayList<>();
+        scripts.add(getScriptFromFile(ctx, R.raw.output_msg));
+        scripts.add(getScriptFromFile(ctx, R.raw.between_test));
+        scripts.add(getScriptFromFile(ctx, R.raw.open_browser));
+        scripts.add(getScriptFromFile(ctx, R.raw.arithmetic));
+        scripts.add(getScriptFromFile(ctx, R.raw.ifelse));
+        return scripts;
+    }
 
     public static String createFunctionWrapper(Script codeToWrap, String functionName, @Nullable String yesOrDefaultScript, @Nullable String noScript)
             throws ScriptCompilationException {
@@ -85,14 +96,5 @@ public final class Scripts {
         String code = scriptString.substring(codeSection + codeSecLbl.length() + 1, commentSection - 1);
         String comment = scriptString.substring(commentSection + cmtSecLbl.length() + 1, scriptString.length());
         return new Script(code, name, type, vars, varTypes, comment);
-    }
-
-    public static List<Script> getPreinstalledScripts(Context ctx) {
-        List<Script> scripts = new ArrayList<>();
-        scripts.add(getScriptFromFile(ctx, R.raw.output_msg));
-        scripts.add(getScriptFromFile(ctx, R.raw.between_test));
-        scripts.add(getScriptFromFile(ctx, R.raw.open_browser));
-        scripts.add(getScriptFromFile(ctx, R.raw.arithmetic));
-        return scripts;
     }
 }

@@ -14,6 +14,7 @@ while (function_stack.length != 0) {
     top_fun(env);
     iter++;
     if (iter > max_iter) {
+        floApi.errorMessage("Stack overflow error. Stack depth is " + max_iter);
         break;
     }
 }
