@@ -15,9 +15,6 @@ public final class FloDrawableUtils {
     private FloDrawableUtils() {
     }
 
-    /**
-     * Draws multiline text
-     */
     public static void drawMultilineText(Canvas canvas, Paint paint, String[] multiLineText,
                                          float xOff, float yOff, float lineHeight) {
         float yOffset = -paint.ascent(); // to make text have a top baseline
@@ -26,7 +23,6 @@ public final class FloDrawableUtils {
             yOffset += lineHeight;
         }
     }
-
 
     public static BitmapDrawable writeOnDrawable(Drawable drawable, String text, Resources resources) {
 

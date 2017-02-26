@@ -15,6 +15,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.premature.floscript.scripts.logic.ArrowCondition;
+import com.premature.floscript.scripts.logic.ArrowFlag;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
 import com.premature.floscript.util.FloColors;
 import com.premature.floscript.util.FloDrawableUtils;
@@ -42,11 +43,12 @@ public final class ArrowUiElement extends DiagramElement {
     private float mArrowScalingFac = 1f;
 
     // tracking the position of the arrowhead
-    // this is important for knowing the extends of the arrow
+    // this is important for knowing the extents of the arrow
     private float mArrowHeadXPos;
     private float mArrowHeadYPos;
     private ArrowCondition mCondition = ArrowCondition.NONE;
     private Paint mArrowTextPaint;
+    private ArrowFlag flag = ArrowFlag.NONE;
 
     public ArrowUiElement(Diagram diagram) {
         this(diagram, DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -128,20 +130,20 @@ public final class ArrowUiElement extends DiagramElement {
      * @param arrowHeadYPosDp the y (mHeight) position of the middle of the arrowhead
      */
     public void onArrowHeadDrag(int arrowHeadXPosDp, int arrowHeadYPosDp) {
-        setDistanceAngAngle(mXPos, mYPos, arrowHeadXPosDp - mArrowHeadWidth, arrowHeadYPosDp);
+        setDistanceAngAngle(getXPos(), getYPos(), arrowHeadXPosDp - mArrowHeadWidth, arrowHeadYPosDp);
         this.mArrowHeadXPos = arrowHeadXPosDp;
         this.mArrowHeadYPos = arrowHeadYPosDp;
     }
 
     @Override
     public ContainsResult contains(int xPosDps, int yPosDps) {
-        Log.d(TAG, "Contains: " + mXPos + "," + mYPos + ":" + mArrowHeadXPos + "," + mArrowHeadYPos + ":" + xPosDps + "," + yPosDps);
+        Log.d(TAG, "Contains: " + getXPos() + "," + getYPos() + ":" + mArrowHeadXPos + "," + mArrowHeadYPos + ":" + xPosDps + "," + yPosDps);
         float max_dist = 50; // about a finger width in dps
-        float vx = mArrowHeadXPos - mXPos;
-        float vy = mArrowHeadYPos - mYPos;
+        float vx = mArrowHeadXPos - getXPos();
+        float vy = mArrowHeadYPos - getYPos();
         float dist = (float) FloDrawableUtils.distance(vx, vy, 0, 0);
-        float xCoT = xPosDps - mXPos;
-        float yCoT = yPosDps - mYPos;
+        float xCoT = xPosDps - getXPos();
+        float yCoT = yPosDps - getYPos();
         float proj = (xCoT * vx + yCoT * vy) / dist;
         if (proj <= -max_dist) {
             Log.d(TAG, "projection too far behind " + proj);
@@ -195,7 +197,7 @@ public final class ArrowUiElement extends DiagramElement {
     @Override
     public void draw(Canvas canvas, int xOffset, int yOffset) {
         int saveCount = canvas.save();
-        canvas.translate(mXPos + xOffset, mYPos + yOffset);
+        canvas.translate(getXPos() + xOffset, getYPos() + yOffset);
         canvas.rotate(mArrowAngleDegs);
 
         // apply arrow scaling which adjusts the size of the body
@@ -250,8 +252,8 @@ public final class ArrowUiElement extends DiagramElement {
     @Override
     public String toString() {
         return "ArrowUiElement{" +
-                "mXPos=" + mXPos +
-                ", mYPos=" + mYPos +
+                "mXPos=" + getXPos() +
+                ", mYPos=" + getYPos() +
                 ", mArrowHeadXPos=" + mArrowHeadXPos +
                 ", mArrowHeadYPos=" + mArrowHeadYPos +
                 '}';
@@ -286,6 +288,14 @@ public final class ArrowUiElement extends DiagramElement {
 
     public void setCondition(ArrowCondition condition) {
         this.mCondition = condition;
+    }
+
+    public ArrowFlag getFlag() {
+        return flag;
+    }
+
+    public void setFlag(ArrowFlag flag) {
+        this.flag = flag;
     }
 
     @Override

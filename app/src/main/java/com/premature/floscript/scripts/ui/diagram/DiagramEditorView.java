@@ -294,7 +294,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
 
         // Load attributes
         loadAttributes(attrs, defStyle);
-        mDiagram = Diagram.createEmptyDiagram();
+        mDiagram = DiagramUtils.createEmptyDiagram();
         mDensityScale = getResources().getDisplayMetrics().density;
         mElementMover = new ElementMover(this);
 

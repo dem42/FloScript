@@ -45,6 +45,7 @@ create table arrows (
     target integer not null,
     condition integer,
     diagram_id integer not null,
+    flag integer,
     foreign key (source) references connectable_diagram_elements(_id),
     foreign key (target) references connectable_diagram_elements(_id),
     foreign key (diagram_id) references diagrams(_id)

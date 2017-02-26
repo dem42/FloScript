@@ -24,6 +24,7 @@ import com.premature.floscript.scripts.logic.StringResolver;
 import com.premature.floscript.scripts.ui.diagram.ArrowUiElement;
 import com.premature.floscript.scripts.ui.diagram.Diagram;
 import com.premature.floscript.scripts.ui.diagram.DiagramEditorView;
+import com.premature.floscript.scripts.ui.diagram.DiagramUtils;
 import com.premature.floscript.scripts.ui.diagram.DiamondUiElement;
 import com.premature.floscript.scripts.ui.diagram.LogicBlockUiElement;
 import com.premature.floscript.util.FloBus;
@@ -220,7 +221,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     }
 
     private void clearEditor() {
-        this.mDiagramEditorView.setDiagram(Diagram.createEmptyDiagram());
+        this.mDiagramEditorView.setDiagram(DiagramUtils.createEmptyDiagram());
     }
 
     //TODO: get rid of admin stuff

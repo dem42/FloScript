@@ -81,6 +81,7 @@ public final class Diagram {
     }
 
     public void addArrow(ArrowUiElement arrow) {
+        DiagramUtils.fixArrowOverlapIfGoingBack(arrow, arrows);
         arrows.add(arrow);
         elements.add(arrow);
     }
@@ -124,11 +125,5 @@ public final class Diagram {
         for (ArrowUiElement arrow : touchedElement.getAnchoredArrows()) {
             removeArrow(arrow);
         }
-    }
-
-    public static Diagram createEmptyDiagram() {
-        Diagram diagram = new Diagram();
-        diagram.setEntryElement(new StartUiElement(diagram));
-        return diagram;
     }
 }

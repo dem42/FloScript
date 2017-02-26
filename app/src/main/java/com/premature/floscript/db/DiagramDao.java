@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.premature.floscript.scripts.logic.ArrowCondition;
+import com.premature.floscript.scripts.logic.ArrowFlag;
 import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.ui.diagram.ArrowUiElement;
 import com.premature.floscript.scripts.ui.diagram.ConnectableDiagramElement;
@@ -62,8 +63,9 @@ public final class DiagramDao {
     public static final String ARROWS_TARGET = "target";
     public static final String ARROWS_DIAGRAM = "diagram_id";
     public static final String ARROWS_CONDITION = "condition";
+    public static final String ARROWS_FLAG = "flag";
     public static final String[] ARROWS_COLUMNS = {ARROWS_SRC, ARROWS_TARGET,
-            ARROWS_DIAGRAM, ARROWS_CONDITION};
+            ARROWS_DIAGRAM, ARROWS_CONDITION, ARROWS_FLAG};
 
     public static final String WORK_IN_PROGRESS_DIAGRAM = "WORK_IN_PROGRESS_DIAGRAM";
     private static final String GLOBAL_DIAGRAMS_QUERY_LIMIT = "1";
@@ -237,6 +239,7 @@ public final class DiagramDao {
         columnToValue.put(ARROWS_SRC, connectableIds.get(arrow.getStartPoint()));
         columnToValue.put(ARROWS_TARGET, connectableIds.get(arrow.getEndPoint()));
         columnToValue.put(ARROWS_CONDITION, ArrowCondition.convertToInt(arrow.getCondition()));
+        columnToValue.put(ARROWS_FLAG, ArrowFlag.converToInt(arrow.getFlag()));
         long id = mDb.getWritableDatabase().insert(ARROWS_TABLE, null, columnToValue);
         if (id == -1) {
             return false;
@@ -280,9 +283,11 @@ public final class DiagramDao {
                     Long dest = query.getLong(query.getColumnIndex(ARROWS_TARGET));
                     ArrowCondition condition = ArrowCondition.fromInt(query.getInt(query.getColumnIndex(ARROWS_CONDITION)));
                     ArrowUiElement arrow = new ArrowUiElement(diagram);
+                    ArrowFlag flag = ArrowFlag.fromInt(query.getInt(query.getColumnIndex(ARROWS_FLAG)));
                     arrow.setStartPoint(connectableIds.get(src));
                     arrow.setEndPoint(connectableIds.get(dest));
                     arrow.setCondition(condition);
+                    arrow.setFlag(flag);
                     diagram.addArrow(arrow);
                     query.moveToNext();
                 }
