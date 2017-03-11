@@ -9,16 +9,22 @@ import android.support.annotation.Nullable;
  */
 
 public enum ArrowFlag {
-    NONE(0), HAS_LOOP_BACK(1);
+    NONE(0, false), HAS_LOOP_BACK_UP(1, true), HAS_LOOP_BACK_DOWN(2, true);
 
     private final int code;
+    private final boolean isOffsetFlag;
 
-    ArrowFlag(int code) {
+    ArrowFlag(int code, boolean isOffsetFlag) {
         this.code = code;
+        this.isOffsetFlag = isOffsetFlag;
     }
 
     public int getCode() {
         return code;
+    }
+
+    public boolean isOffsetFlag() {
+        return isOffsetFlag;
     }
 
     public static ArrowFlag fromInt(Integer i) {

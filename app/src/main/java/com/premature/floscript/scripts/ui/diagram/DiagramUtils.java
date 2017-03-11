@@ -1,5 +1,7 @@
 package com.premature.floscript.scripts.ui.diagram;
 
+import android.util.Log;
+
 import com.premature.floscript.scripts.logic.ArrowFlag;
 
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.List;
  * Created by Martin on 2/20/2017.
  */
 public final class DiagramUtils {
+    private static final String TAG = "DIAGRAM_UTILS";
     private DiagramUtils() {
 
     }
@@ -27,9 +30,9 @@ public final class DiagramUtils {
         if (!problemExists) {
             return;
         }
-
-        problemArrow.setFlag(ArrowFlag.HAS_LOOP_BACK);
-        arrow.setFlag(ArrowFlag.HAS_LOOP_BACK);
+        problemArrow.setFlag(ArrowFlag.HAS_LOOP_BACK_DOWN);
+        arrow.setFlag(ArrowFlag.HAS_LOOP_BACK_UP);
+        Log.d(TAG, "Arrows connected " + problemArrow + " and " + arrow);
     }
 
     public static Diagram createEmptyDiagram() {

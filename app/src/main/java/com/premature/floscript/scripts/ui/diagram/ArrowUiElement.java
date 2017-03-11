@@ -31,6 +31,8 @@ public final class ArrowUiElement extends DiagramElement {
     private static final double RAD_TO_DEG = (180.0 / Math.PI);
     private static final int DEFAULT_HEIGHT = 3;
     private static final int DEFAULT_WIDTH = 50;
+    // this offset is used so that two arrows going there and back don't overlap
+    private static final float LOOP_BACK_OFFSET = 10f;
     private ConnectableDiagramElement mStartPoint;
     private ConnectableDiagramElement mEndPoint;
 
@@ -130,20 +132,20 @@ public final class ArrowUiElement extends DiagramElement {
      * @param arrowHeadYPosDp the y (mHeight) position of the middle of the arrowhead
      */
     public void onArrowHeadDrag(int arrowHeadXPosDp, int arrowHeadYPosDp) {
-        setDistanceAngAngle(getXPos(), getYPos(), arrowHeadXPosDp - mArrowHeadWidth, arrowHeadYPosDp);
+        setDistanceAngAngle(getXPosAdjusted(), getYPosAdjusted(), arrowHeadXPosDp - mArrowHeadWidth, arrowHeadYPosDp);
         this.mArrowHeadXPos = arrowHeadXPosDp;
         this.mArrowHeadYPos = arrowHeadYPosDp;
     }
 
     @Override
     public ContainsResult contains(int xPosDps, int yPosDps) {
-        Log.d(TAG, "Contains: " + getXPos() + "," + getYPos() + ":" + mArrowHeadXPos + "," + mArrowHeadYPos + ":" + xPosDps + "," + yPosDps);
+        Log.d(TAG, "Contains: " + getXPosAdjusted() + "," + getYPosAdjusted() + ":" + getArrowHeadXPosAdjusted() + "," + getArrowHeadYPosAdjusted() + ":" + xPosDps + "," + yPosDps);
         float max_dist = 50; // about a finger width in dps
-        float vx = mArrowHeadXPos - getXPos();
-        float vy = mArrowHeadYPos - getYPos();
+        float vx = getArrowHeadXPosAdjusted() - getXPosAdjusted();
+        float vy = getArrowHeadYPosAdjusted() - getYPosAdjusted();
         float dist = (float) FloDrawableUtils.distance(vx, vy, 0, 0);
-        float xCoT = xPosDps - getXPos();
-        float yCoT = yPosDps - getYPos();
+        float xCoT = xPosDps - getXPosAdjusted();
+        float yCoT = yPosDps - getYPosAdjusted();
         float proj = (xCoT * vx + yCoT * vy) / dist;
         if (proj <= -max_dist) {
             Log.d(TAG, "projection too far behind " + proj);
@@ -186,9 +188,14 @@ public final class ArrowUiElement extends DiagramElement {
         onDiagramElementEndpointChange();
     }
 
+    @Override
+    public float getXPos() {
+        return mXPos;
+    }
     public float getArrowHeadXPos() {
         return mArrowHeadXPos;
     }
+
 
     public float getArrowHeadYPos() {
         return mArrowHeadYPos;
@@ -197,7 +204,7 @@ public final class ArrowUiElement extends DiagramElement {
     @Override
     public void draw(Canvas canvas, int xOffset, int yOffset) {
         int saveCount = canvas.save();
-        canvas.translate(getXPos() + xOffset, getYPos() + yOffset);
+        canvas.translate(getXPosAdjusted() + xOffset, getYPosAdjusted() + yOffset);
         canvas.rotate(mArrowAngleDegs);
 
         // apply arrow scaling which adjusts the size of the body
@@ -251,12 +258,21 @@ public final class ArrowUiElement extends DiagramElement {
 
     @Override
     public String toString() {
-        return "ArrowUiElement{" +
-                "mXPos=" + getXPos() +
-                ", mYPos=" + getYPos() +
-                ", mArrowHeadXPos=" + mArrowHeadXPos +
-                ", mArrowHeadYPos=" + mArrowHeadYPos +
-                '}';
+        StringBuilder sb = new StringBuilder();
+        sb.append("ArrowUiElement{")
+                .append("mXPos=").append(getXPos())
+                .append(", mYPos=").append(getYPos())
+                .append(", mArrowHeadXPos=").append(getArrowHeadXPos())
+                .append(", mArrowHeadYPos=").append(getArrowHeadYPos())
+                .append(", flag=").append(getFlag());
+        if (flag.isOffsetFlag()) {
+            sb.append(", adjusted").append(", mXPos=").append(getXPosAdjusted())
+                .append(", mYPos=").append(getYPosAdjusted())
+                .append(", mArrowHeadXPos=").append(getArrowHeadXPosAdjusted())
+                .append(", mArrowHeadYPos=").append(getArrowHeadYPosAdjusted());
+        }
+        sb.append('}');
+        return sb.toString();
     }
 
     public void anchorStartPoint(@Nullable ConnectableDiagramElement start, TouchEvent touchEvent) {
@@ -304,5 +320,40 @@ public final class ArrowUiElement extends DiagramElement {
         return buttonType == DiagramEditorPopupButtonType.DELETE_BTN ||
                 (isFromADiamond && buttonType == DiagramEditorPopupButtonType.YES_BTN) ||
                 (isFromADiamond && buttonType == DiagramEditorPopupButtonType.NO_BTN);
+    }
+
+    // adjusting by moving perpendicularly to the direction of the arrow
+    private float getXPosAdjusted() {
+        return getAdjusted(mXPos, true);
+    }
+
+    private float getYPosAdjusted() {
+        return getAdjusted(mYPos, false);
+    }
+
+    private float getArrowHeadXPosAdjusted() {
+        return getAdjusted(mArrowHeadXPos, true);
+    }
+
+    private float getArrowHeadYPosAdjusted() {
+        return getAdjusted(mArrowHeadYPos, false);
+    }
+    @Override
+    public float getYPos() {
+        return mYPos;
+    }
+    /* 0 = x * x_r + y * y_r;
+     * -x * x_r = y * y_r;
+     * either x_r == 0 && y == 0 or -x / y = y_r / x_r
+     */
+    public float getAdjusted(float value, boolean isX) {
+        if (!flag.isOffsetFlag()) {
+            return value;
+        }
+        else {
+            float distance = (float)(FloDrawableUtils.distance(mArrowHeadXPos, mArrowHeadYPos, mXPos, mYPos));
+            float perp = (isX ? mArrowHeadYPos - mYPos : mXPos - mArrowHeadXPos) / distance;
+            return value + LOOP_BACK_OFFSET * perp;
+        }
     }
 }
