@@ -1,8 +1,11 @@
-package com.premature.floscript.scripts.ui.diagram;
+package com.premature.floscript.util;
 
 import android.util.Log;
 
 import com.premature.floscript.scripts.logic.ArrowFlag;
+import com.premature.floscript.scripts.ui.diagram.ArrowUiElement;
+import com.premature.floscript.scripts.ui.diagram.Diagram;
+import com.premature.floscript.scripts.ui.diagram.StartUiElement;
 
 import java.util.List;
 

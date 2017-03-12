@@ -23,6 +23,7 @@ import com.premature.floscript.scripts.logic.ArrowCondition;
 import com.premature.floscript.scripts.logic.StringResolver;
 import com.premature.floscript.scripts.ui.OnElementSelectorListener;
 import com.premature.floscript.scripts.ui.touching.TouchEvent;
+import com.premature.floscript.util.DiagramUtils;
 import com.premature.floscript.util.FloBus;
 import com.premature.floscript.util.FloColors;
 import com.squareup.otto.Subscribe;

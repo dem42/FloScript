@@ -24,7 +24,7 @@ import com.premature.floscript.scripts.logic.StringResolver;
 import com.premature.floscript.scripts.ui.diagram.ArrowUiElement;
 import com.premature.floscript.scripts.ui.diagram.Diagram;
 import com.premature.floscript.scripts.ui.diagram.DiagramEditorView;
-import com.premature.floscript.scripts.ui.diagram.DiagramUtils;
+import com.premature.floscript.util.DiagramUtils;
 import com.premature.floscript.scripts.ui.diagram.DiamondUiElement;
 import com.premature.floscript.scripts.ui.diagram.LogicBlockUiElement;
 import com.premature.floscript.util.FloBus;
