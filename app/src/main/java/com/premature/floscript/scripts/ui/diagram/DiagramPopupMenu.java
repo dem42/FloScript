@@ -16,7 +16,7 @@ import java.util.List;
 /**
  * Created by martin on 21/01/15.
  */
-public class DiagramPopupMenu<T extends DiagramElement> {
+class DiagramPopupMenu<T extends DiagramElement> {
 
     private static final String TAG = "DIAG_POPUP";
     private final Paint borderPaint;

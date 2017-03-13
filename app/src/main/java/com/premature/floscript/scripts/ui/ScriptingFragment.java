@@ -245,6 +245,10 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         }
     }
 
+    /**
+     * here we setup the sticky buttons .. the toggling of these is controlled by the
+     * {@link StickyButtonCoordinator} but each button has its own callback for bespoke functionality
+     */
     private void initButtons() {
         mBtnCoordinator = new StickyButtonCoordinator();
         mDiagramEditorView.setOnDiagramEditorListener(mBtnCoordinator);

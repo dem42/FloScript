@@ -72,7 +72,11 @@ final class ElementMover {
             mEditorView.setEditingState(DiagramEditingState.ARROW_DRAGGING);
             ConnectableDiagramElement end = DiagramEditorView.findTouchedElement(mEditorView.getDiagram().getConnectables(), touchEvent.getXPosDips(), touchEvent.getYPosDips());
             if (end != null && end != mEditorView.getFloatingArrow().getStartPoint()) {
-                mEditorView.placeFloatingArrowEndPoint(end, touchEvent);
+                boolean wasPlaced = mEditorView.placeFloatingArrowEndPoint(end, touchEvent);
+                if (!wasPlaced) {
+                    // an error caused the arrow to not be placed so clean this arrow up
+                    mEditorView.cleanEditingState();
+                }
             } else {
                 mEditorView.getFloatingArrow().onArrowHeadDrag(touchEvent.getXPosDips(), touchEvent.getYPosDips());
             }

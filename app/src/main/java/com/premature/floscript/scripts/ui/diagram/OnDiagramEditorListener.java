@@ -7,4 +7,6 @@ public interface OnDiagramEditorListener {
     void onElementSelected(DiagramElement element);
 
     void onElementPlaced();
+
+    void onResetState();
 }

@@ -26,6 +26,11 @@ class StickyButtonCoordinator implements OnDiagramEditorListener {
 
     @Override
     public void onElementPlaced() {
+        onResetState();
+    }
+
+    @Override
+    public void onResetState() {
         for (StickyButtonOnTouchListener listener : mElementButtons) {
             listener.setPressed(false);
         }

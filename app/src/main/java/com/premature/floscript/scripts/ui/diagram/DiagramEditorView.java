@@ -164,9 +164,7 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
             setEditingState(DiagramEditingState.ARROW_PLACING);
             mFloatingArrow = new ArrowUiElement(mDiagram);
         } else {
-            setEditingState(DiagramEditingState.ELEMENT_EDITING);
-            mDiagram.removeArrow(mFloatingArrow);
-            mFloatingArrow = null;
+            removeCurrentlyDraggedArrow();
         }
     }
 
@@ -247,6 +245,14 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
             return null;
         }
         return closestElement;
+    }
+
+    void cleanEditingState() {
+        removeCurrentlyDraggedArrow();
+        setEditingState(DiagramEditingState.ELEMENT_EDITING);
+        mFloatingConnectable = null;
+        mElementMover.setTouchedElement(null);
+        mOnDiagramEditorListener.onResetState();
     }
 
     DiagramEditingState getEditingState() {
@@ -340,6 +346,14 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         return mFloatingArrow;
     }
 
+    private void removeCurrentlyDraggedArrow() {
+        setEditingState(DiagramEditingState.ELEMENT_EDITING);
+        if (mFloatingArrow != null) {
+            mDiagram.removeArrow(mFloatingArrow);
+        }
+        mFloatingArrow = null;
+    }
+
     private void updateTitle(String name) {
         final String nameToShow = getDiagramDisplayTitle(name);
 
@@ -359,13 +373,6 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
             nameToShow = name;
         }
         return nameToShow;
-    }
-
-    private void cleanEditingState() {
-        mFloatingArrow = null;
-        mFloatingConnectable = null;
-        setEditingState(DiagramEditingState.ELEMENT_EDITING);
-        mElementMover.setTouchedElement(null);
     }
 
     private void init(AttributeSet attrs, int defStyle) {
