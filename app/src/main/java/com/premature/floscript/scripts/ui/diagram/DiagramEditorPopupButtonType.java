@@ -21,6 +21,7 @@ public enum DiagramEditorPopupButtonType {
     YES_BTN("Yes"),
     NO_BTN("No"),
     SET_CODE_BTN("Set Code"),
+    EDIT_CODE_BTN("Edit Code"),
     TOGGLE_PIN_BTN("Toggle Pinned");
 
     private final String text;

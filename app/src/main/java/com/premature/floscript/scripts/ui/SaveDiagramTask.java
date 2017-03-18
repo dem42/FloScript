@@ -4,9 +4,9 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.premature.floscript.events.CurrentDiagramNameChangeEvent;
 import com.premature.floscript.scripts.ui.diagram.Diagram;
 import com.premature.floscript.util.FloBus;
+import com.premature.floscript.util.FloEvents;
 
 /**
  * Created by Martin on 1/24/2017.
@@ -41,7 +41,7 @@ final class SaveDiagramTask extends AsyncTask<Diagram, Void, Boolean> {
         Log.d(TAG, "On post exect with diagram " + savedDiagramName);
         if (mFrag != null && withToast) {
             if (resultOfSave) {
-                FloBus.getInstance().post(new CurrentDiagramNameChangeEvent(savedDiagramName, CurrentDiagramNameChangeEvent.DiagramEditingState.SAVED));
+                FloBus.getInstance().post(new FloEvents.CurrentDiagramNameChangeEvent(savedDiagramName, FloEvents.CurrentDiagramNameChangeEvent.DiagramEditingState.SAVED));
                 Toast.makeText(mFrag.getActivity(), "Diagram saved", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(mFrag.getActivity(), "Failed to save diagram", Toast.LENGTH_SHORT).show();

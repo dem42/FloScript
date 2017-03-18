@@ -25,13 +25,13 @@ import com.premature.floscript.db.DiagramDao;
 import com.premature.floscript.db.JobsDao;
 import com.premature.floscript.db.ListFromDbLoader;
 import com.premature.floscript.db.ScriptsDao;
-import com.premature.floscript.events.TimeTriggerResultEvent;
 import com.premature.floscript.jobs.logic.Job;
 import com.premature.floscript.jobs.logic.JobScheduler;
 import com.premature.floscript.jobs.logic.TimeTrigger;
 import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.ui.TextPopupDialog;
 import com.premature.floscript.util.FloBus;
+import com.premature.floscript.util.FloEvents;
 import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
@@ -150,7 +150,7 @@ public class JobAddEditActivity extends ActionBarActivity implements LoaderManag
     }
 
     @Subscribe
-    public void timeTriggerResult(TimeTriggerResultEvent ttre) {
+    public void timeTriggerResult(FloEvents.TimeTriggerResultEvent ttre) {
         mJobTime.setTime(ttre.trigger);
     }
 

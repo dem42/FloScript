@@ -1,11 +1,8 @@
 package com.premature.floscript;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
@@ -15,19 +12,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.premature.floscript.events.CurrentDiagramNameChangeEvent;
 import com.premature.floscript.jobs.ui.JobsFragment;
 import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.ui.ScriptCollectionActivity;
 import com.premature.floscript.scripts.ui.ScriptingFragment;
 import com.premature.floscript.util.FloBus;
+import com.premature.floscript.util.FloEvents;
 import com.squareup.otto.Subscribe;
 
 import static android.support.v7.app.ActionBar.Tab;
-
-import com.premature.floscript.events.ScriptAvailableEvent;
-
-import com.premature.floscript.events.ScriptCollectionRequestEvent;
 
 import butterknife.BindString;
 import butterknife.ButterKnife;
@@ -130,16 +123,17 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Subscribe
-    public void scriptCollectionRequested(ScriptCollectionRequestEvent scriptColRequestEvent) {
+    public void scriptCollectionRequested(FloEvents.ScriptCollectionRequestEvent scriptColRequestEvent) {
         Intent scriptColIntent = new Intent(this.getApplicationContext(), ScriptCollectionActivity.class);
         scriptColIntent.putExtra(ScriptCollectionActivity.DIAGRAM_NAME_PARAM, scriptColRequestEvent.diagramName);
+        scriptColIntent.putExtra(ScriptCollectionActivity.SCRIPT_TO_EDIT_PARAM, scriptColRequestEvent.existingScript);
         startActivityForResult(scriptColIntent, 0);
     }
 
     @Subscribe
-    public void currentDiagramNameChanged(CurrentDiagramNameChangeEvent currentDiagramNameChangeEvent) {
+    public void currentDiagramNameChanged(FloEvents.CurrentDiagramNameChangeEvent currentDiagramNameChangeEvent) {
         currentDiagramName = currentDiagramNameChangeEvent.diagramName;
-        currentDiagramState = currentDiagramNameChangeEvent.state == CurrentDiagramNameChangeEvent.DiagramEditingState.SAVED ? savedSateDesc : unsavedSateDesc;
+        currentDiagramState = currentDiagramNameChangeEvent.state == FloEvents.CurrentDiagramNameChangeEvent.DiagramEditingState.SAVED ? savedSateDesc : unsavedSateDesc;
         Log.d(TAG, "Received a current diagram name change [" + currentDiagramName + ", " + currentDiagramState + "]");
         setMainActivityTile();
     }
@@ -172,7 +166,7 @@ public class MainActivity extends ActionBarActivity {
         if (data != null) {
             Script script = data.getParcelableExtra(ScriptCollectionActivity.SCRIPT_PARAM);
             Log.d(TAG, "received script" + script.getName());
-            FloBus.getInstance().post(new ScriptAvailableEvent(script));
+            FloBus.getInstance().post(new FloEvents.ScriptAvailableEvent(script));
         }
     }
 

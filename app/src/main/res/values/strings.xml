@@ -51,6 +51,7 @@
     <string name="set_code_popup_btn">Set Code</string>
     <string name="toggle_pin_popup_btn">Toggle Pinned</string>
     <string name="arrow_diamond_no_label">There must be two arrows that leave a diamond element and they must have a \"Yes\" and \"No\" label</string>
+    <string name="edit_code_desc">Edit Code</string>
 
 
 </resources>

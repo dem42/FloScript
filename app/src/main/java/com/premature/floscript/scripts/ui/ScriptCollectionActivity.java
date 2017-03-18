@@ -38,6 +38,7 @@ public class ScriptCollectionActivity extends ActionBarActivity implements Loade
 
     public static final String DIAGRAM_NAME_PARAM = "DIAGRAM_NAME_PARAM";
     public static final String SCRIPT_PARAM = "SCRIPT_PARAM";
+    public static final String SCRIPT_TO_EDIT_PARAM = "SCRIPT_TO_EDIT_PARAM";
     private static final String TAG = "SCRIPT_COLL";
     public static final int LOADER_ID = 12340;
     // the selected position inside the grid view

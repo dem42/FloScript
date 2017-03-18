@@ -27,9 +27,10 @@ public abstract class ConnectableDiagramElement extends DiagramElement {
     /**
      * This map stores information about where arrows are anchored on this element
      * thread safe might be executed from different
-     * {@link DiagramEditorView.ElementMover} runnables
+     * {@link ElementMover} runnables
      */
     private final ConcurrentHashMap<ArrowUiElement, ArrowAnchorPoint> mArrowToAnchor;
+    @Nullable
     private Script script;
     // the below are used for drawing comments on top of the drawable
     protected final Paint mTextPaint;
@@ -99,6 +100,10 @@ public abstract class ConnectableDiagramElement extends DiagramElement {
         }
         this.script = script;
         updateComments(script.getDescription());
+    }
+
+    public boolean hasScript() {
+        return script != null;
     }
 
     @Override

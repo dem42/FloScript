@@ -57,6 +57,8 @@ public class StringResolver {
     String NO_BTN;
     @BindString(R.string.set_code_popup_btn)
     String SET_CODE_BTN;
+    @BindString(R.string.edit_code_desc)
+    String EDIT_CODE_BTN;
     @BindString(R.string.toggle_pin_popup_btn)
     String TOGGLE_PIN_BTN;
 
@@ -79,6 +81,7 @@ public class StringResolver {
         popupBtnCodes.put(DiagramEditorPopupButtonType.YES_BTN, YES_BTN);
         popupBtnCodes.put(DiagramEditorPopupButtonType.NO_BTN, NO_BTN);
         popupBtnCodes.put(DiagramEditorPopupButtonType.SET_CODE_BTN, SET_CODE_BTN);
+        popupBtnCodes.put(DiagramEditorPopupButtonType.EDIT_CODE_BTN, EDIT_CODE_BTN);
         popupBtnCodes.put(DiagramEditorPopupButtonType.TOGGLE_PIN_BTN, TOGGLE_PIN_BTN);
     }
 

@@ -14,7 +14,6 @@ import android.widget.Button;
 import com.premature.floscript.R;
 import com.premature.floscript.db.DiagramDao;
 import com.premature.floscript.db.FloDbHelper;
-import com.premature.floscript.events.DiagramValidationEvent;
 import com.premature.floscript.scripts.logic.DiagramToScriptCompiler;
 import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.logic.ScriptCompilationException;
@@ -28,6 +27,7 @@ import com.premature.floscript.util.DiagramUtils;
 import com.premature.floscript.scripts.ui.diagram.DiamondUiElement;
 import com.premature.floscript.scripts.ui.diagram.LogicBlockUiElement;
 import com.premature.floscript.util.FloBus;
+import com.premature.floscript.util.FloEvents;
 import com.squareup.otto.Subscribe;
 
 import butterknife.BindString;
@@ -149,7 +149,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     }
 
     @Subscribe
-    public void onDiagramValidationError(DiagramValidationEvent validationEvent) {
+    public void onDiagramValidationError(FloEvents.DiagramValidationEvent validationEvent) {
         TextPopupDialog.showErrorPopup(getFragmentManager(), stringResolver.resolve(validationEvent.errorCode), ERROR_COMPILING_DIAGRAM_POPUP_TITLE);
     }
 

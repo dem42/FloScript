@@ -11,9 +11,9 @@ import android.widget.Button;
 import android.widget.TimePicker;
 
 import com.premature.floscript.R;
-import com.premature.floscript.events.TimeTriggerResultEvent;
 import com.premature.floscript.jobs.logic.TimeTrigger;
 import com.premature.floscript.util.FloBus;
+import com.premature.floscript.util.FloEvents;
 
 /**
  * This class contains a number of dialogs that are used by the {@link com.premature.floscript.jobs.ui.JobAddEditActivity}
@@ -59,7 +59,7 @@ public class JobEditDialogs {
             ok.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FloBus.getInstance().post(new TimeTriggerResultEvent(new TimeTrigger(triggerPicker.getCurrentHour(), triggerPicker.getCurrentMinute())));
+                    FloBus.getInstance().post(new FloEvents.TimeTriggerResultEvent(new TimeTrigger(triggerPicker.getCurrentHour(), triggerPicker.getCurrentMinute())));
                     TimeTriggerDialog.this.dismiss();
                 }
             });

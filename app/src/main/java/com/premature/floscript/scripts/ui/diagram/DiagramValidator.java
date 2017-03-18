@@ -4,10 +4,10 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.util.Pair;
 
-import com.premature.floscript.events.DiagramValidationEvent;
 import com.premature.floscript.scripts.logic.ArrowCondition;
 import com.premature.floscript.scripts.logic.CompilationErrorCode;
 import com.premature.floscript.util.FloBus;
+import com.premature.floscript.util.FloEvents;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -83,7 +83,7 @@ public final class DiagramValidator {
 
     private boolean checkAndNotify(boolean result, CompilationErrorCode code) {
         if (!result) {
-            FloBus.getInstance().post(new DiagramValidationEvent(code));
+            FloBus.getInstance().post(new FloEvents.DiagramValidationEvent(code));
             return false;
         }
         return true;

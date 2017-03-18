@@ -126,6 +126,7 @@ public final class DiamondUiElement extends ConnectableDiagramElement {
     public boolean isShowingPopupButton(DiagramEditorPopupButtonType buttonType) {
         return buttonType == DiagramEditorPopupButtonType.DELETE_BTN ||
                 buttonType == DiagramEditorPopupButtonType.TOGGLE_PIN_BTN ||
-                buttonType == DiagramEditorPopupButtonType.SET_CODE_BTN;
+                (!hasScript() && buttonType == DiagramEditorPopupButtonType.SET_CODE_BTN) ||
+                (hasScript() && buttonType == DiagramEditorPopupButtonType.EDIT_CODE_BTN);
     }
 }
