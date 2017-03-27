@@ -3,6 +3,7 @@ package com.premature.floscript.scripts.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
@@ -41,6 +42,10 @@ public class ScriptCollectionActivity extends ActionBarActivity implements Loade
     public static final String SCRIPT_TO_EDIT_PARAM = "SCRIPT_TO_EDIT_PARAM";
     private static final String TAG = "SCRIPT_COLL";
     public static final int LOADER_ID = 12340;
+    // optional script that was passed in
+    @Nullable
+    private Script mScriptToEdit = null;
+    private boolean isEditingMode = false;
     // the selected position inside the grid view
     private int selectedPosition = 0;
     @BindView(android.R.id.list)
@@ -57,6 +62,13 @@ public class ScriptCollectionActivity extends ActionBarActivity implements Loade
         super.onCreate(savedInstanceState);
         setContentView(R.layout.script_collection);
         ButterKnife.bind(this);
+
+        Intent startingIntent = getIntent();
+        if (startingIntent.getExtras() != null) {
+            Bundle extras = startingIntent.getExtras();
+            mScriptToEdit = extras.getParcelable(SCRIPT_TO_EDIT_PARAM);
+            isEditingMode = mScriptToEdit != null;
+        }
 
         mScriptCollectionAdapter = new ScriptArrayAdapter(this, new ArrayList<Script>());
         mScriptCollection.setAdapter(mScriptCollectionAdapter);
@@ -82,7 +94,19 @@ public class ScriptCollectionActivity extends ActionBarActivity implements Loade
     @Override
     public void onLoadFinished(Loader<List<Script>> loader, List<Script> data) {
         mScriptCollectionAdapter.clear();
-        mScriptCollectionAdapter.addAll(data);
+        if (isEditingMode) {
+            ArrayList<Script> reorderedData = new ArrayList<>();
+            reorderedData.add(mScriptToEdit);
+            for (Script script : data) { //skip over already added script to edit
+                if (script.getName() == null || !script.getName().equals(mScriptToEdit.getName())) {
+                    reorderedData.add(script);
+                }
+            }
+            mScriptCollectionAdapter.addAll(reorderedData);
+        }
+        else {
+            mScriptCollectionAdapter.addAll(data);
+        }
     }
 
     @Override
@@ -97,6 +121,8 @@ public class ScriptCollectionActivity extends ActionBarActivity implements Loade
         Log.d(TAG, "Picked script " + script.getName());
         if (script.getType() == Script.Type.DIAMOND_TEMPLATE || script.getType() == Script.Type.BLOCK_TEMPLATE) {
             // a template script needs its variables populated
+            VariablesDialog.showPopup(getSupportFragmentManager(), script);
+        } else if (isEditingMode && (script.getType() == Script.Type.DIAMOND || script.getType() == Script.Type.BLOCK)) {
             VariablesDialog.showPopup(getSupportFragmentManager(), script);
         } else {
             Intent data = new Intent(getApplicationContext(), MainActivity.class);
@@ -152,7 +178,7 @@ public class ScriptCollectionActivity extends ActionBarActivity implements Loade
             scriptNameLbl.setText("Script: " + script.getName());
 
             TextView scriptComments = (TextView) view.findViewById(R.id.script_col_comment);
-            scriptComments.setText(script.getDescription());
+            scriptComments.setText(script.getPopulatedDescription());
 
             return view;
         }

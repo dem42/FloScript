@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,9 @@ public class VariablesParser {
      * Create a variable name to variable type map
      */
     public static List<Pair<String, Script.VarType>> createVarTypesTuples(Script script) {
+        if (script.getVarTypes() == null) {
+            return Collections.emptyList();
+        }
         Gson gson = new Gson();
         JsonParser parser = new JsonParser();
         JsonObject varTypes = parser.parse(script.getVarTypes()).getAsJsonObject();
@@ -41,6 +45,9 @@ public class VariablesParser {
      * Create a variable name to variable value map
      */
     public static Map<String, String> createVarValueMap(Script script) {
+        if (script.getVariables() == null) {
+            return Collections.emptyMap();
+        }
         Gson gson = new Gson();
         JsonParser parser = new JsonParser();
         JsonObject vars = parser.parse(script.getVariables()).getAsJsonObject();

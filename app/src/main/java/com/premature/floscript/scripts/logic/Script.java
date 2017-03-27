@@ -20,7 +20,10 @@ public class Script implements Parcelable {
     private String mVariables;
     // var types is a json array of type metadata needed by javacode to write into mVariables
     private String mVarTypes;
+    // referred to as comment in some raw script
     private String mDescription;
+    @Nullable
+    private transient String mPopulatedDescription;
 
     public Script(String sourceCode, String name) {
         this(sourceCode, name, Type.BLOCK, name);
@@ -74,10 +77,10 @@ public class Script implements Parcelable {
         return "Script{" +
                 "mName='" + mName + '\'' +
                 ", mId=" + mId +
-                ", mIsFunction =" + mType +
+                ", mIsFunction=" + mType +
                 ", mVariables='" + mVariables + '\'' +
                 ", mVarTypes='" + mVarTypes + '\'' +
-                ", mDescription ='" + mDescription + '\'' +
+                ", mDescription='" + mDescription + '\'' +
                 '}';
     }
 
@@ -128,23 +131,43 @@ public class Script implements Parcelable {
         return mDescription;
     }
 
-    private void populateDescriptionFromVariables() {
-        Map<String, String> varValueMap = VariablesParser.createVarValueMap(this);
-        for (Map.Entry<String, String> varToVal : varValueMap.entrySet()) {
-            String varKey = "${" + varToVal.getKey() + "}";
-            mDescription = mDescription.replace(varKey, varToVal.getValue());
+    /**
+     * @return the description with substituted variables
+     */
+    @Nullable
+    public String getPopulatedDescription() {
+        if (mType == Type.DIAMOND_TEMPLATE || mType == Type.BLOCK_TEMPLATE) {
+            return mDescription;
         }
+        updatePopulatedDescriptionIfNeeded();
+        return mPopulatedDescription;
     }
 
     public void upgradeFromTemplateType(String variables) {
         setVariables(variables);
-        populateDescriptionFromVariables();
+        updatePopulatedDescriptionIfNeeded();
         setId(null);
         if (getType() == Type.DIAMOND_TEMPLATE) {
             mType = Type.DIAMOND;
         } else if (getType() == Type.BLOCK_TEMPLATE) {
             mType = Type.BLOCK;
         }
+    }
+
+    private void updatePopulatedDescriptionIfNeeded() {
+        if (mPopulatedDescription == null) {
+            mPopulatedDescription = populateDescriptionFromVariables();
+        }
+    }
+
+    private String populateDescriptionFromVariables() {
+        String newDescription = mDescription;
+        Map<String, String> varValueMap = VariablesParser.createVarValueMap(this);
+        for (Map.Entry<String, String> varToVal : varValueMap.entrySet()) {
+            String varKey = "${" + varToVal.getKey() + "}";
+            newDescription = newDescription.replace(varKey, varToVal.getValue());
+        }
+        return newDescription;
     }
 
     /**

@@ -99,7 +99,7 @@ public abstract class ConnectableDiagramElement extends DiagramElement {
             return;
         }
         this.script = script;
-        updateComments(script.getDescription());
+        updateComments(script.getPopulatedDescription());
     }
 
     public boolean hasScript() {
@@ -225,6 +225,9 @@ public abstract class ConnectableDiagramElement extends DiagramElement {
         }
     }
 
+    /**
+     * Attempt to fit the comment/description string of a {@link Script} into a the box that will be drawn
+     */
     private void updateComments(String text) {
         if (text == null) {
             return;
