@@ -23,9 +23,16 @@ public enum ScriptCollectionPageType {
         }
     }
 
-    public boolean hasScriptType(Script.Type type) {
+    public boolean hasScriptType(final Script.Type type) {
+        Script.Type inputType = type;
+        if (type == Script.Type.BLOCK) {
+            inputType = Script.Type.BLOCK_TEMPLATE;
+        }
+        else if (type == Script.Type.DIAMOND) {
+            inputType = Script.Type.DIAMOND_TEMPLATE;
+        }
         for (Script.Type ourType : scriptTypes) {
-            if (type == ourType) {
+            if (inputType == ourType) {
                 return true;
             }
         }
