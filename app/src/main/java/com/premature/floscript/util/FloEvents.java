@@ -83,4 +83,16 @@ public final class FloEvents {
             this.errorCode = errorCode;
         }
     }
+
+    /**
+     * Communication between {@link com.premature.floscript.scripts.ui.VariablesDialog} and
+     * {@link com.premature.floscript.scripts.ui.collection.ScriptCollectionPageFragment}
+     */
+    public static class VariablesParsedEvent {
+        public final String variables;
+
+        public VariablesParsedEvent(String script) {
+            this.variables = script;
+        }
+    }
 }

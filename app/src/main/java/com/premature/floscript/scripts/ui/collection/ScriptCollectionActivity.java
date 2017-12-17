@@ -46,6 +46,7 @@ public class ScriptCollectionActivity extends ActionBarActivity implements Scrip
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.script_collection_activity);
+
         ButterKnife.bind(this);
 
         Intent startingIntent = getIntent();

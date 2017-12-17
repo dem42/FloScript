@@ -22,6 +22,8 @@ import com.google.gson.JsonPrimitive;
 import com.premature.floscript.R;
 import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.logic.VariablesParser;
+import com.premature.floscript.util.FloBus;
+import com.premature.floscript.util.FloEvents;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,7 +46,6 @@ public class VariablesDialog extends DialogFragment {
     private static final String COMMAND_KEY = "COMMAND";
 
     private WeakHashMap<String, Pair<View, Script.VarType>> vars;
-    private OnVariablesListener mOnVariablesListener;
 
     @BindString(R.string.variables_input)
     String VARIABLES_INPUT;
@@ -67,16 +68,6 @@ public class VariablesDialog extends DialogFragment {
         args.putString(COMMAND_KEY, command);
         dialog.setArguments(args);
         return dialog;
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            mOnVariablesListener = (OnVariablesListener) activity;
-        } catch (ClassCastException cce) {
-            throw new ClassCastException(activity.getLocalClassName() + " must implement OnVariablesListener");
-        }
     }
 
     @Override
@@ -132,7 +123,7 @@ public class VariablesDialog extends DialogFragment {
                             throw new UnsupportedOperationException("Unsuported type " + viewPair.second);
                     }
                 }
-                mOnVariablesListener.variablesParsed(gson.toJson(object));
+                FloBus.getInstance().post(new FloEvents.VariablesParsedEvent(gson.toJson(object)));
             }
         });
 
@@ -172,10 +163,6 @@ public class VariablesDialog extends DialogFragment {
         List<Pair<String, Script.VarType>> vars = VariablesParser.createVarTypesTuples(script);
         VariablesDialog popup = VariablesDialog.newInstance(script.getDescription(), vars);
         popup.show(supportFragmentManager, null);
-    }
-
-    public interface OnVariablesListener {
-        void variablesParsed(String variables);
     }
 
     public static void main(String... args) {

@@ -22,6 +22,9 @@ import com.premature.floscript.db.ListFromDbLoader;
 import com.premature.floscript.db.ScriptsDao;
 import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.ui.VariablesDialog;
+import com.premature.floscript.util.FloBus;
+import com.premature.floscript.util.FloEvents;
+import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +39,7 @@ import butterknife.ButterKnife;
  */
 
 public class ScriptCollectionPageFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<Script>>,
-        AdapterView.OnItemClickListener, VariablesDialog.OnVariablesListener {
+        AdapterView.OnItemClickListener {
 
     private static final String TAG = "ScriptCollFragment";
     private static final String PAGE_TYPE_KEY = "pageType";
@@ -68,6 +71,18 @@ public class ScriptCollectionPageFragment extends Fragment implements LoaderMana
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        FloBus.getInstance().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        FloBus.getInstance().unregister(this);
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
@@ -89,6 +104,14 @@ public class ScriptCollectionPageFragment extends Fragment implements LoaderMana
         DbUtils.initOrRestartTheLoader(this, getLoaderManager(), LOADER_ID_BASE + pageType.pageNum);
 
         return scriptFragView;
+    }
+
+    @Subscribe
+    public void onVariablesParsed(FloEvents.VariablesParsedEvent variablesParsedEvent) {
+        Script script = mScriptCollectionAdapter.getItem(selectedPosition);
+        script.upgradeFromTemplateType(variablesParsedEvent.variables);
+        Log.d(TAG, "After parsed finished the picked script is " + script.getName());
+        activityCallback.scriptSelected(script);
     }
 
 
@@ -137,14 +160,6 @@ public class ScriptCollectionPageFragment extends Fragment implements LoaderMana
             activityCallback.scriptSelected(script);
 
         }
-    }
-
-    @Override
-    public void variablesParsed(String variables) {
-        Script script = mScriptCollectionAdapter.getItem(selectedPosition);
-        script.upgradeFromTemplateType(variables);
-        Log.d(TAG, "After parsed finished the picked script is " + script.getName());
-        activityCallback.scriptSelected(script);
     }
 
     /**
