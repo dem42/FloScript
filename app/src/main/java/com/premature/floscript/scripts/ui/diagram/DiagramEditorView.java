@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -177,6 +178,16 @@ public final class DiagramEditorView extends View implements OnElementSelectorLi
         if (mElemPopupMenu != null) {
             mElemPopupMenu.setStringResolver(resolver);
         }
+    }
+
+    @Override
+    protected void onCreateContextMenu(ContextMenu menu) {
+        super.onCreateContextMenu(menu);
+    }
+
+    @Override
+    public void setOnCreateContextMenuListener(OnCreateContextMenuListener l) {
+        super.setOnCreateContextMenuListener(l);
     }
 
     public void busRegister(boolean activate) {

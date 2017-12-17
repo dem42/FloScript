@@ -23,6 +23,16 @@ public final class DbUtils {
         }
     }
 
+    public static String inQ(String columnName, int numArgs) {
+        StringBuilder query = new StringBuilder("{} in (");
+        for (int i = 0; i < numArgs; i++) {
+            query.append("?,");
+        }
+        query.deleteCharAt(query.length()-1);
+        query.append(")");
+        return q(query.toString(), columnName);
+    }
+
     public static String q(String pattern, String... columnNames) {
         int loc = 0;
         StringBuilder bob = new StringBuilder(pattern);

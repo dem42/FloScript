@@ -14,7 +14,7 @@ import android.view.MenuItem;
 
 import com.premature.floscript.jobs.ui.JobsFragment;
 import com.premature.floscript.scripts.logic.Script;
-import com.premature.floscript.scripts.ui.ScriptCollectionActivity;
+import com.premature.floscript.scripts.ui.collection.ScriptCollectionActivity;
 import com.premature.floscript.scripts.ui.ScriptingFragment;
 import com.premature.floscript.util.FloBus;
 import com.premature.floscript.util.FloEvents;

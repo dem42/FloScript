@@ -17,7 +17,6 @@
     <string name="action_job_execute">Execute</string>
     <string name="job_script_prompt">Choose a script</string>
     <string name="job_condition_prompt">Choose an execution condition</string>
-    <string name="library_docu">To use code from the library click on an item and fill in the variables.</string>
     <string name="diagramTitle">Diagram</string>
     <string name="jobsTitle">Job Control</string>
     <string name="unsavedState">Unsaved</string>
@@ -25,6 +24,12 @@
 
     <string name="variables_input">Bind variables</string>
     <string name="cancel">Cancel</string>
+
+    <!-- scripting collection -->
+    <string name="scriptCollectionTitle">Script Library</string>
+    <string name="library_docu">To use code from the library click on an item and fill in the variables.</string>
+    <string name="basicPage">Basic Elements</string>
+    <string name="advancedPage">Compiled Scripts</string>
 
     <!-- error messages -->
     <string name="error_saving_job">Error saving job</string>
@@ -52,6 +57,5 @@
     <string name="toggle_pin_popup_btn">Toggle Pinned</string>
     <string name="arrow_diamond_no_label">There must be two arrows that leave a diamond element and they must have a \"Yes\" and \"No\" label</string>
     <string name="edit_code_desc">Edit Code</string>
-
 
 </resources>

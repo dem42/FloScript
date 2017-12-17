@@ -22,7 +22,7 @@
         </activity>
 
         <activity
-            android:name=".scripts.ui.ScriptCollectionActivity"
+            android:name=".scripts.ui.collection.ScriptCollectionActivity"
             android:label="FloScript"></activity>
 
         <service
