@@ -3,6 +3,8 @@ package com.premature.floscript.scripts.ui.collection;
 import com.premature.floscript.scripts.logic.Script;
 
 /**
+ * This enums are used by script collection pages. They determine the behaviour of different script collection pages
+ * <p/>
  * Created by Martin on 12/17/2017.
  */
 

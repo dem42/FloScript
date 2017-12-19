@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -20,6 +21,23 @@ import com.premature.floscript.R;
  * query the user when saving a dialog
  */
 public class SaveDialog extends DialogFragment {
+
+    private static final String CURRENT_DIAG_NAME = "CURRENT_DIAG_NAME";
+    private static final String CURRENT_DIAG_DESC = "CURRENT_DIAG_DESC";
+
+    @Nullable
+    private String currentDiagName;
+    @Nullable
+    private String currentDiagDesc;
+
+    public static SaveDialog newInstance(String currentDiagramName, String currentDiagramDesc) {
+        Bundle params = new Bundle();
+        params.putString(CURRENT_DIAG_NAME, currentDiagramName);
+        params.putString(CURRENT_DIAG_DESC, currentDiagramDesc);
+        SaveDialog saveDialog = new SaveDialog();
+        saveDialog.setArguments(params);
+        return saveDialog;
+    }
 
     public OnSaveDialogListener getTargetListener() {
         Fragment frag = getTargetFragment();
@@ -39,6 +57,13 @@ public class SaveDialog extends DialogFragment {
 
     private OnSaveDialogListener mListener;
 
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        currentDiagName = getArguments().getString(CURRENT_DIAG_NAME);
+        currentDiagDesc = getArguments().getString(CURRENT_DIAG_DESC);
+    }
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -47,7 +72,13 @@ public class SaveDialog extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.script_save_dialog, null);
         final EditText name = (EditText) view.findViewById(R.id.save_dialog_name);
+        if (currentDiagName != null) {
+            name.setText(currentDiagName);
+        }
         final EditText desc = (EditText) view.findViewById(R.id.save_dialog_description);
+        if (currentDiagDesc != null) {
+            desc.setText(currentDiagDesc);
+        }
         builder.setTitle("Save script")
                 .setView(view)
                 .setPositiveButton("Save", new DialogInterface.OnClickListener() {

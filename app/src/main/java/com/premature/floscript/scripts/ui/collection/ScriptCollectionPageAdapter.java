@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import com.premature.floscript.R;
 
 /**
+ * Page adapter for view pager used by ScriptCollectionActivity. Creates instances of script collection page fragments
  * Created by Martin on 12/16/2017.
  */
 

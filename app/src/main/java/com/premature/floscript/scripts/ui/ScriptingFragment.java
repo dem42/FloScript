@@ -329,7 +329,9 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         if (!mDiagramEditorView.isDiagramValid()) {
             return;
         }
-        SaveDialog dialog = new SaveDialog();
+        Diagram currentDiagram = mDiagramEditorView.getDiagram();
+
+        SaveDialog dialog = SaveDialog.newInstance(currentDiagram.getName(), currentDiagram.getDescription());
         dialog.setTargetFragment(this, 1);
         dialog.show(getActivity().getSupportFragmentManager(), "save dialog");
     }
