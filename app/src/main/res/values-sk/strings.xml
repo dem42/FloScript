@@ -1,11 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <string name="app_name">FlowScript</string>
+    <string name="action_settings">Nastavenia</string>
+    <string name="action_save">Ulozit</string>
+    <string name="hello_blank_fragment">Ahoj blank fragment</string>
+    <string name="jobs_fragment">Joby</string>
+    <string name="scripting_fragment">Skripty</string>
+    <string name="action_load">Nacitat</string>
+    <string name="action_add_job">Novy job</string>
+    <string name="action_clear">Vymazat</string>
+
+    <string name="action_job_edit">Editovat</string>
+    <string name="action_job_disable">Vypnut</string>
+    <string name="action_job_enable">Zapnut</string>
+    <string name="action_job_execute">Pouzit</string>
+    <string name="job_script_prompt">Vyberte skript</string>
+    <string name="job_condition_prompt">Vyberte podmienku</string>
+    <string name="diagramTitle">Diagram</string>
+    <string name="jobsTitle">Kontrola Jobov</string>
+    <string name="unsavedState">Neulozeny</string>
+    <string name="savedState">Ulozeny</string>
+
+    <string name="variables_input">Nastavit premeny</string>
+    <string name="cancel">Zrusit</string>
+
+    <!-- scripting collection -->
+    <string name="scriptCollectionTitle">Kniznica Scriptov</string>
+    <string name="library_docu">Vyberte Script z kniznice kliknutim, a nastavte premeny</string>
+    <string name="basicPage">Zakladne Elementu</string>
+    <string name="advancedPage">Kompilovane Scripty</string>
+
     <!-- error messages -->
-    <string name="compile_err7">Niektore logicke elementy niesu pripojene</string>
+    <string name="error_saving_job">Chyba pocas ukladania jobu</string>
+    <string name="error_executing_job">Chyba pocas zapnutia jobu</string>
+    <string name="error_compile_diagram">Chyba pocas kompilovania diagramu</string>
+    <string name="error_running_diagram">Chyba v kode</string>
+    <string name="diagram_code_popup_title">Kod diagramu</string>
+    <string name="failed_to_compile_msg">Neuspech pocas kompilovania diagram. Nebude pouzitelny ako skript\\n\\nDovod:</string>
+
+    <string name="compile_err1">Vstupny element musi mat iba jednu sipku.</string>
+    <string name="compile_err2">Diagram musi mat vstupny element.</string>
+    <string name="compile_err3">Aspon jeden element nema kod.</string>
+    <string name="compile_err4">Tento element nemoze mat viac sipiek.</string>
+    <string name="compile_err5">Sipka nesmie smerovat do vstupneho elementu.</string>
+    <string name="compile_err6">Pridanie tejto sipky by sposobilo nekonecnu rekurziu.</string>
+    <string name="compile_err7">Niektore elementy v diagrame su nedostupne.\\n\\nOK?</string>
+    <string name="compile_err8">Kazdy element v diagrame musi mat kod.</string>
+    <string name="compile_err_default">Neznama chyba</string>
 
     <!-- popup buttons in diagram view -->
-    <string name="toggle_pin_popup_btn">Togluj pripnutie</string>
-
+    <string name="delete_popup_btn">Vymazat</string>
+    <string name="yes_arrow_label">Ano</string>
+    <string name="no_arrow_label">Nie</string>
+    <string name="set_code_popup_btn">Nastavit Kod</string>
+    <string name="toggle_pin_popup_btn">Nastavit pripnutie</string>
+    <string name="arrow_diamond_no_label">Element diamant musi mat dve sipky. Jedna pre \"Ano\" a druha pre \"Nie\"</string>
+    <string name="edit_code_desc">Editovat Kod</string>
 
 </resources>
