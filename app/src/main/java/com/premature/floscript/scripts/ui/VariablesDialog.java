@@ -22,6 +22,7 @@ import com.google.gson.JsonPrimitive;
 import com.premature.floscript.R;
 import com.premature.floscript.scripts.logic.Script;
 import com.premature.floscript.scripts.logic.VariablesParser;
+import com.premature.floscript.scripts.ui.collection.ScriptCollectionPageType;
 import com.premature.floscript.util.FloBus;
 import com.premature.floscript.util.FloEvents;
 
@@ -44,8 +45,10 @@ public class VariablesDialog extends DialogFragment {
     public static final String VAR_NAMES_KEY = "VAR_NAMES";
     public static final String VAR_TYPES_KEY = "VAR_TYPES";
     private static final String COMMAND_KEY = "COMMAND";
+    private static final String PAGE_TYPE_ID_KEY = "PAGE_TYPE";
 
     private WeakHashMap<String, Pair<View, Script.VarType>> vars;
+    private ScriptCollectionPageType openingPageType;
 
     @BindString(R.string.variables_input)
     String VARIABLES_INPUT;
@@ -54,7 +57,7 @@ public class VariablesDialog extends DialogFragment {
     @BindString(R.string.cancel)
     String CANCEL_TXT;
 
-    public static VariablesDialog newInstance(String command, List<Pair<String, Script.VarType>> vars) {
+    public static VariablesDialog newInstance(String command, List<Pair<String, Script.VarType>> vars, ScriptCollectionPageType pageType) {
         VariablesDialog dialog = new VariablesDialog();
         Bundle args = new Bundle();
         ArrayList<String> names = new ArrayList<>();
@@ -66,6 +69,7 @@ public class VariablesDialog extends DialogFragment {
         args.putStringArrayList(VAR_NAMES_KEY, names);
         args.putIntegerArrayList(VAR_TYPES_KEY, types);
         args.putString(COMMAND_KEY, command);
+        args.putString(PAGE_TYPE_ID_KEY, pageType.name());
         dialog.setArguments(args);
         return dialog;
     }
@@ -86,6 +90,7 @@ public class VariablesDialog extends DialogFragment {
             String command = getArguments().getString(COMMAND_KEY);
             ArrayList<String> names = getArguments().getStringArrayList(VAR_NAMES_KEY);
             ArrayList<Integer> types = getArguments().getIntegerArrayList(VAR_TYPES_KEY);
+            openingPageType = ScriptCollectionPageType.valueOf(getArguments().getString(PAGE_TYPE_ID_KEY));
 
             createStringCommandView(command, layout);
             for (int i = 0; i < names.size(); i++) {
@@ -123,7 +128,7 @@ public class VariablesDialog extends DialogFragment {
                             throw new UnsupportedOperationException("Unsuported type " + viewPair.second);
                     }
                 }
-                FloBus.getInstance().post(new FloEvents.VariablesParsedEvent(gson.toJson(object)));
+                FloBus.getInstance().post(new FloEvents.VariablesParsedEvent(gson.toJson(object), openingPageType));
             }
         });
 
@@ -159,9 +164,9 @@ public class VariablesDialog extends DialogFragment {
         return null;
     }
 
-    public static void showPopup(FragmentManager supportFragmentManager, Script script) {
+    public static void showPopup(FragmentManager supportFragmentManager, Script script, ScriptCollectionPageType pageType) {
         List<Pair<String, Script.VarType>> vars = VariablesParser.createVarTypesTuples(script);
-        VariablesDialog popup = VariablesDialog.newInstance(script.getDescription(), vars);
+        VariablesDialog popup = VariablesDialog.newInstance(script.getDescription(), vars, pageType);
         popup.show(supportFragmentManager, null);
     }
 

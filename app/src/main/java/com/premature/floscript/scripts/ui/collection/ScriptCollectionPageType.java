@@ -12,9 +12,9 @@ public enum ScriptCollectionPageType {
     BASIC(0, Script.Type.BLOCK_TEMPLATE, Script.Type.DIAMOND_TEMPLATE),
     ADVANCED(1, Script.Type.FUNCTION);
 
-    final int pageNum;
-    final Script.Type[] scriptTypes;
-    final String[] scriptTypeCodes;
+    public final int pageNum;
+    public final Script.Type[] scriptTypes;
+    public final String[] scriptTypeCodes;
 
     ScriptCollectionPageType(int pageNum, Script.Type... scriptTypes) {
         this.pageNum = pageNum;

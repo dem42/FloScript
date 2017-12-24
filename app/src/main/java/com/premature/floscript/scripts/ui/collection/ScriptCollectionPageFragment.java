@@ -108,6 +108,7 @@ public class ScriptCollectionPageFragment extends Fragment implements LoaderMana
 
     @Subscribe
     public void onVariablesParsed(FloEvents.VariablesParsedEvent variablesParsedEvent) {
+        if (variablesParsedEvent.openingPageType != pageType) return;
         Script script = mScriptCollectionAdapter.getItem(selectedPosition);
         script.upgradeFromTemplateType(variablesParsedEvent.variables);
         Log.d(TAG, "After parsed finished the picked script is " + script.getName());
@@ -153,9 +154,9 @@ public class ScriptCollectionPageFragment extends Fragment implements LoaderMana
         Log.d(TAG, "Picked script " + script.getName());
         if (script.getType() == Script.Type.DIAMOND_TEMPLATE || script.getType() == Script.Type.BLOCK_TEMPLATE) {
             // a template script needs its variables populated
-            VariablesDialog.showPopup(getFragmentManager(), script);
+            VariablesDialog.showPopup(getFragmentManager(), script, pageType);
         } else if (activityCallback.isEditingMode(pageType) && (script.getType() == Script.Type.DIAMOND || script.getType() == Script.Type.BLOCK)) {
-            VariablesDialog.showPopup(getFragmentManager(), script);
+            VariablesDialog.showPopup(getFragmentManager(), script, pageType);
         } else {
             activityCallback.scriptSelected(script);
 

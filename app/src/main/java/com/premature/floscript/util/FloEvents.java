@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import com.premature.floscript.jobs.logic.TimeTrigger;
 import com.premature.floscript.scripts.logic.CompilationErrorCode;
 import com.premature.floscript.scripts.logic.Script;
+import com.premature.floscript.scripts.ui.collection.ScriptCollectionPageType;
 
 /**
  * This utility class serves only as a container for events and event related functions
@@ -90,9 +91,11 @@ public final class FloEvents {
      */
     public static class VariablesParsedEvent {
         public final String variables;
+        public final ScriptCollectionPageType openingPageType;
 
-        public VariablesParsedEvent(String script) {
+        public VariablesParsedEvent(String script, ScriptCollectionPageType openingPageType) {
             this.variables = script;
+            this.openingPageType = openingPageType;
         }
     }
 }
