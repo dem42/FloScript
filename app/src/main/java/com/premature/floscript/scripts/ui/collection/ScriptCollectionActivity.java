@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import com.premature.floscript.MainActivity;
 import com.premature.floscript.R;
@@ -18,7 +18,7 @@ import butterknife.ButterKnife;
  * <p/>
  * This activity presents a selection of scripts for the user to choose from.
  */
-public class ScriptCollectionActivity extends ActionBarActivity implements ScriptCollectionPageFragment.ScriptCollectionCallbackInterface {
+public class ScriptCollectionActivity extends AppCompatActivity implements ScriptCollectionPageFragment.ScriptCollectionCallbackInterface {
 
     public static final String SCRIPT_PARAM = "SCRIPT_PARAM";
     public static final String SCRIPT_TO_EDIT_PARAM = "SCRIPT_TO_EDIT_PARAM";

@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,7 +52,7 @@ import static com.premature.floscript.jobs.ui.JobEditDialogs.TimeTriggerDialog;
  * an existing script. It then persists the new job which can then be enabled/disabled
  * from the {@link com.premature.floscript.jobs.ui.JobsFragment}
  */
-public class JobAddEditActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<List<DbUtils.NameAndId>>,
+public class JobAddEditActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<DbUtils.NameAndId>>,
         AdapterView.OnItemSelectedListener {
 
     private static final String TAG = "JOB_ADD_ACTIVITY";
