@@ -23,6 +23,7 @@ import com.premature.floscript.scripts.logic.StringResolver;
 import com.premature.floscript.scripts.ui.diagram.ArrowUiElement;
 import com.premature.floscript.scripts.ui.diagram.Diagram;
 import com.premature.floscript.scripts.ui.diagram.DiagramEditorView;
+import com.premature.floscript.tutorial.TutorialManager;
 import com.premature.floscript.util.DiagramUtils;
 import com.premature.floscript.scripts.ui.diagram.DiamondUiElement;
 import com.premature.floscript.scripts.ui.diagram.LogicBlockUiElement;
@@ -143,6 +144,9 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
                 Log.d(TAG, "admin code");
                 adminCode();
                 return true;
+            case R.id.action_tutorial:
+                Log.d(TAG, "playing tutorial");
+                tutorial();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -228,6 +232,10 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     private void adminCode() {
         FloDbHelper mDb = FloDbHelper.getInstance(getActivity());
         mDb.wipe();
+    }
+
+    private void tutorial() {
+        TutorialManager.showTutorial(R.id.tutorial_container, this);
     }
 
     private void compileAndRunDiagram() {

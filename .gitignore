@@ -1,0 +1,15 @@
+syntax: glob
+.idea/*
+target/*
+logs/*
+out/*
+build/*
+app/build/*
+gradlew
+gradle/
+.gradle\2.8\taskArtifacts\cache.properties
+.gradle/*
+floscript.iml
+gradlew.bat
+local.properties
+app\app.iml

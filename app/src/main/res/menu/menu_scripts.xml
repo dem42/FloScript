@@ -15,4 +15,6 @@
         android:orderInCategory="4" app:showAsAction="never" />
     <item android:id="@+id/action_admin" android:title="Admin"
         android:orderInCategory="5" app:showAsAction="never" />
+    <item android:id="@+id/action_tutorial" android:title="Tutorial"
+        android:orderInCategory="6" app:showAsAction="never" />
 </menu>
