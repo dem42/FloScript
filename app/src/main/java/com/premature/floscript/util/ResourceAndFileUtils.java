@@ -1,6 +1,7 @@
 package com.premature.floscript.util;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -34,5 +35,10 @@ public final class ResourceAndFileUtils {
             bob = new StringBuilder("");
         }
         return bob.toString();
+    }
+
+    public static Uri getRawFileUri(String packageName, int rawResourceId) {
+        String path = "android.resource://" + packageName + "/" + rawResourceId;
+        return Uri.parse(path);
     }
 }

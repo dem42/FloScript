@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#03c3c3">
+    android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/ivDiplodocus"
@@ -17,5 +16,18 @@
         android:id="@+id/ivRaptor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@mipmap/raptor" />
+        android:src="@mipmap/raptor"
+        />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <VideoView
+            android:id="@+id/videoView"
+            android:layout_width="318dp"
+            android:layout_height="414dp"
+            android:layout_gravity="center|center_horizontal"/>
+    </FrameLayout>
+
 </LinearLayout>

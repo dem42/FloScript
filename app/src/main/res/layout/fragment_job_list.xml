@@ -1,29 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context="com.premature.floscript.jobs.ui.JobsFragment">
 
-    <ImageView
-        android:id="@+id/job_control_icon"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/jobs"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"/>
 
-    <ExpandableListView android:id="@android:id/list"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clickable="true"/>
+        android:orientation="vertical">
 
-    <TextView android:id="@android:id/empty" android:layout_width="match_parent"
-        android:layout_height="match_parent" android:gravity="center"
-        android:text="Welcome to the Job Control Center. Here you will see your active jobs once you've added them using the '+' button in the menu."/>
+        <ImageView
+            android:id="@+id/job_control_icon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:src="@drawable/jobs" />
 
-    <TextView
-        android:id="@+id/has_expandable_lview"
+        <ExpandableListView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true" />
+
+        <TextView
+            android:id="@android:id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Welcome to the Job Control Center. Here you will see your active jobs once you've added them using the '+' button in the menu." />
+
+        <TextView
+            android:id="@+id/has_expandable_lview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/tutorial_jobs_btn"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-</LinearLayout>
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:background="@color/spearmint"
+        android:text="@string/need_help_text"
+        android:drawableLeft="@drawable/ic_tutorial_help_btn"
+        android:textColor="@color/white"/>
+
+    <FrameLayout
+        android:id="@+id/tutorial_jobs_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></FrameLayout>
+</FrameLayout>
+
+
+

@@ -43,8 +43,18 @@
         android:visibility="invisible"
         />
 
+    <Button
+        android:id="@+id/tutorial_diagram_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:background="@color/spearmint"
+        android:text="@string/need_help_text"
+        android:drawableLeft="@drawable/ic_tutorial_help_btn"
+        android:textColor="@color/white"/>
+
     <FrameLayout
-        android:id="@+id/tutorial_container"
+        android:id="@+id/tutorial_diagram_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </FrameLayout>

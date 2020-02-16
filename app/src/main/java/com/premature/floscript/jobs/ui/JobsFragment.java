@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
@@ -31,11 +32,13 @@ import com.premature.floscript.jobs.logic.JobScheduler;
 import com.premature.floscript.scripts.logic.ScriptEngine;
 import com.premature.floscript.scripts.logic.ScriptExecutionException;
 import com.premature.floscript.scripts.ui.TextPopupDialog;
+import com.premature.floscript.tutorial.TutorialManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindString;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -53,6 +56,9 @@ public class JobsFragment extends Fragment implements LoaderManager.LoaderCallba
     private static final String TAG = "JOB_FRAG";
     private ScriptsDao mScriptsDao;
     private ScriptEngine mScriptEngine;
+
+    @BindView(R.id.tutorial_jobs_btn)
+    Button mTutorialBtn;
 
     @BindString(R.string.error_executing_job)
     String ERROR_RUNNING_DIAGRAM_POPUP_TITLE;
@@ -127,6 +133,13 @@ public class JobsFragment extends Fragment implements LoaderManager.LoaderCallba
             mAdapterForLists = null;
         }
 
+        mTutorialBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TutorialManager.showJobsTutorial(JobsFragment.this);
+            }
+        });
+
         return view;
     }
 
@@ -179,7 +192,8 @@ public class JobsFragment extends Fragment implements LoaderManager.LoaderCallba
     }
 
     void deleteJob(Job job) {
-        new JobDeleteTask(this, mJobScheduler).execute(job);
+        AsyncTask<Job, Void, Boolean> result = new JobDeleteTask(this, mJobScheduler).execute(job);
+
     }
 
     void toggleEnabled(Job job) {
@@ -293,12 +307,17 @@ public class JobsFragment extends Fragment implements LoaderManager.LoaderCallba
             Job job = params[0];
             boolean result = jobDao.deleteJob(job);
             if (result) {
-                if (jobsFragment != null) {
-                    DbUtils.initOrRestartTheLoader(jobsFragment, jobsFragment.getLoaderManager(), JOB_LOADER);
-                }
                 mJobScheduler.descheduleJob(job);
             }
             return result;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+            if (result && jobsFragment != null) {
+                DbUtils.initOrRestartTheLoader(jobsFragment, jobsFragment.getLoaderManager(), JOB_LOADER);
+            }
         }
     }
 }

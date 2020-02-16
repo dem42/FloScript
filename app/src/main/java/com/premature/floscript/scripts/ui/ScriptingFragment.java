@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -58,6 +59,8 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     Button mDiamondElemBtn;
     @BindView(R.id.arrow_elem_btn)
     Button mArrowElemBtn;
+    @BindView(R.id.tutorial_diagram_btn)
+    Button mTutorialBtn;
 
     @BindString(R.string.error_compile_diagram)
     String ERROR_COMPILING_DIAGRAM_POPUP_TITLE;
@@ -235,7 +238,7 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
     }
 
     private void tutorial() {
-        TutorialManager.showTutorial(R.id.tutorial_container, this);
+        TutorialManager.showDiagramTutorial(this);
     }
 
     private void compileAndRunDiagram() {
@@ -301,6 +304,13 @@ public final class ScriptingFragment extends Fragment implements SaveDialog.OnSa
         };
         mArrowElemBtn.setOnTouchListener(arrowListener);
         mBtnCoordinator.registerElementButtonListener(arrowListener);
+
+        mTutorialBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                tutorial();
+            }
+        });
     }
 
     private void init() {

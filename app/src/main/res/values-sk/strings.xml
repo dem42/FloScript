@@ -58,4 +58,7 @@
     <string name="arrow_diamond_no_label">Element diamant musi mat dve sipky. Jedna pre \"Ano\" a druha pre \"Nie\"</string>
     <string name="edit_code_desc">Editovat Kod</string>
 
+    <!-- tutorial text -->
+    <string name="need_help_text">Pomoc</string>
+
 </resources>
