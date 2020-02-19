@@ -1,16 +1,11 @@
 package com.premature.floscript.tutorial;
 
 import android.graphics.Color;
-import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
-import com.cleveroad.slidingtutorial.Direction;
-import com.cleveroad.slidingtutorial.PageOptions;
-import com.cleveroad.slidingtutorial.TransformItem;
 import com.cleveroad.slidingtutorial.TutorialOptions;
-import com.cleveroad.slidingtutorial.TutorialPageOptionsProvider;
 import com.cleveroad.slidingtutorial.TutorialPageProvider;
 import com.cleveroad.slidingtutorial.TutorialSupportFragment;
 import com.premature.floscript.R;
@@ -20,8 +15,11 @@ import com.premature.floscript.scripts.ui.ScriptingFragment;
 public class TutorialManager {
     private static final String TAG = "TutorialManager";
 
-    private static final int DIAGRAM_PAGE_NUM = 2;
-    private static final int[] DIAGRAM_PAGE_COLORS = {Color.MAGENTA, Color.CYAN};
+    private static final int JOB_PAGE_NUM = 1;
+    private static final int[] JOB_PAGE_COLORS = {Color.WHITE};
+
+    private static final int DIAGRAM_PAGE_NUM = 3;
+    private static final int[] DIAGRAM_PAGE_COLORS = {Color.WHITE, Color.WHITE, Color.WHITE};
 
     static final TutorialPageProvider<Fragment> diagramTutorialPageOptionsProvider = new TutorialPageProvider<Fragment>() {
         @NonNull
@@ -29,9 +27,11 @@ public class TutorialManager {
         public Fragment providePage(int position) {
             switch (position) {
                 case 0:
-                    return new FirstDiagramTutorialPageFragment();
+                    return GenericTutorialPageFragment.newInstance(R.layout.tutorial_page_first_portrait, R.raw.simple_chart);
                 case 1:
-                    return new SecondDiagramTutorialPageFragment();
+                    return GenericTutorialPageFragment.newInstance(R.layout.tutorial_page_first_portrait, R.raw.set_code);
+                case 2:
+                    return GenericTutorialPageFragment.newInstance(R.layout.tutorial_page_first_portrait, R.raw.execute_code);
                 default:
                     throw new IllegalArgumentException("Unknown position: " + position);
             }
@@ -39,45 +39,40 @@ public class TutorialManager {
     };
 
 
-    static final TutorialPageOptionsProvider jobTutorialPageOptionsProvider = new TutorialPageOptionsProvider() {
+    static final TutorialPageProvider<Fragment> jobTutorialPageOptionsProvider = new TutorialPageProvider<Fragment>() {
         @NonNull
         @Override
-        public PageOptions provide(int position) {
-            @LayoutRes int pageLayoutResId;
-            TransformItem[] tutorialItems;
+        public Fragment providePage(int position) {
             switch (position) {
-                case 0: {
-                    Log.d(TAG, "In position 0");
-                    pageLayoutResId = R.layout.tutorial_page_first;
-                    tutorialItems = new TransformItem[]{
-                            TransformItem.create(R.id.ivDiplodocus, Direction.LEFT_TO_RIGHT, 0.2f),
-                            TransformItem.create(R.id.ivRaptor, Direction.RIGHT_TO_LEFT, 0.07f)
-                    };
-                    break;
-                }
+                case 0:
+                    return GenericTutorialPageFragment.newInstance(R.layout.tutorial_page_first_portrait, R.raw.jobs_tuto);
                 default: {
                     throw new IllegalArgumentException("Unknown position: " + position);
                 }
             }
-            return PageOptions.create(pageLayoutResId, position, tutorialItems);
         }
     };
 
-
-    public static void showJobsTutorial(JobsFragment jobFragment) {
-        Log.d(TAG, "Showing jobs tutorial");
-        TutorialOptions tutorialOptions = TutorialSupportFragment.newTutorialOptionsBuilder(jobFragment.getContext())
-                .setPagesCount(1)
+    private static void showGenericTutorial(int containerId, Fragment fragment, int numPages, int[] pageColors, TutorialPageProvider<Fragment> pageOptionsProvider) {
+        TutorialOptions tutorialOptions = TutorialSupportFragment.newTutorialOptionsBuilder(fragment.getContext())
+                .setPagesCount(numPages)
+                .setPagesColors(pageColors)
                 .setUseAutoRemoveTutorialFragment(true)
-                .setTutorialPageProvider(jobTutorialPageOptionsProvider)
+                .setTutorialPageProvider(pageOptionsProvider)
                 .build();
 
         TutorialSupportFragment tutorialFragment = TutorialSupportFragment.newInstance(tutorialOptions);
 
-        jobFragment.getChildFragmentManager()
+        fragment.getChildFragmentManager()
                 .beginTransaction()
-                .replace(R.id.tutorial_jobs_container, tutorialFragment)
+                .addToBackStack(null)
+                .replace(containerId, tutorialFragment)
                 .commit();
+    }
+
+    public static void showJobsTutorial(JobsFragment jobFragment) {
+        Log.d(TAG, "Showing scripting tutorial");
+        showGenericTutorial(R.id.tutorial_jobs_container, jobFragment, JOB_PAGE_NUM, JOB_PAGE_COLORS, jobTutorialPageOptionsProvider);
     }
 
     public static void showDiagramTutorial(ScriptingFragment scriptingFragment) {

@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="Welcome to the Job Control Center. Here you will see your active jobs once you've added them using the '+' button in the menu." />
+            android:text="Welcome to the Job Control Center?. Here you will see your active jobs once you've added them using the '+' button in the menu." />
 
         <TextView
             android:id="@+id/has_expandable_lview"

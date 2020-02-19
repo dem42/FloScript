@@ -5,19 +5,15 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/ivDiplodocus"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/tutorial_text"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/diplodocus" />
+        android:text="Lorem ipsum sum"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        style="@style/AppTheme"
+        android:layout_marginTop="10dp"/>
 
-
-    <ImageView
-        android:id="@+id/ivRaptor"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@mipmap/raptor"
-        />
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -25,9 +21,9 @@
 
         <VideoView
             android:id="@+id/videoView"
-            android:layout_width="318dp"
-            android:layout_height="414dp"
-            android:layout_gravity="center|center_horizontal"/>
+            android:layout_width="wrap_content"
+            android:layout_height="487dp"
+            android:layout_gravity="center|center_horizontal" />
     </FrameLayout>
 
 </LinearLayout>

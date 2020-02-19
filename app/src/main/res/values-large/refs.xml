@@ -8,5 +8,6 @@
     http://developer.android.com/training/multiscreen/screensizes.html#TaskUseAliasFilters
     -->
     <item name="fragment_job" type="layout">@layout/fragment_job_grid</item>
+    <item name="tutorial_page_first" type="layout">@layout/tutorial_page_first_landscape</item>
 
 </resources>

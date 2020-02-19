@@ -42,6 +42,6 @@
             android:scrollbarStyle="insideOverlay"
             android:clickable="true"
             android:smoothScrollbar="false"
-            android:fastScrollAlwaysVisible="true" />
+            android:fastScrollAlwaysVisible="true"/>
     </LinearLayout>
 </LinearLayout>
