@@ -32,7 +32,8 @@
             android:id="@android:id/empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
+            android:padding="10dp"
+            android:gravity="center_horizontal"
             android:text="Welcome to the Job Control Center. Here you will see your active jobs once you've added them using the '+' button in the menu." />
 
     </LinearLayout>
@@ -42,6 +43,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|left"
+        android:textSize="@dimen/tutorial_button"
+        android:stateListAnimator="@null"
+        android:paddingRight="5dp"
         android:background="@color/spearmint"
         android:text="@string/need_help_text"
         android:drawableLeft="@drawable/ic_tutorial_help_btn"

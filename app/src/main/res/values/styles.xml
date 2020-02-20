@@ -41,4 +41,10 @@
         <item name="android:layout_marginTop">5dp</item>
     </style>
 
+
+    <style name="TutorialText" parent="android:Widget.TextView">
+        <item name="android:textColor">@color/spearmint_dark</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>

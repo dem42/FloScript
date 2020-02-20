@@ -1,9 +1,11 @@
 package com.premature.floscript.scripts.logic;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -38,11 +40,24 @@ public class FloJsApi {
     }
 
     public void floNotify(String msg) {
-        NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(ctx);
+        NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(ctx, "floscript_chan_out");
         notifBuilder.setContentTitle("FloScript Output");
         notifBuilder.setContentText(msg);
         notifBuilder.setSmallIcon(R.drawable.flo_notif);
         NotificationManager manager = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // === Removed some obsoletes
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
+            String channelId = "floscript_chan_out";
+            NotificationChannel channel = new NotificationChannel(
+                    channelId,
+                    "FloScript",
+                    NotificationManager.IMPORTANCE_HIGH);
+            manager.createNotificationChannel(channel);
+            notifBuilder.setChannelId(channelId);
+        }
+
         manager.notify(notifIdGen.getAndIncrement(), notifBuilder.build());
         Log.d(TAG, "from js land: " + msg);
     }

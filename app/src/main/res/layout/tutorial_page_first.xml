@@ -2,18 +2,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal" android:layout_width="match_parent"
+    android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:fadeScrollbars="false"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp">
 
     <TextView
         android:id="@+id/tutorial_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Lorem ipsum sum"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        style="@style/AppTheme"
-        android:layout_marginTop="10dp"/>
+        android:text="Lorem ipsum sum WHATT"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        style="@style/TutorialText"/>
 
+    </ScrollView>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -21,8 +29,8 @@
 
         <VideoView
             android:id="@+id/videoView"
-            android:layout_width="wrap_content"
-            android:layout_height="487dp"
+            android:layout_width="300dp"
+            android:layout_height="225dp"
             android:layout_gravity="center|center_horizontal" />
     </FrameLayout>
 

@@ -2,17 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/tutorial_text"
-        android:layout_width="wrap_content"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:text="Lorem ipsum sum"
+        android:text="Lorem ipsum sum HOW?"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        style="@style/AppTheme"
-        android:layout_marginTop="10dp"/>
+        style="@style/TutorialText"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"/>
 
 
     <FrameLayout

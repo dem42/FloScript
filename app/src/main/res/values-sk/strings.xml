@@ -59,6 +59,12 @@
     <string name="edit_code_desc">Editovat Kod</string>
 
     <!-- tutorial text -->
-    <string name="need_help_text">Pomoc</string>
+    <string name="need_help_text">Tutorial</string>
+    <string name="tutorial_d_p1">P1</string>
+    <string name="tutorial_d_p2">P2</string>
+    <string name="tutorial_d_p3">P3</string>
+    <string name="tutorial_d_p4">P4</string>
+    <string name="tutorial_d_p5">P5</string>
+    <string name="tutorial_j_p1">P1</string>
 
 </resources>
